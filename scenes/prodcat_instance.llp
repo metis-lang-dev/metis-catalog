@@ -1,0 +1,15 @@
+% GENERATED instance — semantic graph from geometry.
+catalog road-scene-prod 1.
+provenance hand "roadcat.prodcat compiler output" "2026-07-26".
+include "../road/road_catalog.llp".
+type vehicle {ego alfa beta wally}.
+type lane {l0 l1 l2}.
+type zn {j1 x1}.
+type maneuver {keep left right yield accel brake}.
+islane(l0).
+islane(l1).
+islane(l2).
+rightof(l1,l0).
+leftof(l0,l1).
+rightof(l2,l1).
+leftof(l1,l2).

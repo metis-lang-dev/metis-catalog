@@ -1,0 +1,56 @@
+% ACCEPTANCE DEMO v2 — patrol.llp plus ONE new rule (`dock`, static
+% weight, guarded on the discrete `low` flag): the catalog author's
+% add-a-rule/recompile-with-metisc cycle. No binding changes, no C++
+% changes — the SAME binary that runs v1 runs this and reproduces
+% the new measure. Regenerate wires: python -m roadcat.demo.
+catalog patrol 2.
+provenance hand "cpp-runtime acceptance demo" "2026-07-25".
+layers (dyn).
+stages (act check).
+
+type cell {c0 c1 c2}.
+
+namespace bot produce (dyn).
+
+pred tick : bot.
+pred at(cell) : bot.
+pred low : bot.
+pred done : bot.
+pred ck : bot.
+pred insp(cell) : bot.
+
+bwd adj(cell,cell).
+bwd dockat(cell).
+
+adj(c0,c1).
+adj(c1,c0).
+adj(c1,c2).
+adj(c2,c1).
+dockat(c0).
+
+input scene.
+output patrol.
+
+weight move(cell).
+weight stay.
+
+stage act {
+  %% move to an adjacent cell — priced by the app's move port (the
+  %% binding reads the battery level from the blackboard and biases
+  %% toward the dock when low).
+  go [dyn] : tick * at(C) * adj(C,C2) -o at(C2) * done  @w move(C2).
+  %% hold position (the stay mass).
+  hold [dyn] : tick * at(C) -o at(C) * done  @w stay.
+  %% NEW in v2: on a low battery the bot may jump straight to the
+  %% dock — a static-weight rule over the discrete low flag; no new
+  %% port, so the existing bindings serve it unchanged.
+  dock [dyn] : tick * at(C) * $low * dockat(D) -o at(D) * done  @w 4.0.
+}
+
+stage check {
+  %% inspection lands wherever the bot ends the tick.
+  seen [dyn] : ck * $at(C) -o insp(C).
+}
+
+%% the tick's motion resolved -> inspection.
+qui ac [dyn] : act * done -o check * ck.

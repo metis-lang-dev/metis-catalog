@@ -1,0 +1,246 @@
+% CHARIOT CANONICAL — the PRODUCTION handle-encoding road catalog
+% (catalog-runtime-rebase R1 closure): the v2/v3/v4 increments merged
+% into ONE catalog plus the two remaining vocabularies — SPEED
+% CLASSES and the WALKER crossing slot (with ghost confidence
+% classes on the vehicle slots). road_handles{,2,3,4}.llp stay as
+% the certified increment history; THIS file is what the runtime
+% serves.
+%
+% Speed classes (the pacing-limit-cycle answer): ego's speed is an
+% 8-class ladder (v0..v7 spanning the limit, ~2 m/s steps — finer
+% than the corridor cell buckets). The ladder lives at the RUNTIME
+% SEAM (road_ir_runtime.hh class_of/class_after): the cls port
+% prices closing at the commanded next CLASS, the setpoint decode
+% maps class centers, and the progress axis is the commanded class.
+% The ladder is NOT a measure variable: nothing probabilistic reads
+% per-tick sv state (the gap ports read the cmd tokens), and a
+% MEASURED 8-slot one-hot block multiplies the metis clique tree
+% ~2^8 (observed live: 20 ms -> 6 s per tick). Projecting
+% deterministic/functional slots out of the clique tree is the
+% filed metis framework task; until then the ladder rides the seam
+% by design, not by shortcut.
+%
+% Walker crossing (the VRU shape): wally is a zone actor on the
+% crossing zone x1 — the zone calculus REUSED verbatim (distance
+% classes via zadv, the fully-blocking token, per-actor hazards):
+% a walker holding the crossing makes yield win on safety exactly
+% as a held junction does; ego holding it makes the WALKER's ram
+% the hazard (zhit(wally) — the cut-off-the-pedestrian shape).
+% Zone stages are ZONE-EXPLICIT now (j1 vs x1 rules): with two
+% zones a Z-generic rule on one stage token would race its own
+% budget (the road_handles2 per-slot sequencing finding, applied
+% to zones).
+%
+% Ghost classes: conf(V,{live ghost}) on the vehicle slots — the
+% decode marks a dropout-carried (cached-kinematics) actor GHOST;
+% the rss port READS the class and prices a ghost at the fixed
+% conservative margin instead of trusting stale geometry.
+%
+% Committed-maneuver discipline (SUR-3 residue): the decision
+% surface's FINAL lexicographic axis prefers the incumbent maneuver
+% — an exact tie on (safety, speed class, zone progress) never
+% flips the command stream. Like the speed ladder this is
+% DETERMINISTIC state (last action x candidate), evaluated at the
+% runtime seam, not as measure slots (a com/churn one-hot block
+% would ride a 12-var port CPT for a value computable exactly —
+% the filed metis deterministic-slot-projection task).
+%
+% Everything else — per-pair gap classes on the bounded slot
+% template, persist-premise longitudinal commands read by the gap
+% ports, lexicographic (safety, progress-class, zone-progress)
+% decisions — carries over from road_handles4.llp unchanged.
+catalog road-catalog 1.
+provenance hand "R1 closure — v2/v3/v4 merge + speed classes + walker/ghost" "2026-07-26".
+layers (dyn).
+stages (ego walfa wbeta zego zalfa zegox zwally calfa cbeta).
+
+namespace veh produce (dyn).
+namespace risk produce (dyn).
+
+type zclass {zfar znear zat zin zpast}.
+type cclass {live ghost}.
+
+pred on(vehicle,lane) : veh.
+pred gclose(vehicle) : veh.
+pred gsafe(vehicle) : veh.
+pred cmd(maneuver) : veh.
+pred conf(vehicle,cclass) : veh.
+pred emvt : veh.
+pred edone : veh.
+pred mvt : veh.
+pred mz : veh.
+pred mx : veh.
+pred ck : veh.
+pred zc(vehicle,zn,zclass) : veh.
+pred zfree(zn) : veh.
+pred zheld(zn,vehicle) : veh.
+pred hitby(vehicle) : risk.
+pred zhit(vehicle) : risk.
+
+bwd leftof(lane,lane).
+bwd rightof(lane,lane).
+bwd islane(lane).
+bwd zapp(zclass,zclass).
+
+input scene.
+output maneuver.
+
+weight brk(V) reads {cmd(accel), cmd(brake), cmd(yield)}.
+weight cls(V) reads {cmd(accel), cmd(brake), cmd(yield)}.
+weight rss(V) reads {gclose(V), on(ego,L) if islane(L),
+                     on(V,L2) if islane(L2),
+                     conf(V,live), conf(V,ghost)}.
+weight zadv(V,Z) reads {cmd(yield)}.
+
+guard zentry(V,Z).
+
+stage ego {
+  %% hold the lane.
+  mkeep [dyn] : emvt * cmd(keep) -o edone.
+  %% move to the left-adjacent lane handle.
+  mleft [dyn] : emvt * cmd(left) * on(ego,L) * leftof(L2,L)
+    -o on(ego,L2) * edone.
+  %% move to the right-adjacent lane handle.
+  mright [dyn] : emvt * cmd(right) * on(ego,L) * rightof(L2,L)
+    -o on(ego,L2) * edone.
+  %% hold before the zone line — lane kept. The yield command is a
+  %% PERSIST premise: the zadv port reads it downstream (a consumed
+  %% command is version-0 by the time the port looks). The one-class
+  %% slowdown rides the seam ladder (header note).
+  myield [dyn] : emvt * $cmd(yield) -o edone.
+  %% speed up one seam-ladder class — persist premise, gap ports read it.
+  maccel [dyn] : emvt * $cmd(accel) -o edone.
+  %% slow one seam-ladder class — persist premise, gap ports read it.
+  mbrake [dyn] : emvt * $cmd(brake) -o edone.
+}
+
+stage walfa {
+  %% alfa keeps speed: its close gap stays close.
+  akc [dyn] : mvt * gclose(alfa) -o gclose(alfa)  @w ~brk(alfa).
+  %% alfa brakes off the pressure: its close gap opens.
+  abo [dyn] : mvt * gclose(alfa) -o gsafe(alfa)  @w brk(alfa).
+  %% closing in: alfa's safe gap tightens (relative speed via port).
+  asc [dyn] : mvt * gsafe(alfa) -o gclose(alfa)  @w cls(alfa).
+  %% cruising: alfa's safe gap holds.
+  ass [dyn] : mvt * gsafe(alfa) -o gsafe(alfa)  @w ~cls(alfa).
+}
+
+stage wbeta {
+  %% beta keeps speed: its close gap stays close.
+  bkc [dyn] : mvt * gclose(beta) -o gclose(beta)  @w ~brk(beta).
+  %% beta brakes off the pressure: its close gap opens.
+  bbo [dyn] : mvt * gclose(beta) -o gsafe(beta)  @w brk(beta).
+  %% closing in: beta's safe gap tightens.
+  bsc [dyn] : mvt * gsafe(beta) -o gclose(beta)  @w cls(beta).
+  %% cruising: beta's safe gap holds.
+  bss [dyn] : mvt * gsafe(beta) -o gsafe(beta)  @w ~cls(beta).
+}
+
+stage zego {
+  %% ego approaches the junction: one class step, priced by zadv.
+  eadv [dyn] : mz * zc(ego,j1,C) * zapp(C,C2)
+    -o zc(ego,j1,C2)  @w zadv(ego,j1).
+  %% ego at the line, zone free: claim and enter atomically.
+  eenter [dyn] : mz * zc(ego,j1,zat) * zfree(j1)
+    -o zc(ego,j1,zin) * zheld(j1,ego)  @w zadv(ego,j1).
+  %% ego at the line while ALFA holds: entering IS the hazard.
+  eram [dyn] : mz * zc(ego,j1,zat) * $zheld(j1,alfa)
+    -o zc(ego,j1,zat) * zhit(ego)  @w zadv(ego,j1).
+  %% ego traverses and releases the token.
+  eexit [dyn] : mz * zc(ego,j1,zin) * zheld(j1,ego)
+    -o zc(ego,j1,zpast) * zfree(j1)  @w zadv(ego,j1).
+  %% ego holds its zone class (complement mass of advancing).
+  estay [dyn] : mz * zc(ego,j1,C) -o zc(ego,j1,C)  @w ~zadv(ego,j1).
+}
+
+stage zalfa {
+  %% alfa approaches the junction one class step.
+  aadv [dyn] : mz * zc(alfa,j1,C) * zapp(C,C2)
+    -o zc(alfa,j1,C2)  @w zadv(alfa,j1).
+  %% alfa at the line, zone free: claims and enters.
+  aenter [dyn] : mz * zc(alfa,j1,zat) * zfree(j1)
+    -o zc(alfa,j1,zin) * zheld(j1,alfa)  @w zadv(alfa,j1).
+  %% alfa at the line while EGO holds: ego's plan is threatened.
+  aram [dyn] : mz * zc(alfa,j1,zat) * $zheld(j1,ego)
+    -o zc(alfa,j1,zat) * zhit(alfa)  @w zadv(alfa,j1).
+  %% alfa traverses and releases.
+  aexit [dyn] : mz * zc(alfa,j1,zin) * zheld(j1,alfa)
+    -o zc(alfa,j1,zpast) * zfree(j1)  @w zadv(alfa,j1).
+  %% alfa holds its class.
+  astay [dyn] : mz * zc(alfa,j1,C) -o zc(alfa,j1,C)  @w ~zadv(alfa,j1).
+}
+
+stage zegox {
+  %% ego approaches the crossing: one class step.
+  xeadv [dyn] : mx * zc(ego,x1,C) * zapp(C,C2)
+    -o zc(ego,x1,C2)  @w zadv(ego,x1).
+  %% ego at the crossing line, crossing free: claim and enter.
+  xeenter [dyn] : mx * zc(ego,x1,zat) * zfree(x1)
+    -o zc(ego,x1,zin) * zheld(x1,ego)  @w zadv(ego,x1).
+  %% ego at the line while the WALKER holds: entering IS the hazard.
+  xeram [dyn] : mx * zc(ego,x1,zat) * $zheld(x1,wally)
+    -o zc(ego,x1,zat) * zhit(ego)  @w zadv(ego,x1).
+  %% ego traverses and releases.
+  xeexit [dyn] : mx * zc(ego,x1,zin) * zheld(x1,ego)
+    -o zc(ego,x1,zpast) * zfree(x1)  @w zadv(ego,x1).
+  %% ego holds its crossing class.
+  xestay [dyn] : mx * zc(ego,x1,C) -o zc(ego,x1,C)  @w ~zadv(ego,x1).
+}
+
+stage zwally {
+  %% the walker approaches the crossing one class step.
+  xwadv [dyn] : mx * zc(wally,x1,C) * zapp(C,C2)
+    -o zc(wally,x1,C2)  @w zadv(wally,x1).
+  %% walker at the line, crossing free: steps in (claims).
+  xwenter [dyn] : mx * zc(wally,x1,zat) * zfree(x1)
+    -o zc(wally,x1,zin) * zheld(x1,wally)  @w zadv(wally,x1).
+  %% walker at the line while EGO holds: the cut-off-the-pedestrian
+  %% hazard — the walker's ram token fires.
+  xwram [dyn] : mx * zc(wally,x1,zat) * $zheld(x1,ego)
+    -o zc(wally,x1,zat) * zhit(wally)  @w zadv(wally,x1).
+  %% walker crosses and releases.
+  xwexit [dyn] : mx * zc(wally,x1,zin) * zheld(x1,wally)
+    -o zc(wally,x1,zpast) * zfree(x1)  @w zadv(wally,x1).
+  %% walker holds its class.
+  xwstay [dyn] : mx * zc(wally,x1,C) -o zc(wally,x1,C)
+    @w ~zadv(wally,x1).
+}
+
+stage calfa {
+  %% same lane as alfa and close at decision time: the pair hazard
+  %% fires with the rss-priced probability (the port reads alfa's
+  %% conf class — a ghost prices at the fixed margin).
+  ahit [dyn] : ck * $gclose(alfa) * $on(ego,L) * $on(alfa,L)
+    -o hitby(alfa)  @w rss(alfa).
+  %% alfa's check passes clean (complement mass of the same port).
+  aok [dyn] : ck -o one  @w ~rss(alfa).
+}
+
+stage cbeta {
+  %% same lane as beta and close: the pair hazard fires.
+  bhit [dyn] : ck * $gclose(beta) * $on(ego,L) * $on(beta,L)
+    -o hitby(beta)  @w rss(beta).
+  %% beta's check passes clean.
+  bok [dyn] : ck -o one  @w ~rss(beta).
+}
+
+%% the approach lattice: two class steps toward the line.
+zapp(zfar,znear).
+zapp(znear,zat).
+
+%% ego resolved -> alfa's lane-world turn.
+qui ea [dyn] : ego * edone -o walfa * mvt.
+%% alfa's lane world moved -> beta's.
+qui ab [dyn] : walfa -o wbeta * mvt.
+%% the lane world moved -> ego's junction turn.
+qui bz [dyn] : wbeta -o zego * mz.
+%% ego's junction turn done -> alfa's junction turn.
+qui za [dyn] : zego -o zalfa * mz.
+%% junctions resolved -> ego's crossing turn.
+qui zx [dyn] : zalfa -o zegox * mx.
+%% ego's crossing turn done -> the walker's crossing turn.
+qui xw [dyn] : zegox -o zwally * mx.
+%% crossings resolved -> alfa's safety check.
+qui wk [dyn] : zwally -o calfa * ck.
+%% alfa checked -> beta's safety check.
+qui cc [dyn] : calfa -o cbeta * ck.

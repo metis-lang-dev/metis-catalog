@@ -1,0 +1,110 @@
+% CHARIOT CANONICAL — handle-encoding road catalog v2: MULTI-VEHICLE
+% (catalog-runtime-rebase R1, first coverage increment over
+% road_handles.llp v1). Per-pair RSS gap classes: every actor SLOT
+% carries its own ego-anchored longitudinal calculus {gclose(V),
+% gsafe(V)} evolved by its own behavior rows; the collision hazard is
+% priced per pair by the rss(V) port. Rules mention only handles and
+% relations; geometry reaches the measure through the reads-scoped
+% ports (factored/IR-admissible by construction).
+%
+% BOUNDED SLOT TEMPLATE, literal: the actor slots (alfa, beta) are
+% domain constants with per-slot world/check STAGES — actors are
+% SEQUENCED, not interleaved, so every tier consumes one definite
+% token (mvt / ck) and the factored unroll's stage progression stays
+% deterministic (the emitted-class condition; an interleaved shared
+% stage leaves the turn tokens maybe-present and the quiescence links
+% unreachable symbolically). An absent slot rides as evidence: no
+% lane occupancy, gsafe on — its rows fire vacuously, its hazard is
+% zero by the same-lane read.
+%
+% Per-candidate crash: hit produces the per-pair hitby(V) (never a
+% shared crash atom — binary SSA discipline); the app scores
+% P(any) = 1 - prod(1 - P(hitby(V))), exact given a command.
+catalog road-handles2 2.
+provenance hand "R1 multi-vehicle recode of the handle encoding" "2026-07-25".
+layers (dyn).
+stages (ego walfa wbeta calfa cbeta).
+
+namespace veh produce (dyn).
+namespace risk produce (dyn).
+
+pred on(vehicle,lane) : veh.
+pred gclose(vehicle) : veh.
+pred gsafe(vehicle) : veh.
+pred cmd(maneuver) : veh.
+pred emvt : veh.
+pred edone : veh.
+pred mvt : veh.
+pred ck : veh.
+pred hitby(vehicle) : risk.
+
+bwd leftof(lane,lane).
+bwd rightof(lane,lane).
+bwd islane(lane).
+
+input scene.
+output maneuver.
+
+weight brk(V) reads {}.
+weight cls(V) reads {}.
+weight rss(V) reads {gclose(V), on(ego,L) if islane(L),
+                     on(V,L2) if islane(L2)}.
+
+stage ego {
+  %% hold the lane.
+  mkeep [dyn] : emvt * cmd(keep) -o edone.
+  %% move to the left-adjacent lane handle.
+  mleft [dyn] : emvt * cmd(left) * on(ego,L) * leftof(L2,L)
+    -o on(ego,L2) * edone.
+  %% move to the right-adjacent lane handle.
+  mright [dyn] : emvt * cmd(right) * on(ego,L) * rightof(L2,L)
+    -o on(ego,L2) * edone.
+}
+
+stage walfa {
+  %% alfa keeps speed: its close gap stays close.
+  akc [dyn] : mvt * gclose(alfa) -o gclose(alfa)  @w ~brk(alfa).
+  %% alfa brakes off the pressure: its close gap opens.
+  abo [dyn] : mvt * gclose(alfa) -o gsafe(alfa)  @w brk(alfa).
+  %% closing in: alfa's safe gap tightens (relative speed via port).
+  asc [dyn] : mvt * gsafe(alfa) -o gclose(alfa)  @w cls(alfa).
+  %% cruising: alfa's safe gap holds.
+  ass [dyn] : mvt * gsafe(alfa) -o gsafe(alfa)  @w ~cls(alfa).
+}
+
+stage wbeta {
+  %% beta keeps speed: its close gap stays close.
+  bkc [dyn] : mvt * gclose(beta) -o gclose(beta)  @w ~brk(beta).
+  %% beta brakes off the pressure: its close gap opens.
+  bbo [dyn] : mvt * gclose(beta) -o gsafe(beta)  @w brk(beta).
+  %% closing in: beta's safe gap tightens.
+  bsc [dyn] : mvt * gsafe(beta) -o gclose(beta)  @w cls(beta).
+  %% cruising: beta's safe gap holds.
+  bss [dyn] : mvt * gsafe(beta) -o gsafe(beta)  @w ~cls(beta).
+}
+
+stage calfa {
+  %% same lane as alfa and close at decision time: the pair hazard
+  %% fires with the rss-priced probability.
+  ahit [dyn] : ck * $gclose(alfa) * $on(ego,L) * $on(alfa,L)
+    -o hitby(alfa)  @w rss(alfa).
+  %% alfa's check passes clean (complement mass of the same port).
+  aok [dyn] : ck -o one  @w ~rss(alfa).
+}
+
+stage cbeta {
+  %% same lane as beta and close: the pair hazard fires.
+  bhit [dyn] : ck * $gclose(beta) * $on(ego,L) * $on(beta,L)
+    -o hitby(beta)  @w rss(beta).
+  %% beta's check passes clean.
+  bok [dyn] : ck -o one  @w ~rss(beta).
+}
+
+%% ego resolved -> alfa's world turn.
+qui ea [dyn] : ego * edone -o walfa * mvt.
+%% alfa moved -> beta's world turn.
+qui ab [dyn] : walfa -o wbeta * mvt.
+%% the world moved -> alfa's safety check.
+qui bc [dyn] : wbeta -o calfa * ck.
+%% alfa checked -> beta's safety check.
+qui cc [dyn] : calfa -o cbeta * ck.

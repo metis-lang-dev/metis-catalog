@@ -1,0 +1,55 @@
+% ACCEPTANCE DEMO v1 (tasks/chariot/catalog-runtime-rebase.md): the
+% smallest end-to-end proof that the C++ runtime runs a GENERIC
+% metisc catalog — authored here, compiled/certified python-side,
+% loaded and projected by the metis C++ engine, with the `move`
+% weight port bound by APP code that reads the battery level from
+% the BLACKBOARD. patrol_v2.llp is this catalog plus ONE rule (the
+% add-a-rule/recompile-with-metisc cycle); the same C++ binary runs
+% both. Regenerate wires: python -m roadcat.demo (py/roadcat).
+catalog patrol 1.
+provenance hand "cpp-runtime acceptance demo" "2026-07-25".
+layers (dyn).
+stages (act check).
+
+type cell {c0 c1 c2}.
+
+namespace bot produce (dyn).
+
+pred tick : bot.
+pred at(cell) : bot.
+pred low : bot.
+pred done : bot.
+pred ck : bot.
+pred insp(cell) : bot.
+
+bwd adj(cell,cell).
+bwd dockat(cell).
+
+adj(c0,c1).
+adj(c1,c0).
+adj(c1,c2).
+adj(c2,c1).
+dockat(c0).
+
+input scene.
+output patrol.
+
+weight move(cell).
+weight stay.
+
+stage act {
+  %% move to an adjacent cell — priced by the app's move port (the
+  %% binding reads the battery level from the blackboard and biases
+  %% toward the dock when low).
+  go [dyn] : tick * at(C) * adj(C,C2) -o at(C2) * done  @w move(C2).
+  %% hold position (the stay mass).
+  hold [dyn] : tick * at(C) -o at(C) * done  @w stay.
+}
+
+stage check {
+  %% inspection lands wherever the bot ends the tick.
+  seen [dyn] : ck * $at(C) -o insp(C).
+}
+
+%% the tick's motion resolved -> inspection.
+qui ac [dyn] : act * done -o check * ck.

@@ -1,0 +1,173 @@
+% CHARIOT CANONICAL — handle-encoding road catalog v3: ZONES ON
+% HANDLES (catalog-runtime-rebase R1, second coverage increment over
+% road_handles2.llp). The conflict-zone vocabulary joins the slot
+% template as CLASSES, not counters: per (actor, zone) a distance
+% class zc(V,Z,{zfar znear zat zin zpast}) — the longitudinal analog
+% of the gap calculus — advanced per tick by the zadv(V,Z) port
+% reading continuous s,v behind the handle (and ego's yield command:
+% yield holds before the line). Occupancy is the fully-blocking token
+% (zfree/zheld, the ad-rss honest default; partial clearance is a
+% later refinement): first entry claims, entry at the line while the
+% OTHER holds is the per-actor hazard zhit(V), exit releases.
+%
+% Sequencing discipline (the road_handles2 finding): every actor's
+% zone progression gets its OWN stage on one definite token (mz) —
+% zego before zalfa within the tick (documented approximation of the
+% entry race). Entry PERMISSION stays out of the kinematics: the RSS
+% zone-entry stopping rule is the declared zentry guard port, applied
+% at the candidate shield (the referee's split, rss_rules).
+%
+% Decision surface: candidates are the maneuver slots {keep left
+% right yield}; scoring is lexicographic — hard safety first
+% (P(any) over hitby(V) and zhit(V)), then progress
+% (-P(zc(ego,Z,zpast))): a held zone makes yield win on safety, a
+% free zone makes keep win on progress. Lane-world content (per-pair
+% gap classes, slots alfa/beta) carries over from v2 unchanged.
+catalog road-handles3 3.
+provenance hand "R1 zones-on-handles increment over the multi-vehicle recode" "2026-07-25".
+layers (dyn).
+stages (ego walfa wbeta zego zalfa calfa cbeta).
+
+namespace veh produce (dyn).
+namespace risk produce (dyn).
+
+type zclass {zfar znear zat zin zpast}.
+
+pred on(vehicle,lane) : veh.
+pred gclose(vehicle) : veh.
+pred gsafe(vehicle) : veh.
+pred cmd(maneuver) : veh.
+pred emvt : veh.
+pred edone : veh.
+pred mvt : veh.
+pred mz : veh.
+pred ck : veh.
+pred zc(vehicle,zn,zclass) : veh.
+pred zfree(zn) : veh.
+pred zheld(zn,vehicle) : veh.
+pred hitby(vehicle) : risk.
+pred zhit(vehicle) : risk.
+
+bwd leftof(lane,lane).
+bwd rightof(lane,lane).
+bwd islane(lane).
+bwd zapp(zclass,zclass).
+
+input scene.
+output maneuver.
+
+weight brk(V) reads {}.
+weight cls(V) reads {}.
+weight rss(V) reads {gclose(V), on(ego,L) if islane(L),
+                     on(V,L2) if islane(L2)}.
+weight zadv(V,Z) reads {cmd(yield)}.
+
+guard zentry(V,Z).
+
+stage ego {
+  %% hold the lane.
+  mkeep [dyn] : emvt * cmd(keep) -o edone.
+  %% move to the left-adjacent lane handle.
+  mleft [dyn] : emvt * cmd(left) * on(ego,L) * leftof(L2,L)
+    -o on(ego,L2) * edone.
+  %% move to the right-adjacent lane handle.
+  mright [dyn] : emvt * cmd(right) * on(ego,L) * rightof(L2,L)
+    -o on(ego,L2) * edone.
+  %% hold before the zone line — lane kept. The yield command is a
+  %% PERSIST premise: the zadv port reads it downstream in the zone
+  %% stage, so the token must survive the ego stage (a consumed
+  %% command is version-0 by the time the port looks).
+  myield [dyn] : emvt * $cmd(yield) -o edone.
+}
+
+stage walfa {
+  %% alfa keeps speed: its close gap stays close.
+  akc [dyn] : mvt * gclose(alfa) -o gclose(alfa)  @w ~brk(alfa).
+  %% alfa brakes off the pressure: its close gap opens.
+  abo [dyn] : mvt * gclose(alfa) -o gsafe(alfa)  @w brk(alfa).
+  %% closing in: alfa's safe gap tightens (relative speed via port).
+  asc [dyn] : mvt * gsafe(alfa) -o gclose(alfa)  @w cls(alfa).
+  %% cruising: alfa's safe gap holds.
+  ass [dyn] : mvt * gsafe(alfa) -o gsafe(alfa)  @w ~cls(alfa).
+}
+
+stage wbeta {
+  %% beta keeps speed: its close gap stays close.
+  bkc [dyn] : mvt * gclose(beta) -o gclose(beta)  @w ~brk(beta).
+  %% beta brakes off the pressure: its close gap opens.
+  bbo [dyn] : mvt * gclose(beta) -o gsafe(beta)  @w brk(beta).
+  %% closing in: beta's safe gap tightens.
+  bsc [dyn] : mvt * gsafe(beta) -o gclose(beta)  @w cls(beta).
+  %% cruising: beta's safe gap holds.
+  bss [dyn] : mvt * gsafe(beta) -o gsafe(beta)  @w ~cls(beta).
+}
+
+stage zego {
+  %% ego approaches: the zone distance class advances one step
+  %% (zfar->znear->zat), priced by the zadv port (yield pins it).
+  eadv [dyn] : mz * zc(ego,Z,C) * zapp(C,C2)
+    -o zc(ego,Z,C2)  @w zadv(ego,Z).
+  %% ego at the line, zone free: claim and enter atomically.
+  eenter [dyn] : mz * zc(ego,Z,zat) * zfree(Z)
+    -o zc(ego,Z,zin) * zheld(Z,ego)  @w zadv(ego,Z).
+  %% ego at the line while ALFA holds: entering IS the hazard — ego
+  %% stays at the line, the zone hazard token fires.
+  eram [dyn] : mz * zc(ego,Z,zat) * $zheld(Z,alfa)
+    -o zc(ego,Z,zat) * zhit(ego)  @w zadv(ego,Z).
+  %% ego traverses and releases the token.
+  eexit [dyn] : mz * zc(ego,Z,zin) * zheld(Z,ego)
+    -o zc(ego,Z,zpast) * zfree(Z)  @w zadv(ego,Z).
+  %% ego holds its zone class (the complement mass of advancing).
+  estay [dyn] : mz * zc(ego,Z,C) -o zc(ego,Z,C)  @w ~zadv(ego,Z).
+}
+
+stage zalfa {
+  %% alfa approaches the zone one class step.
+  aadv [dyn] : mz * zc(alfa,Z,C) * zapp(C,C2)
+    -o zc(alfa,Z,C2)  @w zadv(alfa,Z).
+  %% alfa at the line, zone free: claims and enters.
+  aenter [dyn] : mz * zc(alfa,Z,zat) * zfree(Z)
+    -o zc(alfa,Z,zin) * zheld(Z,alfa)  @w zadv(alfa,Z).
+  %% alfa at the line while EGO holds: ego's plan is threatened.
+  aram [dyn] : mz * zc(alfa,Z,zat) * $zheld(Z,ego)
+    -o zc(alfa,Z,zat) * zhit(alfa)  @w zadv(alfa,Z).
+  %% alfa traverses and releases.
+  aexit [dyn] : mz * zc(alfa,Z,zin) * zheld(Z,alfa)
+    -o zc(alfa,Z,zpast) * zfree(Z)  @w zadv(alfa,Z).
+  %% alfa holds its class.
+  astay [dyn] : mz * zc(alfa,Z,C) -o zc(alfa,Z,C)  @w ~zadv(alfa,Z).
+}
+
+stage calfa {
+  %% same lane as alfa and close at decision time: the pair hazard
+  %% fires with the rss-priced probability.
+  ahit [dyn] : ck * $gclose(alfa) * $on(ego,L) * $on(alfa,L)
+    -o hitby(alfa)  @w rss(alfa).
+  %% alfa's check passes clean (complement mass of the same port).
+  aok [dyn] : ck -o one  @w ~rss(alfa).
+}
+
+stage cbeta {
+  %% same lane as beta and close: the pair hazard fires.
+  bhit [dyn] : ck * $gclose(beta) * $on(ego,L) * $on(beta,L)
+    -o hitby(beta)  @w rss(beta).
+  %% beta's check passes clean.
+  bok [dyn] : ck -o one  @w ~rss(beta).
+}
+
+%% the approach lattice: two class steps toward the line.
+zapp(zfar,znear).
+zapp(znear,zat).
+
+%% ego resolved -> alfa's lane-world turn.
+qui ea [dyn] : ego * edone -o walfa * mvt.
+%% alfa's lane world moved -> beta's.
+qui ab [dyn] : walfa -o wbeta * mvt.
+%% the lane world moved -> ego's zone turn.
+qui bz [dyn] : wbeta -o zego * mz.
+%% ego's zone turn done -> alfa's zone turn.
+qui za [dyn] : zego -o zalfa * mz.
+%% zones resolved -> alfa's safety check.
+qui zk [dyn] : zalfa -o calfa * ck.
+%% alfa checked -> beta's safety check.
+qui cc [dyn] : calfa -o cbeta * ck.

@@ -1,0 +1,26 @@
+EX two-lead-block-left right
+EM two-lead-block-left keep alfa 0.566210045662
+EM two-lead-block-left keep beta 0
+EM two-lead-block-left left alfa 0
+EM two-lead-block-left left beta 0.240252897787
+EM two-lead-block-left right alfa 0
+EM two-lead-block-left right beta 0
+EX single-lead-close left
+EM single-lead-close keep alfa 0.566210045662
+EM single-lead-close keep beta 0
+EM single-lead-close left alfa 0
+EM single-lead-close left beta 0
+EM single-lead-close right alfa 0
+EM single-lead-close right beta 0
+EX edge-boxed left
+EM edge-boxed keep alfa 0.624657534247
+EM edge-boxed keep beta 0
+EM edge-boxed left alfa 0
+EM edge-boxed left beta 0.172813487882
+EX empty-road keep
+EM empty-road keep alfa 0
+EM empty-road keep beta 0
+EM empty-road left alfa 0
+EM empty-road left beta 0
+EM empty-road right alfa 0
+EM empty-road right beta 0
