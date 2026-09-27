@@ -58,3 +58,29 @@ query zhit(alfa)
 query zhit(wally)
 query zc(ego,j1,zin)
 end
+case nav4-scene
+llp ../scenes/nav4_instance.llp
+init at(c00) 1
+steps 1
+query at(c01)
+query at(c10)
+query dead
+end
+case road-close-scene
+llp ../scenes/road_close_instance.llp
+init emvt 1
+init cmd(keep) 1
+init gclose 1
+init on(ego,l2) 1
+init on(alfa,l2) 1
+steps 6
+query crash
+query gclose
+query gsafe
+end
+case wheelchair-pack
+llp ../road/mini.llp
+pack ../packs/wheelchair.llp
+init emvt 1
+steps 1
+end
