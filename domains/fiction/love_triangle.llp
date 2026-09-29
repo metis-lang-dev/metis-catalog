@@ -6,7 +6,8 @@
 % falling-factorial measure IS Ceptre's token-individuated choice,
 % made exact); the differences are the measure readouts, the typing,
 % and the canonical identity. Ceptre's neq fact table becomes the
-% <> distinctness sugar; `-o ()` becomes the LL unit `one`.
+% <> distinctness sugar; `-o ()` becomes the LL unit `one`
+
 catalog love-triangle 1.
 provenance hand "port:ceptre-tutorial/sol/love-triangle.cep" "2026-07-22".
 layers (story).
