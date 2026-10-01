@@ -135,7 +135,7 @@ runs under `metisc --run` and passes the roundtrip gate.
 | thanksgiving | 52 | 1 |  |  |  |  |  |
 | tiny | 7 | 0 |  |  |  |  |  |
 | tower_of_hanoi | 56 | 1 | yes | yes |  |  |  |
-| tragedy | 220 | 1 | yes | yes | ported | fiction/tragedy.llp | the spec-07 sugar acceptance test: uses the ⊕ head (formOpinion) and $-read idiom; run `metisc --run` |
+| tragedy | 220 | 1 | yes | yes | ported | fiction/tragedy.llp | v2: adds the `<>` guards the original lacked (self-murder/steal/witness/vengeance artifacts removed; suicide stays the one self-death); ⊕ head (formOpinion), $-read idiom, `#interactive all` live |
 | vampire | 34 | 1 |  |  |  |  |  |
 | werewolves-witches-slayers | 231 | 8 | yes | yes |  |  |  |
 | wilds | 12 | 1 |  |  |  |  |  |

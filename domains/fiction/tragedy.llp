@@ -12,15 +12,30 @@
 % always one choice site; now it reads as one. The original's
 % unmarried C * unmarried C in do/divorce (sic — C twice, surely
 % meant C and D) is kept faithful.
-catalog tragedy 1.
+%
+% v2 (the first deliberate deviation): distinctness guards. Ceptre
+% unifies role variables freely and the original has no neq facts, so
+% v1 stories carried self-unification artifacts — steal[C=D] (Romeo
+% robbing himself), murder[C=D] (self-murder shadowing the suicide
+% mechanism), flirt-conflict[D=E] (Juliet her own rival, minting
+% anger(juliet,juliet)), a Witness witnessing their own act,
+% thinkVengefully[C=Killer] (self-vengeance seeding self-anger that
+% insult-private then recycles). v2 adds `<>` guards at exactly those
+% sites; with the producers guarded, every self-sentiment
+% (anger/philia/eros (C,C)) becomes unreachable, so the reading rules
+% need no guards of their own. Suicide stays the one self-death.
+catalog tragedy 2.
 provenance hand "port:interactive-lp/examples/tragedy.cep" "2026-10-01".
 layers (story).
 stages (all).
+
 type character {romeo juliet montague capulet mercutio nurse tybalt
   apothecary}.
 type location {mon_house cap_house town}.
 type object {weapon}.
+
 namespace world produce (story).
+
 pred at(character,location) : world.
 pred has(character,object) : world.
 pred wants(character,object) : world.
@@ -37,11 +52,13 @@ pred suicidal(character) : world.
 pred boredom : world.
 pred nonfinal : world.
 pred final : world.
+
 bwd accessible(location,location).
 accessible(mon_house,town).
 accessible(town,mon_house).
 accessible(cap_house,town).
 accessible(town,cap_house).
+
 stage all {
   %% C travels to be near a friend D.
   travelTo [story] : $philia(C,D) * $at(D,M) * at(C,L)
@@ -59,7 +76,7 @@ stage all {
   flirt [story] : $at(C,L) * $at(D,L) * $eros(C,D) -o eros(D,C).
   %% flirting witnessed by a rival suitor E of the flirtee.
   flirt-conflict [story] : $at(C,L) * $at(D,L) * $at(E,L)
-    * $eros(C,D) * $eros(E,C)
+    * E <> C * E <> D * $eros(C,D) * $eros(E,C)
     -o eros(D,C) * anger(E,D) * anger(E,D).
   %% mutual marriage consumed under standing anger (the original's
   %% `unmarried C` twice, kept sic).
@@ -85,17 +102,20 @@ stage all {
     -o philia(D,C).
   %% the same, overheard by someone who resents the flattered.
   compliment-witnessed [story] : $at(C,L) * $at(D,L)
-    * $at(Witness,L) * $philia(C,D) * $anger(Witness,D)
+    * $at(Witness,L) * Witness <> C * Witness <> D
+    * $philia(C,D) * $anger(Witness,D)
     -o philia(D,C) * anger(Witness,C).
   %% an insult returned with anger; the insulted is dejected.
   insult-private [story] : $at(C,L) * $at(D,L) * $anger(C,D)
     -o anger(D,C) * depressed(D).
   %% the same, overheard by the insulted's friend.
   insult-witnessed [story] : $at(C,L) * $at(D,L) * $at(Witness,L)
+    * Witness <> C * Witness <> D
     * $anger(C,D) * $philia(Witness,D)
     -o anger(D,C) * depressed(D) * anger(Witness,C).
   %% violence: four angers (falling-factorial priced) and a weapon.
-  murder [story] : anger(C,D) * anger(C,D) * anger(C,D) * anger(C,D)
+  murder [story] : C <> D
+    * anger(C,D) * anger(C,D) * anger(C,D) * anger(C,D)
     * $at(C,L) * at(D,L) * $has(C,weapon)
     -o dead(D) * murdered(C,D).
   %% four depressions tip into despair; a weapon is sought.
@@ -113,15 +133,15 @@ stage all {
   mourn [story] : $at(C,L) * philia(C,D) * $dead(D)
     -o depressed(C) * depressed(C).
   %% a friend of the victim turns on the killer.
-  thinkVengefully [story] : $at(C,L) * $at(Killer,M)
+  thinkVengefully [story] : $at(C,L) * $at(Killer,M) * C <> Killer
     * $philia(C,Dead) * $murdered(Killer,Dead)
     -o anger(C,Killer) * anger(C,Killer).
   %% generosity: a wanted object changes hands among friends.
-  give [story] : $at(C,L) * $at(D,L) * has(C,O) * wants(D,O)
-    * $philia(C,D) -o has(D,O).
+  give [story] : $at(C,L) * $at(D,L) * C <> D
+    * has(C,O) * wants(D,O) * $philia(C,D) -o has(D,O).
   %% theft: the object moves, the owner seethes.
-  steal [story] : $at(C,L) * $at(D,L) * has(C,O) * wants(D,O)
-    -o has(D,O) * anger(C,D).
+  steal [story] : $at(C,L) * $at(D,L) * C <> D
+    * has(C,O) * wants(D,O) -o has(D,O) * anger(C,D).
   %% the dead are robbed without consequence.
   loot [story] : $at(C,L) * $dead(D) * has(D,O) * wants(C,O)
     -o has(C,O).
@@ -181,4 +201,4 @@ stage all {
 #query final
 #query dead(romeo)
 #query married(romeo,juliet)
-% #interactive all
+#interactive all
