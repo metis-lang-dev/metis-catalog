@@ -1,0 +1,184 @@
+% Port of interactive-lp/examples/tragedy.cep (Martens et al.,
+% "Generative Story Worlds as Linear Logic Programs", INT 7 2014; the
+% Shakespearean romantic-tragedy story world). One-to-one: every
+% Ceptre rule is here under its original name (/'s become -'s, primed
+% vars C'/C''/L' become D/E/M), with the Ceptre idiom
+% `consume-and-reproduce` written as the $-read it denotes, Ceptre's
+% `!dead`/`!murdered` persistent *products* written as plain atoms
+% produced once and only ever $-read (the victim leaves the board, so
+% no double production), and Ceptre's neutral-opinion rule PAIR
+% (formOpinion/like + /dislike, identical bodies) written as ONE rule
+% with the ⊕ alternative-head sugar (spec 07 P1) — the pair was
+% always one choice site; now it reads as one. The original's
+% unmarried C * unmarried C in do/divorce (sic — C twice, surely
+% meant C and D) is kept faithful.
+catalog tragedy 1.
+provenance hand "port:interactive-lp/examples/tragedy.cep" "2026-10-01".
+layers (story).
+stages (all).
+type character {romeo juliet montague capulet mercutio nurse tybalt
+  apothecary}.
+type location {mon_house cap_house town}.
+type object {weapon}.
+namespace world produce (story).
+pred at(character,location) : world.
+pred has(character,object) : world.
+pred wants(character,object) : world.
+pred dead(character) : world.
+pred murdered(character,character) : world.
+pred anger(character,character) : world.
+pred eros(character,character) : world.
+pred philia(character,character) : world.
+pred married(character,character) : world.
+pred unmarried(character) : world.
+pred neutral(character,character) : world.
+pred depressed(character) : world.
+pred suicidal(character) : world.
+pred boredom : world.
+pred nonfinal : world.
+pred final : world.
+bwd accessible(location,location).
+accessible(mon_house,town).
+accessible(town,mon_house).
+accessible(cap_house,town).
+accessible(town,cap_house).
+stage all {
+  %% C travels to be near a friend D.
+  travelTo [story] : $philia(C,D) * $at(D,M) * at(C,L)
+    * accessible(L,M) -o at(C,M).
+  %% restless travel (boredom is never seeded here, as in the original).
+  travelBored [story] : at(C,L) * accessible(L,M)
+    * boredom * boredom -o at(C,M).
+  %% eros to philia.
+  fallInLove [story] : $at(C,L) * $at(D,M) * eros(C,D)
+    -o philia(C,D).
+  %% philia to eros: three consumed + one read = the original's four.
+  eroticize [story] : $at(C,L) * $at(D,M) * $philia(C,D)
+    * philia(C,D) * philia(C,D) * philia(C,D) -o eros(C,D).
+  %% requited attraction: the flirtee warms to the flirter.
+  flirt [story] : $at(C,L) * $at(D,L) * $eros(C,D) -o eros(D,C).
+  %% flirting witnessed by a rival suitor E of the flirtee.
+  flirt-conflict [story] : $at(C,L) * $at(D,L) * $at(E,L)
+    * $eros(C,D) * $eros(E,C)
+    -o eros(D,C) * anger(E,D) * anger(E,D).
+  %% mutual marriage consumed under standing anger (the original's
+  %% `unmarried C` twice, kept sic).
+  divorce [story] : $at(C,L) * $at(D,M)
+    * married(C,D) * married(D,C) * $anger(C,D) * $anger(C,D)
+    -o unmarried(C) * unmarried(C).
+  %% a marriage to the dead dissolves.
+  widow [story] : married(C,D) * $at(C,L) * $dead(D)
+    -o unmarried(C).
+  %% full mutual eros+philia and both single: wed.
+  marry [story] : $at(C,L) * $at(D,L)
+    * $eros(C,D) * $philia(C,D) * $eros(D,C) * $philia(D,C)
+    * unmarried(C) * unmarried(D)
+    -o married(C,D) * married(D,C).
+  %% the original's formOpinion/like + /dislike pair: one body, one
+  %% choice — the ⊕ head makes the site explicit (expands to
+  %% formOpinion-1 / formOpinion-2).
+  formOpinion [story] : $at(C,L) * $at(D,L) * neutral(C,D)
+    -o ( philia(C,D) @w 1
+       | anger(C,D) @w 1 ).
+  %% a kind word returned: philia back toward the speaker.
+  compliment-private [story] : $at(C,L) * $at(D,L) * $philia(C,D)
+    -o philia(D,C).
+  %% the same, overheard by someone who resents the flattered.
+  compliment-witnessed [story] : $at(C,L) * $at(D,L)
+    * $at(Witness,L) * $philia(C,D) * $anger(Witness,D)
+    -o philia(D,C) * anger(Witness,C).
+  %% an insult returned with anger; the insulted is dejected.
+  insult-private [story] : $at(C,L) * $at(D,L) * $anger(C,D)
+    -o anger(D,C) * depressed(D).
+  %% the same, overheard by the insulted's friend.
+  insult-witnessed [story] : $at(C,L) * $at(D,L) * $at(Witness,L)
+    * $anger(C,D) * $philia(Witness,D)
+    -o anger(D,C) * depressed(D) * anger(Witness,C).
+  %% violence: four angers (falling-factorial priced) and a weapon.
+  murder [story] : anger(C,D) * anger(C,D) * anger(C,D) * anger(C,D)
+    * $at(C,L) * at(D,L) * $has(C,weapon)
+    -o dead(D) * murdered(C,D).
+  %% four depressions tip into despair; a weapon is sought.
+  becomeSuicidal [story] : $at(C,L) * depressed(C) * depressed(C)
+    * depressed(C) * depressed(C)
+    -o suicidal(C) * wants(C,weapon).
+  %% a friend talks the despairing down; the bond deepens.
+  comfort [story] : $at(C,L) * $at(D,L) * suicidal(D)
+    * $philia(C,D) * philia(D,C)
+    -o philia(D,C) * philia(D,C).
+  %% despair with a weapon at hand: the character leaves the board.
+  suicide [story] : at(C,L) * suicidal(C) * has(C,weapon)
+    -o dead(C).
+  %% grief for a dead friend, twice over.
+  mourn [story] : $at(C,L) * philia(C,D) * $dead(D)
+    -o depressed(C) * depressed(C).
+  %% a friend of the victim turns on the killer.
+  thinkVengefully [story] : $at(C,L) * $at(Killer,M)
+    * $philia(C,Dead) * $murdered(Killer,Dead)
+    -o anger(C,Killer) * anger(C,Killer).
+  %% generosity: a wanted object changes hands among friends.
+  give [story] : $at(C,L) * $at(D,L) * has(C,O) * wants(D,O)
+    * $philia(C,D) -o has(D,O).
+  %% theft: the object moves, the owner seethes.
+  steal [story] : $at(C,L) * $at(D,L) * has(C,O) * wants(D,O)
+    -o has(D,O) * anger(C,D).
+  %% the dead are robbed without consequence.
+  loot [story] : $at(C,L) * $dead(D) * has(D,O) * wants(C,O)
+    -o has(C,O).
+  %% anger and philia cancel back to neutrality.
+  mixed-feelings [story] : anger(C,D) * philia(C,D) * $at(C,L)
+    -o neutral(C,D).
+  %% endings (consume nonfinal; faithful to the original's consumes).
+  %% the original's ending_1: a marriage and a death on the board.
+  ending-marriage-and-death [story] : nonfinal * at(C1,L)
+    * married(C1,C2) * $dead(C3) -o final.
+  %% the original's ending_2: a cycle of three one-way loves.
+  ending-love-triangle [story] : nonfinal * eros(C1,C2)
+    * eros(C2,C3) * eros(C3,C1) -o final.
+  %% the original's ending_3: murder answered by murder.
+  ending-vengeance [story] : nonfinal * $murdered(C1,C2)
+    * $philia(C3,C2) * $murdered(C3,C1) -o final.
+}
+% The original's `context init` + `#trace _ all init.`, as interpreter
+% directives; `% #interactive all.` is commented out in the original
+% too — uncomment the line below to play the story yourself.
+#init at(romeo,town) 1
+#init at(montague,mon_house) 1
+#init at(capulet,cap_house) 1
+#init at(mercutio,town) 1
+#init at(nurse,cap_house) 1
+#init at(juliet,town) 1
+#init at(tybalt,town) 1
+#init at(apothecary,town) 1
+#init unmarried(romeo) 1
+#init unmarried(juliet) 1
+#init unmarried(nurse) 1
+#init unmarried(mercutio) 1
+#init unmarried(tybalt) 1
+#init unmarried(apothecary) 1
+#init anger(montague,capulet) 1
+#init anger(capulet,montague) 1
+#init anger(tybalt,romeo) 1
+#init anger(capulet,romeo) 1
+#init anger(montague,tybalt) 1
+#init philia(mercutio,romeo) 1
+#init philia(romeo,mercutio) 1
+#init philia(montague,romeo) 1
+#init philia(capulet,juliet) 1
+#init philia(juliet,nurse) 1
+#init philia(nurse,juliet) 1
+#init neutral(nurse,romeo) 1
+#init neutral(mercutio,juliet) 1
+#init neutral(juliet,mercutio) 1
+#init neutral(apothecary,nurse) 1
+#init neutral(nurse,apothecary) 1
+#init has(tybalt,weapon) 1
+#init has(romeo,weapon) 1
+#init has(apothecary,weapon) 1
+#init nonfinal 1
+#steps 40
+#seeds 3
+#query final
+#query dead(romeo)
+#query married(romeo,juliet)
+% #interactive all
