@@ -1,0 +1,132 @@
+% Port of interactive-lp/examples/herstory.cep — a four-act family
+% tragedy (Hannah and Eve, twins; Simon; a wig and a mirror). One
+% stage per act — beginning, courtship, tragedy, betrayal — each run
+% to quiescence, then a link sets up the next act with new props.
+% Rule names kept; the original's anonymous `qui * stage X -o stage Y
+% * …` links are named (act2, act3, act4) and keep their products.
+% The readout is life and death: alive/dead marginals per character.
+%
+% Oddities kept (a 1:1 port keeps them, commented):
+%   - date_carl CONSUMES `alive carl` — dating Hannah ends Carl's
+%     life as far as the board knows (no `dead carl` is minted).
+%   - parents_die consumes alive mother/father and produces nothing
+%     (no dead atoms either): the parents simply leave the board.
+%   - hannah_gets_pregnant consumes the marriage; eve_simon_affair
+%     consumes Eve's jealousy; hannah_poses_as_eve consumes the wig
+%     that eve_performs/eve_simon_affair/hannah_discover_affair only
+%     $-read. That looks like a race but is not one: posing needs
+%     hannah_knows, which needs the affair, which needs the wig — so
+%     the wig is always spent last.
+%   - nothing ever consumes `alive eve`/`alive hannah`.
+% The upshot, and the lesson: every life/death marginal is exactly 0
+% or 1 (Florence and Simon die, the twins live, Carl and the parents
+% leave the board, Hannah miscarries, Eve reaches Glasgow). The
+% plot is DETERMINED; only the interleaving of independent beats
+% varies (act three's three beats fire in any order — one Foata beat).
+% Generative nondeterminism without outcome nondeterminism.
+% No $-overlap sites: no rule $-reads an atom another of its premises
+% names. No pumping rules: every rule consumes.
+catalog herstory 1.
+provenance hand "port:interactive-lp/examples/herstory.cep" "2026-10-03".
+layers (story).
+stages (beginning courtship tragedy betrayal).
+type character {mother father hannah eve simon carl florence}.
+namespace plot produce (story).
+pred pregnant(character) : plot.
+pred alive(character) : plot.
+pred dead(character) : plot.
+pred death_caps : plot.
+pred stairs : plot.
+pred hannah_eve_separate : plot.
+pred eve_in_attic : plot.
+pred older : plot.
+pred dating(character,character) : plot.
+pred married(character,character) : plot.
+pred jealous(character) : plot.
+pred eve_independent : plot.
+pred miscarried(character) : plot.
+pred wig : plot.
+pred mirror : plot.
+pred mirror_shards : plot.
+pred attraction(character,character) : plot.
+pred had_affair(character,character) : plot.
+pred hannah_knows : plot.
+pred hannah_in_wig : plot.
+pred hannah_rage : plot.
+pred birthday : plot.
+pred eve_in_glasgow : plot.
+stage beginning {
+  %% the twins are born while Florence lives; they grow up apart.
+  eve_hannah_birth [story] : pregnant(mother) * $alive(florence)
+    -o alive(eve) * alive(hannah) * alive(mother) * hannah_eve_separate.
+  %% the twins meet — on the stairs.
+  hannah_eve_meet [story] : hannah_eve_separate -o stairs.
+  %% Florence dies on the stairs; Eve goes to the attic.
+  florence_dies [story] : stairs * alive(florence)
+    -o dead(florence) * eve_in_attic.
+}
+%% act one settles -> courtship; Carl and Simon enter.
+qui act2 [story] : beginning -o courtship * alive(carl) * alive(simon).
+stage courtship {
+  %% Hannah dates Carl while Eve hides (consumes alive carl — sic).
+  date_carl [story] : alive(carl) * $alive(hannah) * $eve_in_attic
+    -o dating(hannah,carl).
+  %% the Carl affair ends; Hannah is older.
+  breakup_carl [story] : dating(hannah,carl) -o older.
+  %% older now, Hannah meets Simon.
+  meet_simon [story] : older * $alive(simon) * $alive(hannah)
+    * $eve_in_attic -o dating(hannah,simon).
+  %% Hannah marries Simon; Eve turns jealous.
+  hannah_marries_simon [story] : dating(hannah,simon)
+    -o married(hannah,simon) * jealous(eve).
+}
+%% courtship settles -> tragedy; the death caps arrive.
+qui act3 [story] : courtship -o tragedy * death_caps.
+stage tragedy {
+  %% the marriage yields a pregnancy (consumes the marriage — sic).
+  hannah_gets_pregnant [story] : married(hannah,simon) -o pregnant(hannah).
+  %% Hannah miscarries.
+  hannah_miscarries [story] : pregnant(hannah) * $alive(hannah)
+    -o miscarried(hannah).
+  %% the death caps take both parents (no dead atoms — sic).
+  parents_die [story] : death_caps * alive(mother) * alive(father) -o ().
+  %% jealous Eve leaves the attic.
+  eve_ventures_out [story] : eve_in_attic * $jealous(eve) -o eve_independent.
+}
+%% tragedy settles -> betrayal; a wig and a birthday.
+qui act4 [story] : tragedy -o betrayal * wig * birthday.
+stage betrayal {
+  %% Eve performs in the wig; Simon is drawn to her.
+  eve_performs [story] : eve_independent * $wig -o attraction(simon,eve).
+  %% the affair: Eve's jealousy spent, Eve pregnant.
+  eve_simon_affair [story] : attraction(simon,eve) * jealous(eve) * $wig
+    -o had_affair(simon,eve) * pregnant(eve).
+  %% Eve leaves for Glasgow.
+  eve_to_glasgow [story] : pregnant(eve) -o eve_in_glasgow.
+  %% Hannah's birthday: Simon gives her a mirror.
+  hannah_birthday [story] : birthday * $alive(hannah) * $alive(simon)
+    -o mirror.
+  %% the wig gives the affair away.
+  hannah_discover_affair [story] : $wig * had_affair(simon,eve)
+    -o hannah_knows.
+  %% Hannah puts on the wig and poses as Eve (the wig is spent).
+  hannah_poses_as_eve [story] : wig * hannah_knows -o hannah_in_wig.
+  %% Simon regifts the mirror to "Eve": Hannah's rage.
+  simon_regifts [story] : hannah_in_wig * $mirror -o hannah_rage.
+  %% Hannah breaks the mirror.
+  hannah_break_mirror [story] : hannah_rage * mirror -o mirror_shards.
+  %% with the shards, Hannah kills Simon.
+  hannah_kill_simon [story] : mirror_shards * alive(simon) -o dead(simon).
+}
+% context init + `#trace _ beginning init.` (no #interactive):
+#init pregnant(mother) 1
+#init alive(father) 1
+#init alive(florence) 1
+#steps 30
+#seeds 3
+#query dead(simon)
+#query alive(simon)
+#query dead(florence)
+#query alive(carl)
+#query alive(mother)
+#query eve_in_glasgow

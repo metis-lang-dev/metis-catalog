@@ -1,0 +1,89 @@
+% Port of interactive-lp/examples/fptp.cep — "First-past-the-post
+% voting." Three stages: count the ballots, pick the maximum, done.
+% Rule and link names kept; the original's anonymous `qui * stage …`
+% transitions get names (tally, elect) — LLP links are named.
+%
+% What this port exercises:
+%   - STATE-CARRYING quiescence links. The original's
+%       qui * stage pick * hopeful C N -o stage done * !elected C.
+%     consumes a resource on the way out of `pick`: LLP links take
+%     premises and products beside the stage names, so it is written
+%     as it reads: `qui elect : pick * hopeful(C,N) -o done *
+%     elected(C)`. Likewise `count -o pick * max(n0)` seeds the max.
+%   - `!`-HEADS (Ceptre's persistent products `!elected C` and
+%     `!defeated C`): no LLP spelling (spec 07 P4, deferred). The
+%     recipe's workaround: a plain atom, produced once, never
+%     consumed. Produced ONCE is guaranteed here by the producers
+%     themselves — `eliminate` consumes the candidate's single
+%     hopeful(C,_) token, and `elect` consumes one and leaves the
+%     stage, so neither can mint a second copy for the same C.
+%   - consume-and-reproduce as $-reads: `max N * … -o max N * …`
+%     (eliminate) is `$max(N)`, and `hopeful C N' … -o hopeful C N'`
+%     (increase) is `$hopeful(C,M)`. Neither rule has a second
+%     premise on the same atom, so no $-overlap (tragedy v3) arises.
+%   - unary nats (`z`, `s nat`, bwd `lt` by recursion) per the recipe
+%     row: nat bounded to n0..n6 — six ballots, so no count exceeds
+%     6 — with the successor graph s(X,SX); `lt` is the original's two
+%     clauses as Horn rules. N' becomes M; `max _` becomes max(X).
+%
+% Oddities kept: ties. If two candidates share the top count, neither
+% eliminates the other, `pick` quiesces with both hopeful, and `elect`
+% chooses one of them nondeterministically (priced uniformly here).
+% This context has no tie (alice 3, bob 2, charlie 1).
+% No pumping rules: every rule consumes.
+catalog fptp 1.
+provenance hand "port:interactive-lp/examples/fptp.cep" "2026-10-03".
+layers (story).
+stages (count pick done).
+type nat {n0..n6}.
+type candidate {alice bob charlie}.
+namespace poll produce (story).
+pred elected(candidate) : poll.
+pred defeated(candidate) : poll.
+pred ballot(candidate) : poll.
+pred hopeful(candidate,nat) : poll.
+pred max(nat) : poll.
+bwd s(nat,nat).
+bwd lt(nat,nat).
+s(n0,n1).
+s(n1,n2).
+s(n2,n3).
+s(n3,n4).
+s(n4,n5).
+s(n5,n6).
+% lt/z : lt z (s N).        lt/s : lt (s N) (s M) <- lt N M.
+lt(n0,SN) :- s(N,SN).
+lt(SN,SM) :- s(N,SN), s(M,SM), lt(N,M).
+stage count {
+  %% a ballot for C moves C's tally up by one.
+  count_ballot [story] : ballot(C) * hopeful(C,N) * s(N,SN)
+    -o hopeful(C,SN).
+}
+%% all ballots counted -> pick the winner, starting the max at zero.
+qui tally [story] : count -o pick * max(n0).
+stage pick {
+  %% a hopeful above the running max raises it (the hopeful stays).
+  increase [story] : max(N) * $hopeful(C,M) * lt(N,M) -o max(M).
+  %% a hopeful below the running max is defeated (once: its single
+  %% hopeful token is consumed).
+  eliminate [story] : $max(N) * hopeful(C,M) * lt(M,N) -o defeated(C).
+}
+%% the pick has settled -> a remaining hopeful is elected.
+qui elect [story] : pick * hopeful(C,N) -o done * elected(C).
+stage done {
+  %% the running max is cleared.
+  cleanup [story] : max(X) -o ().
+}
+% context init + `#trace _ count init.` (no #interactive in the
+% original): six ballots — alice 3, bob 2, charlie 1.
+#init ballot(alice) 3
+#init ballot(bob) 2
+#init ballot(charlie) 1
+#init hopeful(alice,n0) 1
+#init hopeful(bob,n0) 1
+#init hopeful(charlie,n0) 1
+#steps 16
+#seeds 3
+#query elected(alice)
+#query elected(bob)
+#query defeated(charlie)

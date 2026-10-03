@@ -27,13 +27,16 @@ below). Every port is automatically roundtrip-gated by `make check`
 | `-o ()` | `-o ()` — identical (the LL unit; canonical spelling) |
 | two rules, same body, different heads | ONE rule with the ⊕ head: `-o ( h1 @w 1 | h2 @w 1 ).` (expands to `name-1`, `name-2`) |
 | `stage s {...}` + `qui * stage s -o stage s'` transitions | `stages (s s' ...).` + `stage s {...}` + `qui name [layer] : s -o s'.` links |
+| STATE-CARRYING transitions (`qui * stage s * a -o stage t * b`) | the link takes premises and products beside the stage names: `qui name [layer] : s * a -o t * b.` (fptp `elect`, herstory `act2`..`act4`) |
 | `#interactive s.` | `#interactive s` directive (menu on stderr, choice on stdin; EOF falls back to the sampler) |
 | `context init = {a, b, ...}.` | `#init a 1` directive lines (one per atom, counts explicit) |
 | `#trace _ s init.` | `#steps N` + `#seeds K` (+ `#query atom` for presence counts) |
 | finite constructor terms (`top_of ring : place`, `(top_of R)` in rules) | LLP terms are flat (`term ::= ident \| num`). Enumerate the constructor's image as named constants of the target type (`top_r1 …`), declare the constructor as a bwd GRAPH relation with one fact per constant (`topof(r1,top_r1).`), and where the original writes `(top_of R)` write a fresh var plus the guard: `clear(T) * topof(R,T)`. Grounding prunes the rest, so the ground program is the original's (tower_of_hanoi, cellular-automata) |
 | RECURSIVE constructor types (`lolli prop prop : prop`) | no finite type holds them: enumerate only the subterms of the original's context (subformula property — check the rules only ever produce direct subterms of their premises), name them so they spell the term, and use the graph-relation row above. State the bound in the header; a new context needs a new enumeration (ll) |
 | `#builtin NAT` / `s nat : nat` unary naturals | no counterpart: bound `nat` to an enumerated range (`n0..n2`) and make `s` the bwd successor graph `s(X,SX)`. State the bound in the header (cellular-automata) |
-| empty `stage s = { }` / `context init = {}` | `stage s {\n}` is legal; no `#init` lines (the world starts empty and quiesces at once) |
+| predicates over a constructor SUM type (`knows C (atf F L)` with `information` = atf \| atc \| likes) | enumerating the sum as constants explodes grounding; SPLIT the predicate per constructor (`knows_atf(C,F,L)`, `knows_atc(C,D,L)`, …), and split any rule that quantifies over the sum (e.g. via a bwd `answers Info Question` pairing constructors) into one rule per case, named `rule_case` (never `rule-k`). Ground program = the original's, renamed (talespin) |
+| Horn FACT with variables (`plus z N N.`, `solves_problem Any thirst water.`) | LLP takes fact arguments LITERALLY (a capitalized arg becomes a constant, silently — reported upstream). Write a rule over a membership relation: `bwd isnat(nat).` + one fact per constant + `plus(n0,N,N) :- isnat(N).` (primes, talespin) |
+| empty `stage s = { }` / `context init = {}` | `stage s { }` is legal; no `#init` lines (the world starts empty and quiesces at once) |
 | unweighted nondeterminism | leave weights off (prior 1.0) — or start modeling: that's the point of the port |
 
 Fidelity first, then measure: port 1:1 (keep even the original's
@@ -79,7 +82,7 @@ runs under `metisc --run` and passes the roundtrip gate.
 | family-tree-inverted | 78 | 1 | yes | yes |  |  |  |
 | family-tree | 105 | 1 | yes | yes |  |  |  |
 | five | 79 | 1 |  |  |  |  |  |
-| fptp | 51 | 3 |  | yes |  |  |  |
+| fptp | 51 | 3 |  | yes | ported | votes/fptp.llp | state-carrying qui links (`count -o pick * max(n0)`, `pick * hopeful(C,N) -o done * elected(C)`); `!elected`/`!defeated` via the P4 workaround (produced once: each producer consumes the candidate's single hopeful token); nat bounded n0..n6 (6 ballots); exact: alice elected P=1, bob/charlie defeated P=1; ties would be elected uniformly (kept, none here); no $-overlap, no pumping |
 | garden-iter3 | 136 | 3 | yes | yes |  |  |  |
 | garden-med | 87 | 3 | yes | yes |  |  |  |
 | garden-small | 63 | 2 | yes | yes |  |  |  |
@@ -88,7 +91,7 @@ runs under `metisc --run` and passes the roundtrip gate.
 | grammar-tinkering | 90 | 1 |  | yes |  |  |  |
 | hearthstone | 61 | 3 |  | yes |  |  |  |
 | hello-world | 10 | 1 | yes |  |  |  |  |
-| herstory | 112 | 4 |  |  |  |  |  |
+| herstory | 112 | 4 |  |  | ported | fiction/herstory.llp | 4 acts = 4 stages, named state-carrying links; oddities kept (date_carl consumes alive carl, parents_die leaves no dead atoms); every life/death marginal is exactly 0 or 1 — the plot is determined, only the interleaving varies; no $-overlap, no pumping |
 | if-rpg | 1 | 0 |  |  |  |  |  |
 | if | 56 | 1 | yes | yes |  |  |  |
 | instant-runnoff-voting | 103 | 5 | yes | yes |  |  |  |
@@ -110,7 +113,7 @@ runs under `metisc --run` and passes the roundtrip gate.
 | paper | 182 | 7 |  |  |  |  |  |
 | parable | 37 | 0 |  | yes |  |  |  |
 | planting | 45 | 1 | yes |  |  |  |  |
-| primes | 34 | 2 |  | yes |  |  |  |
+| primes | 34 | 2 |  | yes | ported | arith/primes.llp | limit 12 (the original's own) -> nat n0..n12; plus/mult Horn clauses (facts with vars via isnat — see recipe row); **$-overlap site**: collide's `$here N * here M` with `_`=1 makes M=N — written consume-and-reproduce (the literal `$` form erases every prime: P[here(n7)]=0); exact: primes 2,3,5,7,11 survive P=1, composites P=0; no pumping |
 | printXY | 36 | 1 |  |  |  |  |  |
 | professor | 31 | 1 | yes |  |  |  |  |
 | promweek | 1 | 0 |  |  |  |  |  |
@@ -137,7 +140,7 @@ runs under `metisc --run` and passes the roundtrip gate.
 | string-grammars-direct | 81 | 1 |  | yes |  |  |  |
 | string-grammars | 81 | 1 |  | yes |  |  |  |
 | string-input | 48 | 1 | yes | yes |  |  |  |
-| talespin | 122 | 1 | yes | yes |  |  |  |
+| talespin | 122 | 1 | yes | yes | ported | fiction/talespin.llp | character constructors via the graph row; the `information`/`question` SUM types split per constructor (knows_atf/_atc/_likes, asks_*; tell_info -> tell_info_wheref/_wherec/_does_like); `solves_problem Any …` via ischar; **$-overlap sites**: ask (Someone=C) and the tell_info knows pairs — consume-and-reproduce; **pumping**: ask (re-asks until fed; unanswered honey asks pile up) — noted, not fixed; P[fed @8]=0.43 |
 | thanksgiving | 52 | 1 |  |  |  |  |  |
 | tiny | 7 | 0 |  |  |  |  |  |
 | tower_of_hanoi | 56 | 1 | yes | yes | ported | planning/tower_of_hanoi.llp | `top_of R`/`bottom P` via the constructor-graph row (`topof`/`bottomof` bwd); `smaller` = the original's Horn closure over `succ` (first `:-` rules in the catalog); unused constant `post : place` dropped, noted; optimal solve = 7 moves = 14 steps; no $-overlap, no pumping |

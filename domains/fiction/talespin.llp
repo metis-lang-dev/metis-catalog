@@ -1,0 +1,152 @@
+% Port of interactive-lp/examples/talespin.cep — a TALE-SPIN-style
+% story generator (Meehan 1976): a hungry bear asks a bird where the
+% food is, is told, walks there, eats. Rule names kept; the original's
+% `#interactive main` live.
+%
+% Encodings (recipe rows "finite constructor terms" and "predicates
+% over a constructor SUM type"):
+%   - characters are built by constructors `joe animal`, `irving
+%     animal`, `wilma animal` (plus the constant `world`): 9+1
+%     constants joe_bird … wilma_mouse, world, and the original's own
+%     bwd graph `is_animal (joe A) A` as is_animal(joe_bear,bear) etc.
+%   - `information` is a SUM of three constructors (atf food location
+%     | atc character location | likes character character bool), and
+%     `question` likewise (wheref | wherec | does_like). Enumerating
+%     the sum as constants would be 260 values and tell_info would
+%     ground to millions; instead each predicate over the sum is SPLIT
+%     per constructor: knows C (atf F L) -> knows_atf(C,F,L),
+%     knows C (atc D L) -> knows_atc(C,D,L), knows C (likes D E Y) ->
+%     knows_likes(C,D,E,Y); asks likewise (asks_wheref/_wherec/
+%     _does_like). The bwd `answers Information Question` pairs each
+%     question constructor with its answer constructor (atf<->wheref,
+%     atc<->wherec, likes<->does_like), so the one tell_info rule
+%     that quantifies over it splits into tell_info_wheref /
+%     _wherec / _does_like — one rule per answers clause. The ground
+%     program is the original's, renamed.
+%   - `solves_problem Any thirst water` is a Horn FACT WITH A
+%     VARIABLE; LLP takes fact arguments literally (reported upstream),
+%     so it is a rule over the membership relation ischar(C).
+%   - Loc/L' become Loc/M; `Someone` stays S.
+%
+% $-OVERLAP SITES (tragedy-v3 caveat), written as consume-and-reproduce:
+%   - ask: `$knows C (atc C Loc) * $knows C (atc Someone Loc)` — with
+%     Someone = C both name knows_atc(C,C,Loc). Ceptre needs TWO such
+%     tokens (each $ claims its own), so a character never asks
+%     ITSELF; a metis $-pair would let Joe ask Joe. Written as
+%     consume-two, reproduce-two.
+%   - tell_info_*: the $knows premises can unify pairwise (Asker =
+%     Teller makes the two world-location reads one atom; Teller =
+%     world folds the answer read into them). Every knows premise of
+%     the three tell_info rules is written as consume-and-reproduce.
+%   - ingest's `knows C (atc C L) … -o knows C (atc C L)` and move's
+%     `$knows C (atf F L')` have no same-atom partner: plain $-reads.
+%
+% PUMPING RULE (noted, not fixed — the audit's explosion class): ask
+% only reads (its consumes are all reproduced) and mints an asks
+% token, so a hungry character asks again and again until fed; the
+% asks for food nobody knows (Joe's honey) are never answered and
+% pile up. Counts grow with the horizon.
+%
+% Oddities kept: move may "move" to the place one already is (L = M);
+% ingest consumes the world's food (eaten food is gone); the context
+% lists `knows (wilma bird) (atc (joe bear) oak_tree)` twice (count
+% 2); Wilma does not know where she herself is, so only Joe can ask.
+catalog talespin 1.
+provenance hand "port:interactive-lp/examples/talespin.cep" "2026-10-03".
+layers (story).
+stages (main).
+type food {cheese worm berries honey water}.
+type animal {bird bear mouse}.
+type problem {hunger thirst}.
+type location {river elm_tree oak_tree ground}.
+type character {world joe_bird joe_bear joe_mouse irving_bird
+  irving_bear irving_mouse wilma_bird wilma_bear wilma_mouse}.
+type bool {yes no}.
+namespace mind produce (story).
+pred knows_atf(character,food,location) : mind.
+pred knows_atc(character,character,location) : mind.
+pred knows_likes(character,character,character,bool) : mind.
+pred asks_wheref(character,food,character) : mind.
+pred asks_wherec(character,character,character) : mind.
+pred asks_does_like(character,character,character,character) : mind.
+pred has_problem(character,problem) : mind.
+bwd eats(animal,food).
+bwd is_animal(character,animal).
+bwd ischar(character).
+bwd solves_problem(character,problem,food).
+eats(bird,berries).
+eats(bird,worm).
+eats(bird,cheese).
+eats(bear,berries).
+eats(bear,honey).
+eats(mouse,cheese).
+% the constructors' graphs: is_animal (joe A) A, … (the original's own).
+is_animal(joe_bird,bird). is_animal(joe_bear,bear). is_animal(joe_mouse,mouse).
+is_animal(irving_bird,bird). is_animal(irving_bear,bear).
+is_animal(irving_mouse,mouse).
+is_animal(wilma_bird,bird). is_animal(wilma_bear,bear).
+is_animal(wilma_mouse,mouse).
+ischar(world). ischar(joe_bird). ischar(joe_bear). ischar(joe_mouse).
+ischar(irving_bird). ischar(irving_bear). ischar(irving_mouse).
+ischar(wilma_bird). ischar(wilma_bear). ischar(wilma_mouse).
+% solves_problem Any thirst water.
+solves_problem(C,thirst,water) :- ischar(C).
+% solves_problem Char hunger Food <- is_animal Char Animal <- eats Animal Food.
+solves_problem(C,hunger,F) :- is_animal(C,A), eats(A,F).
+stage main {
+  %% a character where its food is eats it: the problem and the food
+  %% are consumed (the world forgets the food), the location stays.
+  ingest [story] : has_problem(C,P) * solves_problem(C,P,F)
+    * $knows_atc(C,C,L) * knows_atf(C,F,L) * knows_atf(world,F,L)
+    -o ().
+  %% a troubled character asks someone it knows is nearby where its
+  %% food is (both location beliefs held and handed back — see header).
+  ask [story] : $has_problem(C,Pr) * solves_problem(C,Pr,F)
+    * knows_atc(C,C,Loc) * knows_atc(C,S,Loc)
+    -o asks_wheref(C,F,S) * knows_atc(C,C,Loc) * knows_atc(C,S,Loc).
+  %% answers(atf F L, wheref F): a co-located teller who likes the
+  %% asker and knows where F is tells.
+  tell_info_wheref [story] : asks_wheref(A,F,T) * knows_atf(T,F,L)
+    * knows_likes(world,T,A,yes) * knows_atc(world,A,Loc)
+    * knows_atc(world,T,Loc)
+    -o knows_atf(A,F,L) * knows_atf(T,F,L) * knows_likes(world,T,A,yes)
+     * knows_atc(world,A,Loc) * knows_atc(world,T,Loc).
+  %% answers(atc C L, wherec C): the same, for where a character is.
+  tell_info_wherec [story] : asks_wherec(A,C,T) * knows_atc(T,C,L)
+    * knows_likes(world,T,A,yes) * knows_atc(world,A,Loc)
+    * knows_atc(world,T,Loc)
+    -o knows_atc(A,C,L) * knows_atc(T,C,L) * knows_likes(world,T,A,yes)
+     * knows_atc(world,A,Loc) * knows_atc(world,T,Loc).
+  %% answers(likes C1 C2 YN, does_like C1 C2): the same, for who
+  %% likes whom.
+  tell_info_does_like [story] : asks_does_like(A,D,E,T)
+    * knows_likes(T,D,E,Y) * knows_likes(world,T,A,yes)
+    * knows_atc(world,A,Loc) * knows_atc(world,T,Loc)
+    -o knows_likes(A,D,E,Y) * knows_likes(T,D,E,Y)
+     * knows_likes(world,T,A,yes) * knows_atc(world,A,Loc)
+     * knows_atc(world,T,Loc).
+  %% a troubled character who knows where its food is goes there (its
+  %% own belief and the world's both move).
+  move [story] : $has_problem(C,P) * solves_problem(C,P,F)
+    * knows_atc(C,C,L) * knows_atc(world,C,L) * $knows_atf(C,F,M)
+    -o knows_atc(C,C,M) * knows_atc(world,C,M).
+}
+% context init + `#trace _ main init.` + `#interactive main.`:
+#init knows_atf(world,berries,elm_tree) 1
+#init knows_atf(world,water,river) 1
+#init knows_atf(world,worm,ground) 1
+#init knows_atc(world,joe_bear,oak_tree) 1
+#init knows_atc(world,wilma_bird,oak_tree) 1
+#init knows_likes(world,wilma_bird,joe_bear,yes) 1
+#init knows_likes(world,joe_bear,wilma_bird,yes) 1
+#init knows_atc(joe_bear,joe_bear,oak_tree) 1
+#init knows_atc(joe_bear,wilma_bird,oak_tree) 1
+#init knows_atc(wilma_bird,joe_bear,oak_tree) 2
+#init knows_atf(wilma_bird,berries,elm_tree) 1
+#init has_problem(joe_bear,hunger) 1
+#steps 8
+#seeds 3
+#query has_problem(joe_bear,hunger)
+#query knows_atf(joe_bear,berries,elm_tree)
+#query knows_atc(world,joe_bear,elm_tree)
+#interactive main
