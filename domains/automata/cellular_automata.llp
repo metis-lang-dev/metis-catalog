@@ -1,0 +1,66 @@
+% Port of interactive-lp/examples/cellular-automata.cep — and the
+% original is a SKELETON: its header reads "2022-02-16 / Set up
+% predicates but wrote no actual 'code' yet." Both stages are empty,
+% the context is empty, and the trace starts and ends at once. The
+% port is one-to-one with that: the grid, the neighbour relation,
+% the two (empty) stages — no update rule is invented here. Writing
+% the automaton's rules (one generation = one compute/main lap, the
+% synchronous update carried by stage quiescence) is left as the
+% hands-on next step, a v2 for the user to author.
+%
+% Encodings (recipe rows "finite constructor terms", "Ceptre
+% builtins"):
+%   - `nat` with `s` and `#builtin NAT/NAT_ZERO/NAT_SUCC`: the
+%     builtin directives have no LLP counterpart (metis types are
+%     finite, enumerated). nat is bounded to a 3x3 grid, n0..n2, and
+%     `s` becomes the bwd successor graph s(X,SX) — the bound is the
+%     price of the finite-type fragment, stated here.
+%   - `pos nat nat : cell` (a constructor): cell constants c<x><y>
+%     plus the bwd graph pos(C,X,Y), as in tower_of_hanoi.
+%   - the original's eight `nbr` facts with (s X) patterns become
+%     eight Horn rules over pos + s, same directions, same order.
+%     (They are the original's literally: e.g. nbr (pos X Y) (pos
+%     (s X) Y) and its converse are both listed, so nbr is
+%     symmetric — but only the diagonal (s X)(s Y) -> X Y and its
+%     converse appear, not the anti-diagonal: a cell sees 6 of its 8
+%     Moore neighbours. Kept, not corrected.)
+%   - the stage order puts `main` first: the original's trace is
+%     `#trace _ main init`, and a metis run starts in the first
+%     declared stage.
+% No rules, so no $-overlap sites and no pumping rules.
+catalog cellular-automata 1.
+provenance hand "port:interactive-lp/examples/cellular-automata.cep" "2026-10-03".
+layers (story).
+stages (main compute_neighbor_values).
+type nat {n0 n1 n2}.
+type cell {c00 c01 c02 c10 c11 c12 c20 c21 c22}.
+bwd s(nat,nat).
+bwd pos(cell,nat,nat).
+bwd nbr(cell,cell).
+s(n0,n1).
+s(n1,n2).
+pos(c00,n0,n0).
+pos(c01,n0,n1).
+pos(c02,n0,n2).
+pos(c10,n1,n0).
+pos(c11,n1,n1).
+pos(c12,n1,n2).
+pos(c20,n2,n0).
+pos(c21,n2,n1).
+pos(c22,n2,n2).
+% the original's eight nbr facts, in order:
+nbr(C,D) :- pos(C,SX,SY), pos(D,X,SY), s(X,SX), s(Y,SY).
+nbr(C,D) :- pos(C,SX,SY), pos(D,SX,Y), s(X,SX), s(Y,SY).
+nbr(C,D) :- pos(C,SX,SY), pos(D,X,Y), s(X,SX), s(Y,SY).
+nbr(C,D) :- pos(C,X,SY), pos(D,X,Y), s(Y,SY).
+nbr(C,D) :- pos(C,SX,Y), pos(D,X,Y), s(X,SX).
+nbr(C,D) :- pos(C,X,Y), pos(D,SX,Y), s(X,SX).
+nbr(C,D) :- pos(C,X,Y), pos(D,X,SY), s(Y,SY).
+nbr(C,D) :- pos(C,X,Y), pos(D,SX,SY), s(X,SX), s(Y,SY).
+stage compute_neighbor_values {
+}
+stage main {
+}
+% context init = {} and `#trace _ main init.`:
+#steps 1
+#seeds 1

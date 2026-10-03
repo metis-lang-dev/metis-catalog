@@ -1,0 +1,57 @@
+% Port of interactive-lp/examples/blocks-world.cep — the classic
+% three-block world, one-to-one: rule names kept, one stage, the
+% original's `#interactive blocks` live. It is the textbook case for
+% linear logic's "no frame axioms": a move consumes exactly the facts
+% it changes (on/clear/arm) and touches nothing else, so there is no
+% STRIPS delete list and no "everything else stays put" axiom — the
+% multiset IS the state. A PLAN is a derivation: the sequence of
+% fired rules from the init to a state holding the goal atoms.
+%
+% Kept as in the original: the win_condition rule is commented out
+% there, so the world never quiesces (the arm can shuffle forever);
+% the goal it names — c on the table, b on c, a on b — is the
+% lesson's target, read with `query` instead of a rule.
+% No $-reads (so no $-overlap sites) and every rule consumes, so no
+% pumping rules: the reachable state space is finite (block
+% configurations x arm), and exact queries stay cheap at any horizon.
+catalog blocks-world 1.
+provenance hand "port:interactive-lp/examples/blocks-world.cep" "2026-10-03".
+layers (story).
+stages (blocks).
+type block {a b c}.
+namespace table produce (story).
+pred on(block,block) : table.
+pred on_table(block) : table.
+pred clear(block) : table.
+pred arm_holding(block) : table.
+pred arm_free : table.
+stage blocks {
+  %% lift a clear block X off block Y: Y becomes clear, the arm holds X.
+  pickup_from_block [story] : on(X,Y) * clear(X) * arm_free
+    -o clear(Y) * arm_holding(X).
+  %% lift a clear block X off the table.
+  pickup_from_table [story] : on_table(X) * clear(X) * arm_free
+    -o arm_holding(X).
+  %% set the held block X down on a clear block Y (Y is covered).
+  put_on_block [story] : arm_holding(X) * clear(Y)
+    -o on(X,Y) * clear(X) * arm_free.
+  %% set the held block X down on the table.
+  put_on_table [story] : arm_holding(X)
+    -o on_table(X) * clear(X) * arm_free.
+}
+% The original's win_condition, commented out there too:
+%   win_condition : on_table c * on b c * on a b * clear a * arm_free
+%     -o ().
+% context init + `#trace _ blocks init.` + `#interactive blocks.`:
+#init on_table(a) 1
+#init on_table(b) 1
+#init on(c,a) 1
+#init clear(c) 1
+#init clear(b) 1
+#init arm_free 1
+#steps 6
+#seeds 3
+#query on_table(c)
+#query on(b,c)
+#query on(a,b)
+#interactive blocks

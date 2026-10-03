@@ -1,0 +1,78 @@
+% Port of interactive-lp/examples/tower_of_hanoi.cep — three rings,
+% three posts, one arm. Rule names kept; `#interactive do` live.
+%
+% Structured terms (the encoding this port introduces — see the
+% CEPTRE-PORTS recipe row "finite constructor terms"): LLP terms are
+% flat (term ::= ident | num), but the original's places are built
+% by constructors, `top_of ring : place` and `bottom post : place`.
+% Over finite argument types the constructor's image is finite, so:
+%   - each constructed term becomes a named constant of `place`
+%     (top_of r1 -> top_r1, bottom p2 -> bottom_p2);
+%   - the constructor itself becomes a bwd GRAPH relation
+%     (topof(r1,top_r1), bottomof(p2,bottom_p2)) — injective, total;
+%   - where the original writes `(top_of R)` in a rule, the port
+%     writes a fresh place var T plus the guard `topof(R,T)`.
+% Grounding prunes every T that is not R's top, so the ground program
+% is the original's, term for term.
+%
+% Oddities kept: the original declares `post : type.` AND a constant
+% `post : place.` (a place literally named post) that no rule or
+% context ever mentions — dropped from the place enumeration, noted
+% here. `smaller` is the original's bwd transitive closure of `succ`,
+% ported as Horn rules. Primed vars R' / R'' become S / U.
+% No $-reads (no $-overlap sites); every rule consumes (no pumping).
+catalog tower-of-hanoi 1.
+provenance hand "port:interactive-lp/examples/tower_of_hanoi.cep" "2026-10-03".
+layers (story).
+stages (do).
+type ring {r1 r2 r3}.
+type post {p1 p2 p3}.
+type place {top_r1 top_r2 top_r3 bottom_p1 bottom_p2 bottom_p3}.
+namespace pegs produce (story).
+pred on(ring,place) : pegs.
+pred clear(place) : pegs.
+pred arm_free : pegs.
+pred arm_holding(ring) : pegs.
+bwd topof(ring,place).
+bwd bottomof(post,place).
+bwd succ(ring,ring).
+bwd smaller(ring,ring).
+% the constructors' graphs: top_of R and bottom P, enumerated.
+topof(r1,top_r1).
+topof(r2,top_r2).
+topof(r3,top_r3).
+bottomof(p1,bottom_p1).
+bottomof(p2,bottom_p2).
+bottomof(p3,bottom_p3).
+% domain instantiation: ring order and its transitive closure.
+succ(r1,r2).
+succ(r2,r3).
+smaller(R,S) :- succ(R,S).
+smaller(R,U) :- succ(R,S), smaller(S,U).
+stage do {
+  %% lift ring R (its top is clear) off place P: P becomes clear.
+  pickup [story] : clear(T) * topof(R,T) * on(R,P) * arm_free
+    -o arm_holding(R) * clear(P).
+  %% set the held ring R onto a clear, LARGER ring S (smaller R S).
+  putdown_on_ring [story] : arm_holding(R) * clear(T) * topof(S,T)
+    * smaller(R,S) * topof(R,V)
+    -o arm_free * on(R,T) * clear(V).
+  %% set the held ring R onto the clear bottom of post P.
+  putdown_on_post [story] : arm_holding(R) * clear(B) * bottomof(P,B)
+    * topof(R,V)
+    -o arm_free * on(R,B) * clear(V).
+}
+% context init + `#trace _ do init.` + `#interactive do.`:
+% the tower r1<r2<r3 stands on p1; p2 and p3 are empty.
+#init clear(bottom_p2) 1
+#init clear(bottom_p3) 1
+#init on(r3,bottom_p1) 1
+#init on(r2,top_r3) 1
+#init on(r1,top_r2) 1
+#init clear(top_r1) 1
+#init arm_free 1
+#steps 14
+#seeds 3
+#query on(r3,bottom_p3)
+#query on(r1,top_r2)
+#interactive do

@@ -1,0 +1,89 @@
+% Port of interactive-lp/examples/ll.cep — "toy lin log interactive
+% thm prover": linear logic's sequent rules as linear-logic rules.
+% `goal F` is the right of the sequent, `ctx F` a hypothesis on the
+% left; a rule fires on a connective and decomposes it, and a PROOF
+% is a run that consumes every goal and every ctx (the empty
+% multiset). Rule names kept (topR' becomes topR-prime: `'` is not
+% an ident character, and `<name>-<k>` is reserved for ⊕ branches);
+% `#interactive prove` live.
+%
+% Structured terms (recipe row "finite constructor terms", as in
+% tower_of_hanoi): `prop` is RECURSIVE (lolli/tensor/with nest
+% without bound), so no finite type holds it. But a proof search
+% here only ever sees SUBFORMULAS of the context it starts from (the
+% subformula property of these rules: every head is a premise's
+% direct subterm), so the port enumerates exactly the subformulas of
+% the original's `context test` as named constants of `prop`, plus
+% the constants one/top the rules mention, and turns each
+% constructor into a bwd graph relation:
+%   at(P,X)       P = at X          tensor(P,A,B)  P = tensor A B
+%   lolli(P,A,B)  P = lolli A B     (with: unused, see below)
+% The subformula names spell the term: pa = at a, ta_b = tensor (at a)
+% (at b), la_tab = lolli (at a) ta_b, ta_latab = tensor (at a) la_tab,
+% tb_a = tensor (at b) (at a), main = lolli ta_latab tb_a. A new test
+% context needs its own subformula enumeration — that bound is the
+% price of the flat-term fragment, and it is stated here, not hidden.
+%
+% OPEN QUESTION, kept from the original, NOT solved by the port:
+%   % XXX oneR requires quiescence/absence?
+% oneR (goal one with an EMPTY ctx) is absent: it needs to test that
+% no ctx remains, and a rule cannot test absence. Possible answers —
+% a qui link out of `prove` (quiescence as the absence test), or a
+% counted ctx — are design choices for the user, not this port.
+% Likewise kept commented, as in the original: withL1/withL2 and the
+% note "withR XXX not really possible w/FC. let/cc...?!".
+%
+% Oddity kept: topR' in the original is `goal top * ctx _ -o goal
+% top` (top absorbs any one hypothesis); `_` becomes the var X.
+% No $-reads (no $-overlap sites); every rule consumes (no pumping).
+catalog ll 1.
+provenance hand "port:interactive-lp/examples/ll.cep" "2026-10-03".
+layers (story).
+stages (prove).
+type atom {a b c d}.
+type prop {one top pa pb ta_b la_tab ta_latab tb_a main}.
+namespace seq produce (story).
+pred goal(prop) : seq.
+pred ctx(prop) : seq.
+bwd at(prop,atom).
+bwd tensor(prop,prop,prop).
+bwd lolli(prop,prop,prop).
+% the constructors' graphs over the subformulas of `context test`.
+at(pa,a).
+at(pb,b).
+tensor(ta_b,pa,pb).
+lolli(la_tab,pa,ta_b).
+tensor(ta_latab,pa,la_tab).
+tensor(tb_a,pb,pa).
+lolli(main,ta_latab,tb_a).
+stage prove {
+  %% right lolli: to prove A -o B, assume A and prove B.
+  lolliR [story] : goal(P) * lolli(P,A,B) -o ctx(A) * goal(B).
+  %% left lolli: a hypothesis A -o B becomes goal A and hypothesis B.
+  lolliL [story] : ctx(P) * lolli(P,A,B) -o goal(A) * ctx(B).
+  %% left one: the unit hypothesis is dropped.
+  oneL [story] : ctx(one) -o ().
+  %% right top: top is proved outright.
+  topR [story] : goal(top) -o ().
+  %% the original's topR': top absorbs any one hypothesis.
+  topR-prime [story] : goal(top) * ctx(X) -o goal(top).
+  %% left tensor: a hypothesis A * B splits into A and B.
+  tensorL [story] : ctx(P) * tensor(P,A,B) -o ctx(A) * ctx(B).
+  %% right tensor: to prove A * B, prove A and prove B.
+  tensorR [story] : goal(P) * tensor(P,A,B) -o goal(A) * goal(B).
+  %% identity: an atomic goal closes against the same atomic hypothesis.
+  init [story] : goal(P) * ctx(P) * at(P,X) -o ().
+}
+% The original's commented-out with rules, kept commented:
+%   withL1 : ctx (with A B) -o ctx A.
+%   withL2 : ctx (with A B) -o ctx B.
+%   withR XXX not really possible w/FC. let/cc...?!
+% context test + `#trace _ prove test.` + `#interactive prove.`:
+% goal  (a * (a -o a * b)) -o (b * a).
+#init goal(main) 1
+#steps 10
+#seeds 3
+#query goal(pa)
+#query ctx(pa)
+#query goal(pb)
+#interactive prove
