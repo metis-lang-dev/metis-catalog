@@ -24,8 +24,17 @@
 % sites; with the producers guarded, every self-sentiment
 % (anger/philia/eros (C,C)) becomes unreachable, so the reading rules
 % need no guards of their own. Suicide stays the one self-death.
-catalog tragedy 2.
-provenance hand "port:interactive-lp/examples/tragedy.cep" "2026-10-01".
+%
+% v3 (a fidelity fix, not a deviation): Ceptre's `$a` is
+% consume-and-reproduce — it claims its OWN token. metis's `$a` is a
+% presence read that claims none, so `$a` beside another `a` premise
+% fires one token early (and prices the choice differently:
+% c*ff(c,k) instead of ff(c,k+1)). The two sites where the original
+% overlaps them — eroticize ($philia + 3 philia: four tokens) and
+% divorce ($anger twice: two tokens) — are written out as
+% consume-and-reproduce, which IS the original's meaning.
+catalog tragedy 3.
+provenance hand "port:interactive-lp/examples/tragedy.cep" "2026-10-03".
 layers (story).
 stages (all).
 
@@ -69,20 +78,23 @@ stage all {
   %% eros to philia.
   fallInLove [story] : $at(C,L) * $at(D,M) * eros(C,D)
     -o philia(C,D).
-  %% philia to eros: three consumed + one read = the original's four.
-  eroticize [story] : $at(C,L) * $at(D,M) * $philia(C,D)
-    * philia(C,D) * philia(C,D) * philia(C,D) -o eros(C,D).
+  %% philia to eros: four philia tokens, one handed back (the
+  %% original's $philia + three — a $-read here would fire at three).
+  eroticize [story] : $at(C,L) * $at(D,M)
+    * philia(C,D) * philia(C,D) * philia(C,D) * philia(C,D)
+    -o eros(C,D) * philia(C,D).
   %% requited attraction: the flirtee warms to the flirter.
   flirt [story] : $at(C,L) * $at(D,L) * $eros(C,D) -o eros(D,C).
   %% flirting witnessed by a rival suitor E of the flirtee.
   flirt-conflict [story] : $at(C,L) * $at(D,L) * $at(E,L)
     * E <> C * E <> D * $eros(C,D) * $eros(E,C)
     -o eros(D,C) * anger(E,D) * anger(E,D).
-  %% mutual marriage consumed under standing anger (the original's
-  %% `unmarried C` twice, kept sic).
+  %% mutual marriage consumed under standing anger: two anger tokens
+  %% held and handed back (the original's $anger twice); the
+  %% original's `unmarried C` twice, kept sic.
   divorce [story] : $at(C,L) * $at(D,M)
-    * married(C,D) * married(D,C) * $anger(C,D) * $anger(C,D)
-    -o unmarried(C) * unmarried(C).
+    * married(C,D) * married(D,C) * anger(C,D) * anger(C,D)
+    -o unmarried(C) * unmarried(C) * anger(C,D) * anger(C,D).
   %% a marriage to the dead dissolves.
   widow [story] : married(C,D) * $at(C,L) * $dead(D)
     -o unmarried(C).

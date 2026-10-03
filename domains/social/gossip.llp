@@ -24,7 +24,12 @@
 %  - the original's `#trace _ twitter init.` names a stage that
 %    does not exist; the case lines below run the say/read lap the
 %    author described.
-catalog gossip 1.
+%  - quiescence (port addition): the original's say<->read links
+%    flip forever once the network is saturated — the trace only
+%    ends at the step bound. Here read->say needs a $not_posted:
+%    a lap in which nobody heard anything new leaves no repost
+%    pending, and the world is DONE in stage read.
+catalog gossip 2.
 provenance hand "port:interactive-lp/examples/gossip.cep" "2026-10-03".
 layers (story).
 stages (say read).
@@ -54,8 +59,9 @@ stage read {
   %% original cleanup, 1:1: a repost trigger for an already-posted message is dropped.
   cleanup [story] : not_posted(P,M) * $posted(P,M) -o ().
 }
-%% all reading done -> back to saying.
-qui rs [story] : read -o say.
+%% all reading done and someone has a repost pending -> back to
+%% saying (none pending: the gossip has run its course).
+qui rs [story] : read * $not_posted(P,M) -o say.
 % Original context init: p1..p3 have POSTED without knowing (kept);
 % p4 knows m1 and may repost it; unheard tokens (port addition) for
 % whatever a person neither knows nor has posted.

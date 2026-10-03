@@ -18,8 +18,8 @@ below). Every port is automatically roundtrip-gated by `make check`
 | `name : A * B -o C.` | `name [layer] : A * B -o C.` — plus a mandatory `%%` doc line above (compiler rejects undocumented rules) |
 | `rule/sub/name` | `rule-sub-name` (no `/` in idents) |
 | primed vars `C' C'' L'` | rename: `D E M` (no `'` in idents) |
-| `$a` (read-only premise) | `$a` — identical |
-| consume-and-reproduce (`a * b -o a * c`) | write what it denotes: `$a * b -o c` |
+| `$a` (read-only premise) | `$a` — identical, EXCEPT when the same rule also consumes or `$`-reads that same atom: Ceptre's `$a` claims its own token, metis's `$a` claims none (it fires one token early and prices `c·ff(c,k)` not `ff(c,k+1)`). There, write consume-and-reproduce out: `a * a * b -o a * c` (see tragedy v3 eroticize/divorce) |
+| consume-and-reproduce (`a * b -o a * c`) | write what it denotes: `$a * b -o c` — same caveat as `$a` above when `a` also appears elsewhere in the body |
 | `!a` in a HEAD (persistent product) | plain atom produced once; `$`-read it everywhere else (make sure the producer consumes something that prevents re-production — else you need the guard machinery; see spec 07 P4) |
 | `!a` premise on a `!`-produced fact | `$a` |
 | `-o ()` | `-o ()` — identical (the LL unit; canonical spelling) |
@@ -78,7 +78,7 @@ runs under `metisc --run` and passes the roundtrip gate.
 | garden-med | 87 | 3 | yes | yes |  |  |  |
 | garden-small | 63 | 2 | yes | yes |  |  |  |
 | garden | 141 | 3 | yes | yes |  |  |  |
-| gossip | 61 | 2 |  |  | ported | social/gossip.llp | `says` nesting flattened (unbounded constructor — outside the finite-type fragment); !posted/!knows latching via not_posted/unheard once-tokens (P4 recipe); posters keep NOT knowing their own initial posts (original quirk, see `knows(p1,m1)` query); closure identical over 3 seeds |
+| gossip | 61 | 2 |  |  | ported | social/gossip.llp | `says` nesting flattened (unbounded constructor — outside the finite-type fragment); !posted/!knows latching via not_posted/unheard once-tokens (P4 recipe); posters keep NOT knowing their own initial posts (original quirk, see `knows(p1,m1)` query); closure identical over 3 seeds; read->say link guarded by `$not_posted` so the saturated network QUIESCES (the original ping-pongs to the step bound) |
 | grammar-tinkering | 90 | 1 |  | yes |  |  |  |
 | hearthstone | 61 | 3 |  | yes |  |  |  |
 | hello-world | 10 | 1 | yes |  |  |  |  |
@@ -135,7 +135,7 @@ runs under `metisc --run` and passes the roundtrip gate.
 | thanksgiving | 52 | 1 |  |  |  |  |  |
 | tiny | 7 | 0 |  |  |  |  |  |
 | tower_of_hanoi | 56 | 1 | yes | yes |  |  |  |
-| tragedy | 220 | 1 | yes | yes | ported | fiction/tragedy.llp | v2: adds the `<>` guards the original lacked (self-murder/steal/witness/vengeance artifacts removed; suicide stays the one self-death); ⊕ head (formOpinion), $-read idiom, `#interactive all` live |
+| tragedy | 220 | 1 | yes | yes | ported | fiction/tragedy.llp | v2: adds the `<>` guards the original lacked (self-murder/steal/witness/vengeance artifacts removed; suicide stays the one self-death); ⊕ head (formOpinion), $-read idiom, `#interactive all` live. v3: eroticize/divorce written as consume-and-reproduce — the original's `$a` beside `a` needs its own token (fidelity fix) |
 | vampire | 34 | 1 |  |  |  |  |  |
 | werewolves-witches-slayers | 231 | 8 | yes | yes |  |  |  |
 | wilds | 12 | 1 |  |  |  |  |  |
