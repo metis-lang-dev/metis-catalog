@@ -18,6 +18,8 @@ below). Every port is automatically roundtrip-gated by `make check`
 | `name : A * B -o C.` | `name [layer] : A * B -o C.` — plus a mandatory `%%` doc line above (compiler rejects undocumented rules) |
 | `rule/sub/name` | `rule-sub-name` (no `/` in idents) |
 | primed vars `C' C'' L'` | rename: `D E M` (no `'` in idents) |
+| primed RULE names (`topR'`) | `topR-prime` — never `topR-1`: `<name>-<k>` is reserved for ⊕ branches (ll) |
+| `_` wildcard in a premise | a fresh variable, e.g. `ctx(X)` (ll) |
 | `$a` (read-only premise) | `$a` — identical, EXCEPT when the same rule also consumes or `$`-reads that same atom: Ceptre's `$a` claims its own token, metis's `$a` claims none (it fires one token early and prices `c·ff(c,k)` not `ff(c,k+1)`). There, write consume-and-reproduce out: `a * a * b -o a * c` (see tragedy v3 eroticize/divorce) |
 | consume-and-reproduce (`a * b -o a * c`) | write what it denotes: `$a * b -o c` — same caveat as `$a` above when `a` also appears elsewhere in the body |
 | `!a` in a HEAD (persistent product) | plain atom produced once; `$`-read it everywhere else (make sure the producer consumes something that prevents re-production — else you need the guard machinery; see spec 07 P4) |
@@ -28,6 +30,10 @@ below). Every port is automatically roundtrip-gated by `make check`
 | `#interactive s.` | `#interactive s` directive (menu on stderr, choice on stdin; EOF falls back to the sampler) |
 | `context init = {a, b, ...}.` | `#init a 1` directive lines (one per atom, counts explicit) |
 | `#trace _ s init.` | `#steps N` + `#seeds K` (+ `#query atom` for presence counts) |
+| finite constructor terms (`top_of ring : place`, `(top_of R)` in rules) | LLP terms are flat (`term ::= ident \| num`). Enumerate the constructor's image as named constants of the target type (`top_r1 …`), declare the constructor as a bwd GRAPH relation with one fact per constant (`topof(r1,top_r1).`), and where the original writes `(top_of R)` write a fresh var plus the guard: `clear(T) * topof(R,T)`. Grounding prunes the rest, so the ground program is the original's (tower_of_hanoi, cellular-automata) |
+| RECURSIVE constructor types (`lolli prop prop : prop`) | no finite type holds them: enumerate only the subterms of the original's context (subformula property — check the rules only ever produce direct subterms of their premises), name them so they spell the term, and use the graph-relation row above. State the bound in the header; a new context needs a new enumeration (ll) |
+| `#builtin NAT` / `s nat : nat` unary naturals | no counterpart: bound `nat` to an enumerated range (`n0..n2`) and make `s` the bwd successor graph `s(X,SX)`. State the bound in the header (cellular-automata) |
+| empty `stage s = { }` / `context init = {}` | `stage s {\n}` is legal; no `#init` lines (the world starts empty and quiesces at once) |
 | unweighted nondeterminism | leave weights off (prior 1.0) — or start modeling: that's the point of the port |
 
 Fidelity first, then measure: port 1:1 (keep even the original's
@@ -45,16 +51,16 @@ runs under `metisc --run` and passes the roundtrip gate.
 
 | example | lines | stages | #interactive | bwd | status | port | notes |
 | --- | ---: | ---: | --- | --- | --- | --- | --- |
-| 3lp | 25 | 1 | yes |  |  |  |  |
+| 3lp | 25 | 1 | yes |  | ported | fiction/3lp.llp | catalog `three-pigs` (no leading digit in idents); consume-and-reproduce blows written as $-reads — survival is WHICH premise is `$` (`$wolf * strawhouse` vs `wolf * $brickhouse`); exact: brick 1, straw/stick 0.5 each, wolf spent 1; `#interactive go` live |
 | arith | 26 | 1 |  | yes |  |  |  |
 | barman | 121 | 1 | yes | yes |  |  |  |
-| blocks-world | 37 | 1 | yes |  |  |  |  |
+| blocks-world | 37 | 1 | yes |  | ported | planning/blocks_world.llp | 1:1, no frame axioms; win_condition commented in the original (kept) so the world never quiesces; exact: the 6-move plan c-table/b-on-c/a-on-b reached by a random walk at 6 steps with P[on(a,b)]=1/27; no $-overlap, no pumping |
 | broadcast | 41 | 3 |  |  |  |  |  |
 | buffy-reenactment | 352 | 5 | yes | yes |  |  |  |
 | buffy-thesis | 390 | 6 | yes | yes |  |  |  |
 | buffy | 498 | 7 | yes | yes |  |  |  |
 | cell | 54 | 1 |  | yes |  |  |  |
-| cellular-automata | 35 | 2 |  | yes |  |  |  |
+| cellular-automata | 35 | 2 |  | yes | ported | automata/cellular_automata.llp | the original is a SKELETON ("wrote no actual code yet"): both stages empty, empty context; ported as-is (grid + nbr, no update rule invented — a v2 for the user to author). nat bounded to n0..n2 (`#builtin NAT` has no counterpart); `pos` via the constructor-graph row; the 8 nbr facts give 6 of 8 Moore neighbours (anti-diagonal absent — kept) |
 | citysim | 68 | 4 |  |  |  |  |  |
 | civ | 63 | 2 | yes |  |  |  |  |
 | cloak_of_darkness | 58 | 1 | yes | yes |  |  |  |
@@ -89,7 +95,7 @@ runs under `metisc --run` and passes the roundtrip gate.
 | interative-stage-test | 15 | 1 | yes |  |  |  |  |
 | lambda-ed | 83 | 2 | yes | yes |  |  |  |
 | leq | 14 | 0 |  | yes |  |  |  |
-| ll | 56 | 1 | yes |  |  |  |  |
+| ll | 56 | 1 | yes |  | ported | logic/ll.llp | recursive `prop` enumerated as the subformulas of `context test` (bound stated); topR' -> topR-prime, `_` -> X; the original's open question "oneR requires quiescence/absence?" kept OPEN in the header (not solved); with rules commented as in the original; the test theorem is proved on every run (P=1, all goals/ctx consumed) |
 | lola | 392 | 2 | yes |  |  |  |  |
 | love-triangle | 35 | 1 | yes | yes | ported* | fiction/love_triangle.llp | tutorial-variant port (ceptre-tutorial sol); examples/ version differs slightly — re-diff when touched |
 | mario | 96 | 1 | yes | yes |  |  |  |
@@ -134,7 +140,7 @@ runs under `metisc --run` and passes the roundtrip gate.
 | talespin | 122 | 1 | yes | yes |  |  |  |
 | thanksgiving | 52 | 1 |  |  |  |  |  |
 | tiny | 7 | 0 |  |  |  |  |  |
-| tower_of_hanoi | 56 | 1 | yes | yes |  |  |  |
+| tower_of_hanoi | 56 | 1 | yes | yes | ported | planning/tower_of_hanoi.llp | `top_of R`/`bottom P` via the constructor-graph row (`topof`/`bottomof` bwd); `smaller` = the original's Horn closure over `succ` (first `:-` rules in the catalog); unused constant `post : place` dropped, noted; optimal solve = 7 moves = 14 steps; no $-overlap, no pumping |
 | tragedy | 220 | 1 | yes | yes | ported | fiction/tragedy.llp | v2: adds the `<>` guards the original lacked (self-murder/steal/witness/vengeance artifacts removed; suicide stays the one self-death); ⊕ head (formOpinion), $-read idiom, `#interactive all` live. v3: eroticize/divorce written as consume-and-reproduce — the original's `$a` beside `a` needs its own token (fidelity fix) |
 | vampire | 34 | 1 |  |  |  |  |  |
 | werewolves-witches-slayers | 231 | 8 | yes | yes |  |  |  |

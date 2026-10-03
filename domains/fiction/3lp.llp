@@ -1,0 +1,60 @@
+% Port of interactive-lp/examples/3lp.cep — the Three Little Pigs.
+% One stage, pure linear consumption, one-to-one: every rule keeps its
+% original name. The catalog is named `three-pigs` (an ident may not
+% start with a digit, so `3lp` survives only as the file name).
+%
+% The lesson of this port is in the blow_* heads. The original writes
+% every blow as consume-and-reproduce, and WHICH atom it reproduces
+% decides who survives:
+%   blow_straw : wolf * strawhouse  -o wolf.         (house dies)
+%   blow_brick : wolf * brickhouse  -o brickhouse.   (wolf is spent)
+% Written as what they denote (recipe: consume-and-reproduce -> $-read),
+% survival is literally which premise carries the `$`:
+%   $wolf * strawhouse -o ()      vs      wolf * $brickhouse -o ().
+% No rule has a $-atom beside another premise of the same atom, so the
+% $-overlap caveat (tragedy v3) does not arise here.
+catalog three-pigs 1.
+provenance hand "port:interactive-lp/examples/3lp.cep" "2026-10-03".
+layers (story).
+stages (go).
+namespace farm produce (story).
+pred pig : farm.
+pred wolf : farm.
+pred sticks : farm.
+pred bricks : farm.
+pred straw : farm.
+pred stickhouse : farm.
+pred brickhouse : farm.
+pred strawhouse : farm.
+stage go {
+  %% a pig spends the straw on a straw house.
+  build_straw [story] : pig * straw -o strawhouse.
+  %% a pig spends the sticks on a stick house.
+  build_stick [story] : pig * sticks -o stickhouse.
+  %% a pig spends the bricks on a brick house.
+  build_brick [story] : pig * bricks -o brickhouse.
+  %% the wolf blows the straw house down: the HOUSE is consumed, the
+  %% wolf only $-read — he walks on to the next house.
+  blow_straw [story] : $wolf * strawhouse -o ().
+  %% the wolf blows the stick house down: house consumed, wolf $-read.
+  blow_stick [story] : $wolf * stickhouse -o ().
+  %% the wolf huffs at the brick house: now the WOLF is consumed and the
+  %% house only $-read — it stands, he is spent.
+  blow_brick [story] : wolf * $brickhouse -o ().
+}
+% The original's `context init` (pig x3) and `#trace _ go init.`; the
+% `#interactive go.` carries over verbatim (a human picks each step;
+% EOF falls back to the sampler). 6 steps is the longest story: three
+% builds and three blows.
+#init pig 3
+#init wolf 1
+#init straw 1
+#init sticks 1
+#init bricks 1
+#steps 8
+#seeds 3
+#query strawhouse
+#query stickhouse
+#query brickhouse
+#query wolf
+#interactive go
