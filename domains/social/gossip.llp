@@ -1,0 +1,82 @@
+% Port of interactive-lp/examples/gossip.cep — "gossip game:
+% social network knowledge propagation". Oddities kept, or flattened
+% where they leave the fragment, each noted:
+%  - `says person message : message` is an UNBOUNDED constructor
+%    (a repost is says P2 (says P1 M) ...) — outside the finite
+%    enumerated types on purpose (typing is the Pi-grounding bound).
+%    Flattened: a repost carries the message itself; provenance
+%    lives in posted(Source,M) and is dropped at knows.
+%  - the original's `read` consumes `posted` although `say` asserts
+%    it persistently (!posted), and nothing would stop endless
+%    re-reading. Ported per the recipe's !-head row: posted is
+%    produced ONCE (say consumes the not_posted trigger) and
+%    $-read; re-reading is stopped by the unheard(F,M) once-token —
+%    the guard-machinery stand-in for the latching `!knows` head
+%    (spec 07 P4). First source to reach a reader wins the token;
+%    the race is priced, not hidden.
+%  - the original's `say` consumes knows; the intent is plainly a
+%    read — $knows here.
+%  - follows lived in the context as linear atoms read with $;
+%    static relation -> bwd facts.
+%  - cleanup ported 1:1; under the token discipline no second
+%    not_posted for a posted message can arise, so it never fires —
+%    which is the dedup it was written to be.
+%  - the original's `#trace _ twitter init.` names a stage that
+%    does not exist; the case lines below run the say/read lap the
+%    author described.
+catalog gossip 1.
+provenance hand "port:interactive-lp/examples/gossip.cep" "2026-10-03".
+layers (story).
+stages (say read).
+type person {p1 p2 p3 p4 p5}.
+type message {m1 m2 m3}.
+namespace net produce (story).
+pred knows(person,message) : net.
+pred posted(person,message) : net.
+pred not_posted(person,message) : net.
+pred unheard(person,message) : net.
+bwd follows(person,person).
+follows(p1,p2). follows(p1,p3).
+follows(p2,p1).
+follows(p3,p1).
+follows(p4,p5). follows(p4,p1).
+follows(p5,p4).
+stage say {
+  %% a known, not-yet-posted message goes out (once: not_posted is the trigger token).
+  say [story] : $knows(P,M) * not_posted(P,M) -o posted(P,M).
+}
+%% all posting done -> reading.
+qui sr [story] : say -o read.
+stage read {
+  %% a follower's FIRST hearing of a post: learns it, may repost (unheard token consumed).
+  read [story] : $posted(S,M) * follows(F,S) * unheard(F,M)
+    -o knows(F,M) * not_posted(F,M).
+  %% original cleanup, 1:1: a repost trigger for an already-posted message is dropped.
+  cleanup [story] : not_posted(P,M) * $posted(P,M) -o ().
+}
+%% all reading done -> back to saying.
+qui rs [story] : read -o say.
+% Original context init: p1..p3 have POSTED without knowing (kept);
+% p4 knows m1 and may repost it; unheard tokens (port addition) for
+% whatever a person neither knows nor has posted.
+#init posted(p1,m1) 1
+#init posted(p2,m2) 1
+#init posted(p3,m3) 1
+#init knows(p4,m1) 1
+#init not_posted(p4,m1) 1
+#init unheard(p1,m2) 1
+#init unheard(p1,m3) 1
+#init unheard(p2,m1) 1
+#init unheard(p2,m3) 1
+#init unheard(p3,m1) 1
+#init unheard(p3,m2) 1
+#init unheard(p4,m2) 1
+#init unheard(p4,m3) 1
+#init unheard(p5,m1) 1
+#init unheard(p5,m2) 1
+#init unheard(p5,m3) 1
+#steps 40
+#seeds 3
+#query knows(p5,m2)
+#query knows(p5,m3)
+#query knows(p1,m1)

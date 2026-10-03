@@ -78,7 +78,7 @@ runs under `metisc --run` and passes the roundtrip gate.
 | garden-med | 87 | 3 | yes | yes |  |  |  |
 | garden-small | 63 | 2 | yes | yes |  |  |  |
 | garden | 141 | 3 | yes | yes |  |  |  |
-| gossip | 61 | 2 |  |  |  |  |  |
+| gossip | 61 | 2 |  |  | ported | social/gossip.llp | `says` nesting flattened (unbounded constructor — outside the finite-type fragment); !posted/!knows latching via not_posted/unheard once-tokens (P4 recipe); posters keep NOT knowing their own initial posts (original quirk, see `knows(p1,m1)` query); closure identical over 3 seeds |
 | grammar-tinkering | 90 | 1 |  | yes |  |  |  |
 | hearthstone | 61 | 3 |  | yes |  |  |  |
 | hello-world | 10 | 1 | yes |  |  |  |  |
