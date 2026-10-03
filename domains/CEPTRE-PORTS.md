@@ -144,3 +144,38 @@ runs under `metisc --run` and passes the roundtrip gate.
 
 Non-`.cep` material in the source tree (`broken/`, `non-ceptre/`,
 `tamara/`, `regression/`) is out of scope.
+
+## Bus candidates (multi-interpreter cooperation)
+
+Scan 2026-10-03, for the loop bus (metis-loop `loop/bus.py`: N
+`metis --json` interpreters message-passing through the broker's
+dict-as-blackboard — SPEC §10 tier 2). Criterion: the example cuts
+into interpreters whose INTERFACE (predicates crossing the cut) is
+narrow relative to each side's own vocabulary; the interface
+atoms become blackboard keys, moved by a driver. Heuristic scan
+(cross-stage shared-predicate ratio over all 96 `.cep`) plus a
+read of the shapes. Port each side 1:1 per the recipe above; the
+cut itself is DRIVER policy, never new syntax.
+
+| example | cut (one interpreter each) | interface → bb keys | why it's bus-shaped |
+| --- | --- | --- | --- |
+| gossip | one world per PERSON (or say vs read) | `posted P M` | literally a message board: `!posted` is a blackboard write, `knows` is private state — the flagship |
+| simwar | one world per PLAYER (symmetric; `#interactive play`) | `turn T`, visible `money/factories/offense/defense` | two-seat war sim; each seat's hidden hand stays private, the bb is the table |
+| defense-defense | one world per TEAM (blue/yellow) | `team_turn T`, `attack`, `health` | turn alternation is already a hand-off token |
+| garden (+ -iter3/-med/-small) | NATURE (advance_day/grow) vs GARDENER (`#interactive play`) | plant status atoms (`healthy/wilting/dead/needs_water`) | agent-vs-world; the gardener reads the garden's word, never its mechanism |
+| pandemic-multistage | BOARD (infect/outbreak) vs PLAYERS (actions) | `disease C N`, `outbreaks N`, turn token | co-op board game = shared board, private seats |
+| siedler_core / siedler1 | ECONOMY vs TURN mechanics | `development_card` (core: 1/21 shared — the narrowest seam in the corpus) | the economy serves any number of player worlds |
+| cooking-multistage | KITCHEN (timers) vs COOK (actions) | `in_pan`, `pre_timepass` (2/30) | the pan does not care who stirs |
+| lola | CITY world vs CHARACTER (beliefs/desires) | `location`, `has`, observations | BDI agent against a world — the loop's own shape (world posts surprises, agent formalizes) |
+
+Anti-candidates, for contrast: mazegen/sort/primes/regexp are
+PIPELINES (stages = phases of one algorithm — parallelizing them is
+tier 1, Foata layers, not the bus); cocktails2/rpg share ~half
+their vocabulary across stages (one world, thick seams).
+
+First wiring to try: gossip with three person-worlds — each
+interpreter's `posted` head becomes a driver `bb_set`, each
+`knows` init a driver `bb_get`+`init`, and the bus run should
+reproduce the single-world trace (the same propagation, now
+message-passed). That reproduction IS the acceptance test of the
+cut.
