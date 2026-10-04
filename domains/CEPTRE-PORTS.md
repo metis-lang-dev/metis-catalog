@@ -188,3 +188,52 @@ interpreter's `posted` head becomes a driver `bb_set`, each
 reproduce the single-world trace (the same propagation, now
 message-passed). That reproduction IS the acceptance test of the
 cut.
+
+## Lockstep verification (tools/ceptre_lockstep.py)
+
+The REAL Ceptre interpreter (built at `../interactive-lp/ceptre`)
+driven in lockstep against a port: every interactive menu must
+equal the metis `events` menu — instance set AND token
+multiplicities (a Ceptre menu lists one entry per token choice,
+which IS transition_count) — the sampled choice (the metis measure;
+Theorem 1: parity prior = Ceptre's picker) is fed to both, and the
+final states must be identical. The .cep runs from a printed-edit
+temp copy (`#interactive` ensured; `--drop-line` for lines current
+Ceptre rejects). Verified 2026-10-04, seeds 1-3 unless noted:
+
+    T=tools/ceptre_lockstep.py; E=../interactive-lp/examples
+    $T domains/fiction/3lp.llp $E/3lp.cep
+    $T domains/fiction/love_triangle.llp $E/love-triangle.cep
+    $T domains/fiction/tragedy.llp $E/tragedy.cep --steps 300 \
+      --strip-prefix do/ \
+      --alias formOpinion-like=formOpinion-1 \
+      --alias formOpinion-dislike=formOpinion-2 \
+      --alias mixed_feelings=mixed-feelings \
+      --alias ending_1=ending-marriage-and-death \
+      --alias ending_2=ending-love-triangle \
+      --alias ending_3=ending-vengeance
+    $T domains/planning/blocks_world.llp $E/blocks-world.cep --steps 30
+    $T domains/planning/tower_of_hanoi.llp $E/tower_of_hanoi.cep \
+      --steps 80 --drop-line '^post : place\.' \
+      --ctor topof=top_of@2 --ctor bottomof=bottom@2 \
+      --proj pickup=2,3 --proj putdown_on_ring=1,3 \
+      --proj putdown_on_post=1,3
+    $T domains/logic/ll.llp $E/ll.cep \
+      --ctor at=at --ctor tensor=tensor --ctor lolli=lolli \
+      --proj lolliR=2,3 --proj lolliL=2,3 --proj tensorL=2,3 \
+      --proj tensorR=2,3 --proj init=2
+
+Results: 3lp, love_triangle (self-anger states included),
+blocks-world, tower_of_hanoi (80 menus/seed) and ll (proof to the
+empty context) lockstep-identical. tragedy: seeds 1,3,4,5 identical
+over 65-300 menus; **seed 2 exposes a REAL fidelity gap — `!dead`**:
+Ceptre's `!dead C` is a persistent, idempotent fact, the port's
+`dead(D)` is a countable token, so a character dying twice gives
+mourn multiplicity 2 where Ceptre offers 1 (the P4 row's known
+limit, now with a reachable witness). Candidate fix: a `life(C)`
+token every death rule consumes — at most one death per character,
+no negation needed. DECISION PENDING. Broken originals (the
+interpreter itself says so): gossip.cep crashes ("0 is an invalid
+program index", the #trace stage name), tower_of_hanoi.cep does not
+load ("Cannot redefine post as a constant") — both oddities the
+ports documented.
