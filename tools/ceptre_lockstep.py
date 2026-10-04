@@ -206,7 +206,7 @@ def final_counts(text, unrender=None):
     for tok in items:
         tok = tok.strip().lstrip("!")
         if tok.startswith("(") and tok.endswith(")"):
-            tok = tok[1:-1].strip()
+            tok = tok[1:-1].strip().lstrip("!")   # (!dead tybalt)
         if not tok or tok == "qui" or tok.startswith("stage"):
             continue
         parts = tok.split(None, 1)
@@ -276,6 +276,7 @@ def main():
     try:
         for step in range(1, ns.steps + 1):
             menu, raw = read_menu(proc)
+            print(f"[step {step}] menu={len(menu) if menu else menu}", file=sys.stderr)
             tail += raw
             if menu is None:
                 break

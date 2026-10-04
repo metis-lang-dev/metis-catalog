@@ -22,7 +22,7 @@ below). Every port is automatically roundtrip-gated by `make check`
 | `_` wildcard in a premise | a fresh variable, e.g. `ctx(X)` (ll) |
 | `$a` (read-only premise) | `$a` — identical, EXCEPT when the same rule also consumes or `$`-reads that same atom: Ceptre's `$a` claims its own token, metis's `$a` claims none (it fires one token early and prices `c·ff(c,k)` not `ff(c,k+1)`). There, write consume-and-reproduce out: `a * a * b -o a * c` (see tragedy v3 eroticize/divorce) |
 | consume-and-reproduce (`a * b -o a * c`) | write what it denotes: `$a * b -o c` — same caveat as `$a` above when `a` also appears elsewhere in the body |
-| `!a` in a HEAD (persistent product) | plain atom produced once; `$`-read it everywhere else (make sure the producer consumes something that prevents re-production — else you need the guard machinery; see spec 07 P4) |
+| `!a` in a HEAD (persistent product) | Ceptre's `!` splits into two disciplined cases. STATIC truth (never produced in a run — `!actor C`): not state at all; it is a type or a bwd fact — the Horn world IS the persistent zone (unlimited reads, no multiplicity). MONOTONE DYNAMIC truth (`!dead C`): plain atom + a one-shot PERMISSION the producer consumes — for monotone facts `!p` is interderivable with spending an affine permission token. Often the permission already exists: every tragedy death consumes the victim's single `at` token, so `dead(X) <= 1` is invariant with no extra atom (verified by lockstep, 5/5 seeds, and the exact measure). Inheritance rule: a `!`-fact whose only producers are themselves one-shot per instance (`!murdered C C'` behind the death) needs nothing. Add a fresh token (`life(C)`) ONLY when no consumed premise already enforces at-most-once; `$`-read the fact everywhere else |
 | `!a` premise on a `!`-produced fact | `$a` |
 | `-o ()` | `-o ()` — identical (the LL unit; canonical spelling) |
 | two rules, same body, different heads | ONE rule with the ⊕ head: `-o ( h1 @w 1 | h2 @w 1 ).` (expands to `name-1`, `name-2`) |
@@ -224,16 +224,18 @@ Ceptre rejects). Verified 2026-10-04, seeds 1-3 unless noted:
       --proj tensorR=2,3 --proj init=2
 
 Results: 3lp, love_triangle (self-anger states included),
-blocks-world, tower_of_hanoi (80 menus/seed) and ll (proof to the
-empty context) lockstep-identical. tragedy: seeds 1,3,4,5 identical
-over 65-300 menus; **seed 2 exposes a REAL fidelity gap — `!dead`**:
-Ceptre's `!dead C` is a persistent, idempotent fact, the port's
-`dead(D)` is a countable token, so a character dying twice gives
-mourn multiplicity 2 where Ceptre offers 1 (the P4 row's known
-limit, now with a reachable witness). Candidate fix: a `life(C)`
-token every death rule consumes — at most one death per character,
-no negation needed. DECISION PENDING. Broken originals (the
-interpreter itself says so): gossip.cep crashes ("0 is an invalid
-program index", the #trace stage name), tower_of_hanoi.cep does not
-load ("Cannot redefine post as a constant") — both oddities the
-ports documented.
+blocks-world, tower_of_hanoi (80 menus/seed), ll (proof to the
+empty context) and tragedy (seeds 1-5, 65-300 menus each, final
+states to 366 tokens) ALL lockstep-identical. An earlier run had
+flagged tragedy seed 2 as a `!dead` persistence gap; that was
+withdrawn on evidence — `dead(X) <= 1` is structural in the port
+(every death consumes the victim's single `at`: the de-facto
+permission token; confirmed by the exact measure and by the full
+seed-2 drive), and the transient mismatch did not reproduce (one
+component was this tool's own final-state parser dropping `!`
+inside parenthesized facts, since fixed). The `!a` recipe row now
+carries the general reduction. Broken originals (the interpreter
+itself says so): gossip.cep crashes ("0 is an invalid program
+index", the #trace stage name), tower_of_hanoi.cep does not load
+("Cannot redefine post as a constant") — both oddities the ports
+documented.
