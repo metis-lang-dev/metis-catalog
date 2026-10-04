@@ -291,6 +291,13 @@ def main():
                 ours[ours_label(ev.name)] += w
             if theirs != ours:
                 print(f"MENU MISMATCH at step {step}:")
+                names = {a for lab in (set(theirs) | set(ours))
+                         for a in (lab[0],) + lab[1]}
+                rel = {a: n for a, n in sorted(counts.items())
+                       if any(x in a for x in names)}
+                print(f"  [state] {rel}")
+                print("  [ceptre menu] " + "; ".join(
+                    f"{k}:{v}" for k, v in sorted(menu.items())))
                 for lab in sorted(set(theirs) | set(ours),
                                   key=str):
                     a, b = theirs.get(lab, 0), ours.get(lab, 0)
