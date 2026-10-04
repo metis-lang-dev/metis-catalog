@@ -24,8 +24,9 @@
 %     _wherec / _does_like — one rule per answers clause. The ground
 %     program is the original's, renamed.
 %   - `solves_problem Any thirst water` is a Horn FACT WITH A
-%     VARIABLE; LLP takes fact arguments literally (reported upstream),
-%     so it is a rule over the membership relation ischar(C).
+%     VARIABLE, ported literally: fact vars are universally quantified
+%     over their position's type (spec §5), so Any ranges over every
+%     character.
 %   - Loc/L' become Loc/M; `Someone` stays S.
 %
 % $-OVERLAP SITES (tragedy-v3 caveat), written as consume-and-reproduce:
@@ -72,7 +73,6 @@ pred asks_does_like(character,character,character,character) : mind.
 pred has_problem(character,problem) : mind.
 bwd eats(animal,food).
 bwd is_animal(character,animal).
-bwd ischar(character).
 bwd solves_problem(character,problem,food).
 eats(bird,berries).
 eats(bird,worm).
@@ -86,11 +86,8 @@ is_animal(irving_bird,bird). is_animal(irving_bear,bear).
 is_animal(irving_mouse,mouse).
 is_animal(wilma_bird,bird). is_animal(wilma_bear,bear).
 is_animal(wilma_mouse,mouse).
-ischar(world). ischar(joe_bird). ischar(joe_bear). ischar(joe_mouse).
-ischar(irving_bird). ischar(irving_bear). ischar(irving_mouse).
-ischar(wilma_bird). ischar(wilma_bear). ischar(wilma_mouse).
 % solves_problem Any thirst water.
-solves_problem(C,thirst,water) :- ischar(C).
+solves_problem(Any,thirst,water).
 % solves_problem Char hunger Food <- is_animal Char Animal <- eats Animal Food.
 solves_problem(C,hunger,F) :- is_animal(C,A), eats(A,F).
 stage main {

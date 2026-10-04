@@ -35,7 +35,7 @@ below). Every port is automatically roundtrip-gated by `make check`
 | RECURSIVE constructor types (`lolli prop prop : prop`) | no finite type holds them: enumerate only the subterms of the original's context (subformula property — check the rules only ever produce direct subterms of their premises), name them so they spell the term, and use the graph-relation row above. State the bound in the header; a new context needs a new enumeration (ll) |
 | `#builtin NAT` / `s nat : nat` unary naturals | no counterpart: bound `nat` to an enumerated range (`n0..n2`) and make `s` the bwd successor graph `s(X,SX)`. State the bound in the header (cellular-automata) |
 | predicates over a constructor SUM type (`knows C (atf F L)` with `information` = atf \| atc \| likes) | enumerating the sum as constants explodes grounding; SPLIT the predicate per constructor (`knows_atf(C,F,L)`, `knows_atc(C,D,L)`, …), and split any rule that quantifies over the sum (e.g. via a bwd `answers Info Question` pairing constructors) into one rule per case, named `rule_case` (never `rule-k`). Ground program = the original's, renamed (talespin) |
-| Horn FACT with variables (`plus z N N.`, `solves_problem Any thirst water.`) | LLP takes fact arguments LITERALLY (a capitalized arg becomes a constant, silently — reported upstream). Write a rule over a membership relation: `bwd isnat(nat).` + one fact per constant + `plus(n0,N,N) :- isnat(N).` (primes, talespin) |
+| Horn FACT with variables (`plus z N N.`, `solves_problem Any thirst water.`) | port it literally: `plus(n0,N,N).` — a fact var is universally quantified over its position's type (spec §5, since 2026-10-04; both toolchains). Only a query that leaves it UNBOUND (a reads-scope guard) is an error — guard such a var with a predicate that enumerates it (primes, talespin) |
 | empty `stage s = { }` / `context init = {}` | `stage s { }` is legal; no `#init` lines (the world starts empty and quiesces at once) |
 | unweighted nondeterminism | leave weights off (prior 1.0) — or start modeling: that's the point of the port |
 
@@ -113,7 +113,7 @@ runs under `metisc --run` and passes the roundtrip gate.
 | paper | 182 | 7 |  |  |  |  |  |
 | parable | 37 | 0 |  | yes |  |  |  |
 | planting | 45 | 1 | yes |  |  |  |  |
-| primes | 34 | 2 |  | yes | ported | arith/primes.llp | limit 12 (the original's own) -> nat n0..n12; plus/mult Horn clauses (facts with vars via isnat — see recipe row); **$-overlap site**: collide's `$here N * here M` with `_`=1 makes M=N — written consume-and-reproduce (the literal `$` form erases every prime: P[here(n7)]=0); exact: primes 2,3,5,7,11 survive P=1, composites P=0; no pumping |
+| primes | 34 | 2 |  | yes | ported | arith/primes.llp | limit 12 (the original's own) -> nat n0..n12; plus/mult Horn clauses (plus/z, mult/z: quantified facts, literal); **$-overlap site**: collide's `$here N * here M` with `_`=1 makes M=N — written consume-and-reproduce (the literal `$` form erases every prime: P[here(n7)]=0); exact: primes 2,3,5,7,11 survive P=1, composites P=0; no pumping |
 | printXY | 36 | 1 |  |  |  |  |  |
 | professor | 31 | 1 | yes |  |  |  |  |
 | promweek | 1 | 0 |  |  |  |  |  |
@@ -140,7 +140,7 @@ runs under `metisc --run` and passes the roundtrip gate.
 | string-grammars-direct | 81 | 1 |  | yes |  |  |  |
 | string-grammars | 81 | 1 |  | yes |  |  |  |
 | string-input | 48 | 1 | yes | yes |  |  |  |
-| talespin | 122 | 1 | yes | yes | ported | fiction/talespin.llp | character constructors via the graph row; the `information`/`question` SUM types split per constructor (knows_atf/_atc/_likes, asks_*; tell_info -> tell_info_wheref/_wherec/_does_like); `solves_problem Any …` via ischar; **$-overlap sites**: ask (Someone=C) and the tell_info knows pairs — consume-and-reproduce; **pumping**: ask (re-asks until fed; unanswered honey asks pile up) — noted, not fixed; P[fed @8]=0.43 |
+| talespin | 122 | 1 | yes | yes | ported | fiction/talespin.llp | character constructors via the graph row; the `information`/`question` SUM types split per constructor (knows_atf/_atc/_likes, asks_*; tell_info -> tell_info_wheref/_wherec/_does_like); `solves_problem Any …` ported literally (quantified fact); **$-overlap sites**: ask (Someone=C) and the tell_info knows pairs — consume-and-reproduce; **pumping**: ask (re-asks until fed; unanswered honey asks pile up) — noted, not fixed; P[fed @8]=0.43 |
 | thanksgiving | 52 | 1 |  |  |  |  |  |
 | tiny | 7 | 0 |  |  |  |  |  |
 | tower_of_hanoi | 56 | 1 | yes | yes | ported | planning/tower_of_hanoi.llp | `top_of R`/`bottom P` via the constructor-graph row (`topof`/`bottomof` bwd); `smaller` = the original's Horn closure over `succ` (first `:-` rules in the catalog); unused constant `post : place` dropped, noted; optimal solve = 7 moves = 14 steps; no $-overlap, no pumping |

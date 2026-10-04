@@ -17,11 +17,10 @@
 %     are ordered mult-then-plus so backward chaining binds the
 %     intermediate product before adding (the original's `<-` chain
 %     lists them plus-first; same relation, terminating order).
-%   - plus/z and mult/z are FACTS WITH VARIABLES (`plus z N N`). An
-%     LLP Horn fact's arguments are taken literally (a var in a fact
-%     becomes the constant `N`, silently — reported upstream), so
-%     they are written as rules over a membership relation isnat(N)
-%     that enumerates the bounded nat: `plus(n0,N,N) :- isnat(N).`
+%   - plus/z and mult/z are FACTS WITH VARIABLES (`plus z N N`),
+%     ported literally: a fact var is universally quantified over its
+%     position's type (spec §5, 2026-10-04), so `plus(n0,N,N).` is
+%     Π N:nat exactly as in Ceptre.
 %   - go's `limit (s (s N))` pattern is limit(SSN) with guards
 %     s(SN,SSN), s(N,SN) — "at least two"; stop's `limit (s z)` is
 %     limit(n1). `mult _ N M` takes the var X for `_`.
@@ -47,10 +46,6 @@ pred here(nat) : sieve.
 bwd s(nat,nat).
 bwd plus(nat,nat,nat).
 bwd mult(nat,nat,nat).
-bwd isnat(nat).
-isnat(n0). isnat(n1). isnat(n2). isnat(n3). isnat(n4). isnat(n5).
-isnat(n6). isnat(n7). isnat(n8). isnat(n9). isnat(n10). isnat(n11).
-isnat(n12).
 s(n0,n1).
 s(n1,n2).
 s(n2,n3).
@@ -64,11 +59,11 @@ s(n9,n10).
 s(n10,n11).
 s(n11,n12).
 % plus/z : plus z N N.        plus/s : plus (s N) M (s P) <- plus N M P.
-plus(n0,N,N) :- isnat(N).
+plus(n0,N,N).
 plus(SN,M,SP) :- s(N,SN), s(P,SP), plus(N,M,P).
 % mult/z : mult z N z.        mult/s : mult (s N) M P
 %                                 <- plus NtimesM M P <- mult N M NtimesM.
-mult(n0,N,n0) :- isnat(N).
+mult(n0,N,n0).
 mult(SN,M,P) :- s(N,SN), mult(N,M,NM), plus(NM,M,P).
 stage gen {
   %% a limit of at least two puts that number here and counts down.
