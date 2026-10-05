@@ -52,7 +52,7 @@ stage go {
 #init sticks 1
 #init bricks 1
 #steps 8
-#seeds 3
+#seeds 1
 #query strawhouse
 #query stickhouse
 #query brickhouse
