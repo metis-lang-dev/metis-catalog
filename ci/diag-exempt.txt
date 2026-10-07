@@ -1,0 +1,24 @@
+# Catalogs NOT diagnosed standalone by ci/diagnose.sh — each with its
+# reason. Every entry is a CI finding (CI.md), not a silent skip; remove
+# a line as soon as the file typechecks on its own.
+#
+# include fragments: typed by the scene that includes them (the scene
+# IS diagnosed, so the fragment is covered through it)
+road/road_catalog.llp        fragment, typed by scenes/prodcat_instance.llp
+road/handles_domain.llp      fragment, typed by scenes/road_close_instance.llp
+domains/nav/nav_domain.llp   fragment, typed by scenes/nav4_instance.llp
+# type-parameterized templates: their types are supplied by metispy's
+# domain instantiators (domains/road/gridcat.py, domains/xtraffic/model.py);
+# no instance in this repo — finding: add one, or move them
+road/grid_domain.llp         template (lane/cell types from metispy gridcat)
+road/road_grid.llp           template (lane types from metispy gridcat)
+road/road_handles.llp        template (lane types from metispy)
+road/road_handles2.llp       template (lane types from metispy)
+road/road_handles3.llp       template (lane types from metispy)
+road/road_handles4.llp       template (lane types from metispy)
+domains/xtraffic/xtraffic_domain.llp  template (types from metispy xtraffic/model.py)
+# packs: `extends road.` needs a base; against the instantiated road
+# (scenes/prodcat_instance.llp) wcmark is var-untypable — finding, road
+# catalog work is parked by the user
+packs/wheelchair.llp         pack: wcmark var-untypable vs the road instance
+road/wheelchair.llp          pack: wcmark var-untypable vs the road instance

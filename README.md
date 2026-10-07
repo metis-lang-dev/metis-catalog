@@ -1,5 +1,7 @@
 # metis-catalog
 
+[![ci](https://github.com/metis-lang-dev/metis-catalog/actions/workflows/ci.yml/badge.svg)](https://github.com/metis-lang-dev/metis-catalog/actions/workflows/ci.yml)
+
 Behavior catalogs in LLP, with their certified artifacts and the
 collected examples that pin them. Road is ONE world model here, not
 the point: `domains/` is the playground of logical problems gathered
