@@ -12,8 +12,15 @@ EXEMPT=$(grep -v '^#' ci/diag-exempt.txt | awk 'NF{print $1}')
 fail=0; n=0
 for f in $(git ls-files '*.llp'); do
   n=$((n + 1))
-  errs=$("$METISC" --diagnostics-json "$f" 2>/dev/null \
-         | grep -c '"severity":"error"' || true)
+  # a metisc CRASH (Fatal error / exit != 0) is never "clean": its
+  # stdout is empty, so counting error rows alone read it as 0 errors —
+  # that is how road_zones' DiagnosticDefect passed as clean.
+  if ! out=$("$METISC" --diagnostics-json "$f" 2>&1); then
+    echo "FAIL $f: metisc crashed — $(printf '%s\n' "$out" | tail -1)"
+    fail=1
+    continue
+  fi
+  errs=$(printf '%s\n' "$out" | grep -c '"severity":"error"' || true)
   if printf '%s\n' "$EXEMPT" | grep -qx "$f"; then
     [ "$errs" = 0 ] && echo "NOTE $f typechecks now — drop it from ci/diag-exempt.txt"
     echo "exempt $f ($errs error(s))"

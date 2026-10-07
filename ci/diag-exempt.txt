@@ -22,3 +22,10 @@ domains/xtraffic/xtraffic_domain.llp  template (types from metispy xtraffic/mode
 # catalog work is parked by the user
 packs/wheelchair.llp         pack: wcmark var-untypable vs the road instance
 road/wheelchair.llp          pack: wcmark var-untypable vs the road instance
+# road_zones: a TEMPLATE like the road_* above — types (car speed zn dist
+# side axis occ act) and Horn tables (actv still reach osucc odec flip)
+# are instance-emitted by roadcat.zonecat, which is in no repo (finding,
+# 2026-10-07). Both toolchains agree it is untypable standalone (77
+# var-type-unknown); it passed as "clean" only because metisc crashed
+# on the over-cap slice and diagnose.sh read the empty stdout as 0.
+road/road_zones.llp          template (types + tables from roadcat.zonecat, generator missing)
