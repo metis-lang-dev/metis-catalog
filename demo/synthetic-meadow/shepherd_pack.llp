@@ -1,0 +1,15 @@
+%% the shepherd tallies the flock at rest: a fed wolf means a loss,
+%% a hungry one safety.
+catalog shepherd 1.
+extends meadow.
+provenance text "repl gate: the tally pack" "2026-10-09".
+namespace sh produce (pack).
+pred tally : sh.
+pred loss : sh.
+pred safe : sh.
+stage rest {
+  %% "a fed wolf means a loss"
+  n1 [pack] : tally * $fed -o loss.
+  %% "a hungry one safety"
+  n2 [pack] : tally * $hungry -o safe.
+}

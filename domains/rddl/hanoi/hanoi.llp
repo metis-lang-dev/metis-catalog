@@ -1,0 +1,59 @@
+% SOURCE: rddlrepository arcade/TowerOfHanoi/domain.rddl, header verbatim:
+% ////////////////////////////////////////////////////////////////////
+% // The classic Tower of Hanoi puzzle game. Here, disks of various
+% // sizes are stacked vertically on a set of rods. Only one disk
+% // can be moved at a time, and it can only be placed on top of another
+% // disk whose size is greater. The goal is to stack all the disks on
+% // a desired rod.
+% //
+% // Author:
+% //    Mike Gimelfarb (mgimelfarb@yahoo.ca)
+% //
+% ////////////////////////////////////////////////////////////////////
+%
+% Tier-2 investigation (2026-10-09): can the arcade puzzle class be
+% metis material? Declarative doctrine applied: the RDDL's int
+% fluents (disk-order, disk-count) are ITS ledger — synchronous-DBN
+% bookkeeping for "on top" and "stack position". The mechanism is
+% relational: a disk RESTS ON a surface (a bigger disk or a rod
+% base), a surface is CLEAR or covered — both linear resources; the
+% move swaps which surfaces are clear. "Only one disk at a time" =
+% one move rule firing; "only on a greater disk" = the fits data.
+% 3 disks (d1 < d2 < d3), 3 rods, goal rod r3.
+catalog hanoi 1.
+provenance text "tower of hanoi: disks stacked on rods, one at a time, never on a smaller disk, all to the target rod" "2026-10-09".
+layers (dyn).
+stages (play).
+type spot {d1 d2 d3 r1 r2 r3}.
+namespace th produce (dyn).
+pred on(spot, spot) : th.
+pred clear(spot) : th.
+pred solved : th.
+pred tally : th.
+bwd fits(spot, spot).
+fits(d1, d2).
+fits(d1, d3).
+fits(d2, d3).
+fits(d1, r1).
+fits(d1, r2).
+fits(d1, r3).
+fits(d2, r1).
+fits(d2, r2).
+fits(d2, r3).
+fits(d3, r1).
+fits(d3, r2).
+fits(d3, r3).
+stage play {
+  %% "Only one disk can be moved at a time, and it can only be placed on top of another disk whose size is greater." — a clear disk leaves its perch for a clear, fitting surface
+  mv [dyn] : $clear(D) * on(D, P) * clear(E) * fits(D, E) -o on(D, E) * clear(P).
+  %% "The goal is to stack all the disks on a desired rod."
+  done [dyn] : tally * $on(d1, d2) * $on(d2, d3) * $on(d3, r3) -o solved.
+}
+#init on(d1,d2) 1
+#init on(d2,d3) 1
+#init on(d3,r1) 1
+#init clear(d1) 1
+#init clear(r2) 1
+#init clear(r3) 1
+#init tally 1
+#steps 25

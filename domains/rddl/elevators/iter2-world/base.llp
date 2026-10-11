@@ -1,0 +1,102 @@
+catalog elevators_observed 1.
+provenance text "the observed real elevators (instance 5, sinks/iter0-born.jsonl): elevator_* and person_* step atoms driven by close_door, open_door_going_up, open_door_going_down, move_current_dir actions" "2026-10-09".
+layers (env pol).
+stages (run).
+type elevator {e0 e1}.
+type floor {f0..f3}.
+namespace obs produce (env).
+namespace act produce (pol).
+namespace hid produce (env pol).
+pred elevator_at_floor(elevator, floor) : obs.
+pred elevator_closed(elevator) : obs.
+pred elevator_dir_up(elevator) : obs.
+pred person_waiting_up(floor) : obs.
+pred person_waiting_down(floor) : obs.
+pred person_in_elevator_going_up(elevator) : obs.
+pred person_in_elevator_going_down(elevator) : obs.
+pred close_door(elevator) : act.
+pred open_door_going_up(elevator) : act.
+pred open_door_going_down(elevator) : act.
+pred move_current_dir(elevator) : act.
+% hidden complements: linear logic cannot test absence, so each absent observed flag is carried by a complement atom
+pred elevator_open(elevator) : hid.
+pred elevator_dir_down(elevator) : hid.
+pred slot_up(floor) : hid.
+pred slot_down(floor) : hid.
+% handshake: pol issues an action with pending, env reads the action and answers done, pol retires the action
+pred ready(elevator) : hid.
+pred pending(elevator) : hid.
+pred done(elevator) : hid.
+bwd above(floor, floor).
+above(f0, f1).
+above(f1, f2).
+above(f2, f3).
+bwd top(floor).
+top(f3).
+bwd bottom(floor).
+bottom(f0).
+stage run {
+  %% "The step state also carries action atoms close_door(E), open_door_going_up(E), open_door_going_down(E), move_current_dir(E), never observed afterwards."
+  choose [pol] : ready(E) -o (close_door(E) * pending(E) @w 1 | open_door_going_up(E) * pending(E) @w 1 | open_door_going_down(E) * pending(E) @w 1 | move_current_dir(E) * pending(E) @w 2 | ready(E) @w 1).
+  %% "The step state also carries action atoms close_door(E), open_door_going_up(E), open_door_going_down(E), move_current_dir(E), never observed afterwards."
+  retire_close [pol] : close_door(E) * done(E) -o ready(E).
+  %% "The step state also carries action atoms close_door(E), open_door_going_up(E), open_door_going_down(E), move_current_dir(E), never observed afterwards."
+  retire_open_up [pol] : open_door_going_up(E) * done(E) -o ready(E).
+  %% "The step state also carries action atoms close_door(E), open_door_going_up(E), open_door_going_down(E), move_current_dir(E), never observed afterwards."
+  retire_open_down [pol] : open_door_going_down(E) * done(E) -o ready(E).
+  %% "The step state also carries action atoms close_door(E), open_door_going_up(E), open_door_going_down(E), move_current_dir(E), never observed afterwards."
+  retire_move [pol] : move_current_dir(E) * done(E) -o ready(E).
+  %% "With close_door(e0) present, elevator_closed(e0) appears (record 4)."
+  close [env] : $close_door(E) * pending(E) * elevator_open(E) -o elevator_closed(E) * done(E).
+  %% "With close_door(e0) present, elevator_closed(e0) appears (record 4)."
+  close_idle [env] : $close_door(E) * pending(E) * $elevator_closed(E) -o done(E).
+  %% "With open_door_going_up(e0) present, elevator_closed(e0) disappears (record 9)"
+  open_up_keep [env] : $open_door_going_up(E) * pending(E) * elevator_closed(E) * $elevator_dir_up(E) -o elevator_open(E) * done(E).
+  %% "With open_door_going_up(e0) present, elevator_closed(e0) disappears (record 9) and elevator_dir_up(e0) appears if absent (record 14)"
+  open_up_turn [env] : $open_door_going_up(E) * pending(E) * elevator_closed(E) * elevator_dir_down(E) -o elevator_open(E) * elevator_dir_up(E) * done(E).
+  %% "With open_door_going_up(e0) present, elevator_closed(e0) disappears (record 9)"
+  open_up_again [env] : $open_door_going_up(E) * pending(E) * $elevator_open(E) * $elevator_dir_up(E) -o done(E).
+  %% "elevator_dir_up(e0) appears if absent (record 14)"
+  open_up_again_turn [env] : $open_door_going_up(E) * pending(E) * $elevator_open(E) * elevator_dir_down(E) -o elevator_dir_up(E) * done(E).
+  %% "with open_door_going_down(e1) present, elevator_dir_up(e1) disappears (record 44)."
+  open_down_turn [env] : $open_door_going_down(E) * pending(E) * elevator_closed(E) * elevator_dir_up(E) -o elevator_open(E) * elevator_dir_down(E) * done(E).
+  %% "with open_door_going_down(e1) present, elevator_dir_up(e1) disappears (record 44)."
+  open_down_keep [env] : $open_door_going_down(E) * pending(E) * elevator_closed(E) * $elevator_dir_down(E) -o elevator_open(E) * done(E).
+  %% "with open_door_going_down(e1) present, elevator_dir_up(e1) disappears (record 44)."
+  open_down_again_turn [env] : $open_door_going_down(E) * pending(E) * $elevator_open(E) * elevator_dir_up(E) -o elevator_dir_down(E) * done(E).
+  %% "with open_door_going_down(e1) present, elevator_dir_up(e1) disappears (record 44)."
+  open_down_again [env] : $open_door_going_down(E) * pending(E) * $elevator_open(E) * $elevator_dir_down(E) -o done(E).
+  %% "With move_current_dir(e0), elevator_closed(e0) and elevator_dir_up(e0) present, elevator_at_floor(e0,f0) becomes elevator_at_floor(e0,f1) (records 5, 27), f1 becomes f2 (record 6), f2 becomes f3 (record 23)"
+  move_up [env] : $move_current_dir(E) * pending(E) * $elevator_closed(E) * $elevator_dir_up(E) * elevator_at_floor(E, F) * above(F, G) -o elevator_at_floor(E, G) * done(E).
+  %% "with move_current_dir(e0) and elevator_closed(e0) present but elevator_dir_up(e0) absent, elevator_at_floor(e0,f1) becomes elevator_at_floor(e0,f0) (record 113)."
+  move_down [env] : $move_current_dir(E) * pending(E) * $elevator_closed(E) * $elevator_dir_down(E) * elevator_at_floor(E, F) * above(G, F) -o elevator_at_floor(E, G) * done(E).
+  %% "With move_current_dir(e0), elevator_closed(e0) and elevator_dir_up(e0) present, elevator_at_floor(e0,f0) becomes elevator_at_floor(e0,f1)"
+  move_open [env] : $move_current_dir(E) * pending(E) * $elevator_open(E) -o done(E).
+  %% "f2 becomes f3 (record 23)"
+  move_top [env] : $move_current_dir(E) * pending(E) * $elevator_closed(E) * $elevator_dir_up(E) * $elevator_at_floor(E, F) * top(F) -o done(E).
+  %% "elevator_at_floor(e0,f1) becomes elevator_at_floor(e0,f0) (record 113)."
+  move_bottom [env] : $move_current_dir(E) * pending(E) * $elevator_closed(E) * $elevator_dir_down(E) * $elevator_at_floor(E, F) * bottom(F) -o done(E).
+  %% "With no action, person_waiting_up(f1), person_waiting_up(f2) and person_waiting_down(f2) appear at times (records 10, 26)."
+  arrive_up [env] : slot_up(F) -o person_waiting_up(F) @w 0.2.
+  %% "With no action, person_waiting_up(f1), person_waiting_up(f2) and person_waiting_down(f2) appear at times (records 10, 26)."
+  arrive_down [env] : slot_down(F) -o person_waiting_down(F) @w 0.2.
+  %% "With elevator_at_floor(e0,f1) and elevator_dir_up(e0) present and elevator_closed(e0) absent, person_waiting_up(f1) disappears and person_in_elevator_going_up(e0) appears (record 109; likewise e1, record 8)"
+  board_up [env] : $elevator_at_floor(E, F) * $elevator_dir_up(E) * $elevator_open(E) * person_waiting_up(F) -o person_in_elevator_going_up(E) * slot_up(F).
+  %% "with elevator_at_floor(e0,f1) present and both elevator_closed(e0) and elevator_dir_up(e0) absent, person_waiting_down(f1) disappears and person_in_elevator_going_down(e0) appears (records 33, 68)."
+  board_down [env] : $elevator_at_floor(E, F) * $elevator_dir_down(E) * $elevator_open(E) * person_waiting_down(F) -o person_in_elevator_going_down(E) * slot_down(F).
+}
+#init ready(e0) 1
+#init ready(e1) 1
+#init elevator_at_floor(e0,f0) 1
+#init elevator_at_floor(e1,f1) 1
+#init elevator_open(e0) 1
+#init elevator_open(e1) 1
+#init elevator_dir_down(e0) 1
+#init elevator_dir_up(e1) 1
+#init slot_up(f0) 1
+#init slot_up(f1) 1
+#init slot_up(f2) 1
+#init slot_down(f1) 1
+#init slot_down(f2) 1
+#init slot_down(f3) 1
+#steps 200

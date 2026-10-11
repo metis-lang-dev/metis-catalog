@@ -15,10 +15,24 @@ tested **the split between LL and runtime**:
   prior-flat base (0.5) plus a notch table fitted from recorded gym
   episodes. The catalogs contain no rate literal.
 
-Serve: `metis --plugin <plugin>:make domains/rddl/<domain>.llp`. The
-plugins and fitting scripts live in metis-loop `experiments/<domain>/`.
-The fitted tables are here (`<domain>.notch.json`, the overlay format of
+Serve: `metis --plugin <plugin>:make domains/rddl/<domain>.llp` (the
+plugin is resolved beside the catalog, else in the working directory —
+run from `<domain>/`, or pass `<domain>/<domain>_plugin.py:make`). The
+fitted tables are here (`<domain>.notch.json`, the overlay format of
 `rddl_recorder --overlay`).
+
+## The experiments (one directory each, README = the intelligence)
+
+| directory | source | outcome |
+|---|---|---|
+| `wildfire/` | IPPC2014 Wildfire header + gym instance 1 | produced `wildfire.llp`; notched pign(k) within CI of the gym's logistic at every k |
+| `tamarisk/` | IPPC2014 Tamarisk header (latin-1) + gym instance 1 | produced `tamarisk.llp`; 11 ports, 8 within CI; per-slot EM notch |
+| `elevators/` | IPPC2011 Elevators header + gym instance 5 | the first RDDL run: language cards v1–v3 and the settle/negatives/tick interface the shelf reused; surprises stayed at the 25.2/episode ceiling, no notch reached; not promoted to a domain file |
+| `hanoi/` | rddlrepository arcade TowerOfHanoi header | Tier-2 probe: can an arcade puzzle be metis material |
+
+The shelf plan and its rationale: `EXPERIMENT-RDDL.md` (moved here from
+metis-loop docs). The protocol the plugins implement: metis-loop
+`docs/PLUGIN-PORTS.md`; its conformance fixtures: `../ports/port-proto/`.
 
 ## Last result against the gym (instance 1, random agent)
 
@@ -68,5 +82,5 @@ scores 2.65.
 - Per-reach rows agree with the global ports: 2 of 36 fall outside
   their CI.
 
-Full reports: metis-loop `experiments/wildfire/RESULTS-step2.md` and
-`experiments/tamarisk/RESULTS-step2.md`.
+Full reports: `wildfire/README.md`, `tamarisk/README.md` (and their
+RESULTS-step*.md).

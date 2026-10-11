@@ -1,0 +1,1 @@
+{"format": "metis-surprise", "version": 1, "program_key": "945292197b236ceccbe2d7817310b858f5ee3e1b86c60743a01eaaa38d21951a", "steps": 6, "init": {"wolf": 1, "sheep": 3, "night": 2, "tally": 2}, "observed": {"safe": 1}, "likelihood": 0, "kind": "unmodeled", "meta": {"source": "synthetic: shepherd's ledger, wolf night ep0", "episode": 0, "catalog": "meadow.llp"}}

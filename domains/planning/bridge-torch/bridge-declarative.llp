@@ -1,0 +1,99 @@
+% SOURCE: en.wikipedia.org/wiki/Bridge_and_torch_problem
+% (fetched 2026-10-09), problem statement verbatim:
+%
+% "Four people come to a river in the night."
+% "There is a narrow bridge, and it can only hold two people at a
+%  time."
+% "They have one torch and, because it's night, the torch has to be
+%  used when crossing the bridge."
+% "Person A can cross the bridge in 1 minute, B in 2 minutes, C in 5
+%  minutes, and D in 8 minutes."
+% "When two people cross the bridge together, they must move at the
+%  slower person's pace."
+% "The question is, can they all get across the bridge if the torch
+%  lasts only 15 minutes?"
+%
+% DECLARATIVE redo of bridge.llp: time is dynamics, pace is data.
+% The bridge is a path of minute-marks; the torch-party advances one
+% mark per minute, burning one wick; a walker steps off at their own
+% pace mark (forced in the settle stage, like wgc's eats); the torch
+% lands when both planks are back. "At the slower person's pace" is
+% EMERGENT: the torch burns until the last walker is off. Capacity
+% two = two plank tokens. No max() facts, no cost-class rules, no
+% token multiplicities, all weights uniform. The tick is the wgc
+% idiom: board (choices) -> stride (a minute passes) -> settle
+% (consequences fire before the stage may quiesce) -> board.
+catalog bridge_decl 1.
+provenance text "bridge and torch, declarative: the torch-party walks minute-marks; pace is data; the slower pace emerges" "2026-10-09".
+layers (dyn).
+stages (board stride settle).
+type person {a b c d}.
+type side {near far}.
+type mark {m0..m8}.
+namespace bd produce (dyn).
+pred pos(person, side) : bd.
+pred aboard(person) : bd.
+pred torch(side) : bd.
+pred lamp(side) : bd.
+pred party(mark) : bd.
+pred plank : bd.
+pred wick : bd.
+pred beat : bd.
+pred moved : bd.
+pred solved : bd.
+pred tally : bd.
+bwd across(side, side).
+across(near, far).
+across(far, near).
+bwd start(mark).
+start(m0).
+bwd step(mark, mark).
+step(m0, m1).
+step(m1, m2).
+step(m2, m3).
+step(m3, m4).
+step(m4, m5).
+step(m5, m6).
+step(m6, m7).
+step(m7, m8).
+bwd pace(person, mark).
+pace(a, m1).
+pace(b, m2).
+pace(c, m5).
+pace(d, m8).
+stage board {
+  %% "it can only hold two people at a time" — a free plank admits one walker where the torch is
+  embark [dyn] : plank * pos(X, S) * $torch(S) -o aboard(X).
+  %% "the torch has to be used when crossing the bridge" — the party sets out from the near mark, torch in hand
+  depart [dyn] : torch(S) * across(S, T) * start(M) * $aboard(X) -o lamp(T) * party(M).
+  %% "can they all get across the bridge"
+  done [dyn] : tally * $pos(a, far) * $pos(b, far) * $pos(c, far) * $pos(d, far) -o solved.
+}
+%% the party is on the bridge: minutes pass
+qui go [dyn] : board -o stride.
+stage stride {
+  %% "Person A can cross the bridge in 1 minute, B in 2 minutes, C in 5 minutes, and D in 8 minutes." — a minute of walking burns a minute of torch
+  advance [dyn] : beat * party(M) * step(M, N) * wick * $aboard(X) -o party(N) * moved.
+}
+%% the minute is spent: what it brought, happens
+qui halt [dyn] : stride -o settle.
+stage settle {
+  %% "Person A can cross the bridge in 1 minute, B in 2 minutes, C in 5 minutes, and D in 8 minutes." — each walker steps off at their own mark; "at the slower person's pace" follows: the torch burns until the last one is off
+  alight [dyn] : aboard(X) * pace(X, M) * $party(M) * $lamp(T) -o pos(X, T) * plank.
+  %% both planks free: nobody left on the bridge — the torch lands
+  land [dyn] : lamp(T) * party(M) * plank * plank -o torch(T) * plank * plank.
+  %% the next minute may come
+  rearm [dyn] : moved -o beat.
+}
+%% the bank: choices again
+qui dawn [dyn] : settle -o board.
+#init pos(a,near) 1
+#init pos(b,near) 1
+#init pos(c,near) 1
+#init pos(d,near) 1
+#init torch(near) 1
+#init plank 2
+#init wick 15
+#init beat 1
+#init tally 1
+#steps 150

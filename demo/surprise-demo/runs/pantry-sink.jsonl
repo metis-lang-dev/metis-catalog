@@ -1,0 +1,2 @@
+# synthetic surprise: keeper away all day, door never opened — yet the cat was found inside the pantry, the mouse gone, the cat fed.
+{"format": "metis-surprise", "version": 1, "steps": 4, "init": {"cat(kitchen)": 1, "door_closed": 1, "mouse(pantry)": 1}, "observed": {"cat(kitchen)": 0, "cat(pantry)": 1, "door_open": 0, "door_closed": 1, "mouse(pantry)": 0, "fed": 1, "keeper_home": 0}, "likelihood": 0, "kind": "unmodeled", "meta": {"source": "synthetic: house camera, day 3, keeper away"}}

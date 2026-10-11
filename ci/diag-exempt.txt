@@ -29,3 +29,8 @@ road/wheelchair.llp          pack: wcmark var-untypable vs the road instance
 # var-type-unknown); it passed as "clean" only because metisc crashed
 # on the over-cap slice and diagnose.sh read the empty stdout as 0.
 road/road_zones.llp          template (types + tables from roadcat.zonecat, generator missing)
+# experiment packs (catalog-consolidation, 2026-10-11): `extends <base>`,
+# compiled standalone they report extends-no-base; each is typed against
+# the base beside it (the experiment README says which)
+demo/synthetic-meadow/shepherd_pack.llp  pack: extends meadow (demo/synthetic-meadow/meadow.llp)
+domains/rddl/elevators/iter2-world/pack1.llp  pack: extends the iter2 base (iter2-world/base.llp)

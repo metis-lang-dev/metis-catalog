@@ -1,0 +1,46 @@
+% SYNTHETIC DEMO — the pantry world (surprise-loop walkthrough).
+% A keeper, a pantry door, a cat, a mouse. The base models the door
+% as the ONLY way in: the keeper opens it, the cat walks through.
+% The deliberate gap: the broken floor vent is not modeled — the
+% surprise record (runs/pantry-sink.jsonl) is an episode where the
+% cat turned up inside the CLOSED pantry.
+catalog pantry 1.
+provenance text "a house, a pantry door, a cat" "2026-10-09".
+
+layers (dyn pack).
+stages (day).
+
+type room {kitchen pantry}.
+
+% the house namespace is the packs' extension point: a pack may
+% consume and produce house atoms (the mini.llp kinematic pattern).
+namespace hs produce (dyn pack) consume (dyn pack).
+
+pred cat(room) : hs.
+pred door_open : hs.
+pred door_closed : hs.
+pred keeper_home : hs.
+pred mouse(room) : hs.
+pred fed : hs.
+
+stage day {
+  %% "the keeper, when home, opens the pantry door"
+  open [dyn] : door_closed * $keeper_home -o door_open.
+  %% "the keeper, when home, closes the pantry door"
+  close [dyn] : door_open * $keeper_home -o door_closed.
+  %% "the cat walks through the open pantry door"
+  enter [dyn] : cat(kitchen) * $door_open -o cat(pantry).
+  %% "the cat returns to the kitchen through the open door"
+  leave [dyn] : cat(pantry) * $door_open -o cat(kitchen).
+  %% "in the pantry the cat catches the mouse and is fed"
+  hunt [dyn] : cat(pantry) * mouse(pantry) -o cat(pantry) * fed.
+  %% "the cat scratches at the closed pantry door"
+  scratch [dyn] : $cat(R) * $door_closed -o ().
+}
+
+% the embedded case: a NORMAL day — the keeper is home.
+#init keeper_home 1
+#init cat(kitchen) 1
+#init door_closed 1
+#init mouse(pantry) 1
+#steps 6

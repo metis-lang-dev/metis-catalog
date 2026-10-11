@@ -1,0 +1,22 @@
+%% SOURCE: synthetic demo world (TUTORIAL.md "Closing the loop");
+%% hand-written for the surprise-in-REPL transcript, 2026-10-09 —
+%% same shape as metispy tests/loop/test_loop.py MEADOW fixture.
+catalog meadow 1.
+provenance text "repl gate: wolf and flock" "2026-10-09".
+layers (dyn pack).
+stages (hunt rest).
+namespace md produce (dyn).
+pred wolf : md.
+pred sheep : md.
+pred night : md.
+pred fed : md.
+pred hungry : md.
+weight pk reads {}.
+stage hunt {
+  %% "On a wolf night the wolf may catch a sheep and feed."
+  catch [dyn] : wolf * sheep * night -o wolf * fed  @w pk.
+  %% "Or the flock evades and the wolf stays hungry."
+  evade [dyn] : wolf * night -o wolf * hungry  @w ~pk.
+}
+%% "When the nights are spent, the meadow settles to rest."
+qui hr [dyn] : hunt -o rest.

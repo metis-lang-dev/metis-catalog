@@ -1,0 +1,19 @@
+catalog elevators_riders 1.
+extends elevators_observed.
+provenance text "the observed real elevators (instance 5, sinks/iter0-born.jsonl): boarded passengers stay aboard; no passenger was seen leaving an elevator in 200 steps" "2026-10-09".
+namespace rid produce (env).
+pred watch_up(elevator) : rid.
+pred watch_down(elevator) : rid.
+pred aboard_up(elevator) : rid.
+pred aboard_down(elevator) : rid.
+stage run {
+  %% "person_waiting_up(f1) disappears and person_in_elevator_going_up(e0) appears (record 109; likewise e1, record 8) ... No passenger was seen leaving an elevator in these 200 steps."
+  note_aboard_up [env] : watch_up(E) * $person_in_elevator_going_up(E) -o aboard_up(E).
+  %% "person_waiting_down(f1) disappears and person_in_elevator_going_down(e0) appears (records 33, 68). No passenger was seen leaving an elevator in these 200 steps."
+  note_aboard_down [env] : watch_down(E) * $person_in_elevator_going_down(E) -o aboard_down(E).
+}
+#init watch_up(e0) 1
+#init watch_up(e1) 1
+#init watch_down(e0) 1
+#init watch_down(e1) 1
+#steps 200
