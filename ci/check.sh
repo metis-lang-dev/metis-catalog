@@ -16,8 +16,9 @@ echo "== 1. roundtrip over every catalog, pack, demo, scene"
 # generated manifest lives at the repo root with repo-relative paths.
 RT="$ROOT/.roundtrip-manifest.tmp"
 trap 'rm -rf "$WORK" "$RT"' EXIT
-( cd "$ROOT" && for f in road/*.llp packs/*.llp demo/*.llp scenes/*.llp \
-                         domains/*/*.llp; do
+# every tracked .llp, subdirectories included (the experiment dirs
+# under domains/ and demo/ since 5bb0bdf); same set diagnose.sh walks
+( cd "$ROOT" && for f in $(git ls-files '*.llp'); do
     printf 'case rt-%s\nllp %s\nsteps 1\nend\n' "$(basename "$f" .llp)" "$f"
   done ) > "$RT"
 "$METISC" --roundtrip "$RT"
