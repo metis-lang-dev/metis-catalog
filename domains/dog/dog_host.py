@@ -17,6 +17,36 @@ import sys
 
 OUTCOMES = ("done", "refused", "progress", "expired", "cancelled")
 
+# the complementary pairs the host keeps current (dog.llp: "exactly one of
+# each pair holds"). A refusal whose blocker is one side of a pair is
+# something the person can change in the world (the consult's `missing`);
+# a blocker outside the pairs is `unexplained`. Handed to the domain agent
+# at load; the catalog never sees it.
+PAIRS = (
+    ("battery_ok", "battery_low"),
+    ("floor_dry", "floor_wet"),
+    ("free", "obstacle"),           # by side
+    ("clear", "wall"),              # by way
+    ("leg_ok", "leg_hot"),
+    ("mapped", "unmapped"),         # by place
+    ("open", "closed"),             # by place
+    ("person_in_view", "nobody"),
+    ("seen", "unseen"),             # by thing
+    ("spotted", "locked_away"),     # by thing, while searching
+)
+
+
+def flips(atom):
+    """The complement of a blocker atom, or None when it is not a pair's side
+    (then the refusal is not about the world: busy, already, must stand)."""
+    name, _, args = atom.partition("(")
+    for a, b in PAIRS:
+        if name == a:
+            return b + ("(" + args if args else "")
+        if name == b:
+            return a + ("(" + args if args else "")
+    return None
+
 SCRIPT = {   # beat -> do-lines: the person's command, and world changes
     1: ["+cmd_sit"],
     2: ["+cmd_go(kitchen)"],            # the kitchen door is closed
