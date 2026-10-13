@@ -21,11 +21,11 @@ token the narrator reads → the port that actuates.
 | the executive's intent | the command token | accepted by | refused by (the reason is the rule's `%%` line) |
 |---|---|---|---|
 | LOCAL_ACTION stand/sit/lie | `cmd_stand`, `cmd_sit`, `cmd_lie` | `stand`, `sit`, `lie` (the posture changes) | `*_already`; `stand_low` (battery), `sit_wet` (floor) |
-| LOCAL_ACTION turn/move | `cmd_turn(side)`, `cmd_move(way)` | `turn`, `move` | `turn_obstacle`, `move_wall`; `*_down` (has to stand first) |
+| LOCAL_ACTION turn/move | `cmd_turn(side)`, `cmd_move(way)` | `turn`, `move` | `turn_obstacle`, `move_wall`; `*_must_stand` (has to stand first) |
 | LOCAL_ACTION shake | `cmd_paw` | `paw` | `paw_hot` |
-| NAVIGATE | `cmd_go(place)` | `go` → `moving(P)` + `progress(go)`; ends by `arrive` / `go_blocked` / `go_expire` | `go_unmapped`, `go_closed`, `go_down`, `go_busy*` |
+| NAVIGATE | `cmd_go(place)` | `go` → `moving(P)` + `progress(go)`; ends by `arrive` / `go_blocked` / `go_expire` | `go_unmapped`, `go_closed`, `go_must_stand`, `go_busy*` |
 | FIND | `cmd_find(thing)` | `find` → `searching(T)`; ends by `found` / `find_locked` / `find_expire` | `find_low`, `find_busy*` |
-| FOLLOW | `cmd_follow` | `follow` → `following`; ends by `follow_lost` | `follow_nobody`, `follow_down`, `follow_busy*`, `follow_already` |
+| FOLLOW | `cmd_follow` | `follow` → `following`; ends by `follow_lost` | `follow_nobody`, `follow_must_stand`, `follow_busy*`, `follow_already` |
 | STOP, CANCEL | `cmd_stop`, `cmd_cancel` | `stop_*`, `cancel_*` (the task token goes, `cancelled(ACT)`) | `stop_still` ("I am already stopped"); cancel with nothing to drop is `done` |
 | QUERY about a thing | `cmd_query(thing)` | `query_seen` | `query_unseen` |
 | QUERY about a place ("what do you see near the window") | `cmd_look(place)` | `look` | `look_unmapped` |

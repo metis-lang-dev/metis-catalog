@@ -48,6 +48,7 @@ pred moving(place) : dog.
 pred searching(thing) : dog.
 pred following : dog.
 pred seen(thing) : dog.
+pred where(thing, place) : dog.
 pred unseen(thing) : dog.
 
 % the host's facts, complementary pairs it keeps current
@@ -125,13 +126,13 @@ stage serve {
   %% I can't turn that way: an obstacle is too close on that side.
   turn_obstacle [dyn] : cmd_turn(S) * $posture(standing) * $obstacle(S) -o refused(turn).
   %% I can't turn: I have to stand up first.
-  turn_down [dyn] : cmd_turn(S) * $posture(P) * other(P, standing) -o refused(turn).
+  turn_must_stand [dyn] : cmd_turn(S) * $posture(P) * other(P, standing) -o refused(turn).
   %% I move the way you said.
   move [dyn] : cmd_move(W) * $posture(standing) * $clear(W) -o done(move).
   %% I can't move that way: there is a wall right there.
   move_wall [dyn] : cmd_move(W) * $posture(standing) * $wall(W) -o refused(move).
   %% I can't move: I have to stand up first.
-  move_down [dyn] : cmd_move(W) * $posture(P) * other(P, standing) -o refused(move).
+  move_must_stand [dyn] : cmd_move(W) * $posture(P) * other(P, standing) -o refused(move).
   %% I give you my paw.
   paw [dyn] : cmd_paw * $leg_ok -o done(paw).
   %% I can't lift my paw: my front leg is overheating.
@@ -145,7 +146,7 @@ stage serve {
   %% I can't go there: the way to it is closed.
   go_closed [dyn] : cmd_go(P) * $mapped(P) * $closed(P) -o refused(go).
   %% I can't go yet: I have to stand up first.
-  go_down [dyn] : cmd_go(P) * $idle * $mapped(P) * $open(P) * $posture(Q) * other(Q, standing) -o refused(go).
+  go_must_stand [dyn] : cmd_go(P) * $idle * $mapped(P) * $open(P) * $posture(Q) * other(Q, standing) -o refused(go).
   %% I can't take that now: I am already busy with a task.
   go_busy [dyn] : cmd_go(P) * $moving(Q) -o refused(go).
   %% I can't take that now: I am searching.
@@ -185,7 +186,7 @@ stage serve {
   %% I can't follow: no person is in view.
   follow_nobody [dyn] : cmd_follow * $nobody -o refused(follow).
   %% I can't follow yet: I have to stand up first.
-  follow_down [dyn] : cmd_follow * $idle * $person_in_view * $posture(Q) * other(Q, standing) -o refused(follow).
+  follow_must_stand [dyn] : cmd_follow * $idle * $person_in_view * $posture(Q) * other(Q, standing) -o refused(follow).
   %% I can't take that now: I am already busy with a task.
   follow_busy [dyn] : cmd_follow * $moving(P) -o refused(follow).
   %% I can't take that now: I am already searching.
@@ -214,8 +215,8 @@ stage serve {
   cancel_none [dyn] : cmd_cancel * $idle -o done(cancel).
 
   % ── questions and talk: answered from what the dog holds ──
-  %% I tell you where it is: I have seen it.
-  query_seen [dyn] : cmd_query(T) * $seen(T) -o done(query).
+  %% I tell you where it is: I have seen it at that place.
+  query_seen [dyn] : cmd_query(T) * $seen(T) * $where(T, P) -o done(query).
   %% I can't say: I have not seen it.
   query_unseen [dyn] : cmd_query(T) * $unseen(T) -o refused(query).
   %% I tell you what I see around that place: it is on my map.
@@ -264,7 +265,9 @@ stage serve {
 #init unseen(keys) 1
 #init unseen(bottle) 1
 #init seen(chair) 1
+#init where(chair,kitchen) 1
 #init seen(table) 1
+#init where(table,kitchen) 1
 % declared beliefs: the mirror line
 #query idle
 #query done(go)
