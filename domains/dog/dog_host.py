@@ -21,7 +21,9 @@ OUTCOMES = ("done", "refused", "progress", "expired", "cancelled")
 # each pair holds"). A refusal whose blocker is one side of a pair is
 # something the person can change in the world (the consult's `missing`);
 # a blocker outside the pairs is `unexplained`. Handed to the domain agent
-# at load; the catalog never sees it.
+# at load; the catalog never sees it. ORDER IS A CONVENTION: (needs, blocks)
+# — the first side is what a command needs, the second the side that blocks
+# it; the agent reads the blocking side from that order (domain-agent step 5).
 PAIRS = (
     ("battery_ok", "battery_low"),
     ("floor_dry", "floor_wet"),
