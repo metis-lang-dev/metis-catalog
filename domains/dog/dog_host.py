@@ -1,0 +1,87 @@
+"""The dog's host, a PortPlugin with no weight ports: the TIME face
+carries the person's commands (as the domain agent would type them) and
+the world's reports; the OUTPUT face actuates the robot and schedules
+what the world answers. One tick = one beat of the dog's day.
+
+- tick: the scripted command of the beat as a do-line (+cmd_*), the
+  reports due this beat (+arrived(P), +locked_away(T), …), and the
+  outcome tokens left by the last beat retracted after the host has
+  "narrated" them (here: printed to stderr). [] is a quiet beat; None
+  ends the day.
+- on_event: a fired `go` schedules arrived(P) or blocked(P) two beats
+  on, `find` schedules spotted(T) or locked_away(T), `follow` schedules
+  lost; the body actions actuate and return. The world's answers are
+  the E10 corpus's (go/tools/e10-corpus.py CMDS).
+PURITY: the env mutates only in tick/on_event; snapshot is total."""
+import sys
+
+OUTCOMES = ("done", "refused", "progress", "expired", "cancelled")
+
+SCRIPT = {   # beat -> do-lines: the person's command, and world changes
+    1: ["+cmd_sit"],
+    2: ["+cmd_go(kitchen)"],            # the kitchen door is closed
+    3: ["+cmd_stand"],
+    4: ["+cmd_go(tag3)"],               # mapped and open: accepted
+    5: ["+cmd_find(keys)"],             # busy: refused
+    7: ["+cmd_move(backward)"],         # a wall right behind
+    8: ["+cmd_find(extinguisher)"],     # accepted; the storage room is locked
+    9: ["+cmd_query(chair)"],
+    11: ["+cmd_follow"],
+    12: ["+cmd_stop"],
+    13: ["+cmd_unknown"],
+    14: ["+cmd_paw"],
+    15: ["-battery_ok", "+battery_low", "+cmd_find(bottle)"],   # the world changes
+    16: ["+cmd_sit"],
+    17: ["+cmd_turn(left)"],            # sitting: has to stand first
+}
+ANSWERS = {  # what the world says back to a long command, and when
+    "go": {"tag3": ("arrived", 2), "door": ("arrived", 2), "window_chair": ("blocked", 2)},
+    "find": {"extinguisher": ("locked_away", 2), "keys": ("spotted", 3), "bottle": ("spotted", 3)},
+}
+LAST = 18
+
+
+class DogHost:
+    def __init__(self, case):
+        self.beat = 0
+        self.due = ()        # (beat, do-line) scheduled by on_event
+        self.acted = ()      # actuation log
+
+    def bind(self, reg):
+        pass                 # no weight ports: the dog's choices are the state's
+
+    def tick(self, counts):
+        if self.beat >= LAST:
+            return None
+        self.beat += 1
+        dos = []
+        for a, n in sorted(counts.items()):          # narrate, then clear
+            if a.split("(")[0] in OUTCOMES:
+                print(f"  [host beat {self.beat}] narrated {a}", file=sys.stderr)
+                dos.append(f"-{a} {n}")
+        dos += [d for b, d in self.due if b == self.beat]
+        self.due = tuple(x for x in self.due if x[0] != self.beat)
+        dos += SCRIPT.get(self.beat, [])
+        return dos
+
+    def on_event(self, name, args):
+        self.acted += ((self.beat, name, tuple(args)),)
+        base = name.split("[")[0].split("-")[0]   # "go[P=tag3]" -> "go"
+        if base in ANSWERS and args:
+            kind, delay = ANSWERS[base].get(args[0], ("timeout", 3))
+            atom = "+timeout" if kind == "timeout" else f"+{kind}({args[0]})"
+            self.due += ((self.beat + delay, atom),)
+        elif base == "follow":
+            self.due += ((self.beat + 4, "+lost"),)
+        elif base.startswith(("stop_", "cancel_")):
+            self.due = ()        # the task is over: the world owes it no answer
+
+    def snapshot(self):
+        return (self.beat, self.due, self.acted)
+
+    def restore(self, snap):
+        self.beat, self.due, self.acted = snap
+
+
+def make(case):
+    return DogHost(case)
