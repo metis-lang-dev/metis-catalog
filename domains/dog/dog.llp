@@ -25,9 +25,9 @@ stages (serve).
 type posture {standing sitting lying}.
 type side {left right around}.
 type way {forward backward}.
-type place {door kitchen sofa window_chair tag5 tag3}.
+type place {door kitchen sofa window_chair tag5 tag3 tag_near elsewhere}.
 type thing {extinguisher keys bottle chair table}.
-type act {stand sit lie turn move paw go find follow stop cancel query time date chat unknown}.
+type act {stand sit lie turn move paw go find follow stop cancel query look time date chat unknown}.
 
 namespace dog produce (dyn).
 
@@ -89,6 +89,7 @@ pred cmd_follow : dog.
 pred cmd_stop : dog.
 pred cmd_cancel : dog.
 pred cmd_query(thing) : dog.
+pred cmd_look(place) : dog.
 pred cmd_time : dog.
 pred cmd_date : dog.
 pred cmd_chat : dog.
@@ -147,7 +148,7 @@ stage serve {
   go_down [dyn] : cmd_go(P) * $idle * $mapped(P) * $open(P) * $posture(Q) * other(Q, standing) -o refused(go).
   %% I can't take that now: I am already busy with a task.
   go_busy [dyn] : cmd_go(P) * $moving(Q) -o refused(go).
-  %% I am still on my way.
+  %% I can't take that now: I am searching.
   go_busy_find [dyn] : cmd_go(P) * $searching(T) -o refused(go).
   %% I can't take that now: I am following you.
   go_busy_follow [dyn] : cmd_go(P) * $following -o refused(go).
@@ -217,6 +218,10 @@ stage serve {
   query_seen [dyn] : cmd_query(T) * $seen(T) -o done(query).
   %% I can't say: I have not seen it.
   query_unseen [dyn] : cmd_query(T) * $unseen(T) -o refused(query).
+  %% I tell you what I see around that place: it is on my map.
+  look [dyn] : cmd_look(P) * $mapped(P) -o done(look).
+  %% I can't look there: that place is not on my map.
+  look_unmapped [dyn] : cmd_look(P) * $unmapped(P) -o refused(look).
   %% I tell you the time.
   time [dyn] : cmd_time -o done(time).
   %% I tell you the date.
@@ -250,6 +255,10 @@ stage serve {
 #init unmapped(tag5) 1
 #init mapped(tag3) 1
 #init open(tag3) 1
+% the nearest tag, whichever it is, and the handle for a place the host cannot resolve
+#init mapped(tag_near) 1
+#init open(tag_near) 1
+#init unmapped(elsewhere) 1
 #init person_in_view 1
 #init unseen(extinguisher) 1
 #init unseen(keys) 1

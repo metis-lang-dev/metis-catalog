@@ -27,7 +27,8 @@ token the narrator reads → the port that actuates.
 | FIND | `cmd_find(thing)` | `find` → `searching(T)`; ends by `found` / `find_locked` / `find_expire` | `find_low`, `find_busy*` |
 | FOLLOW | `cmd_follow` | `follow` → `following`; ends by `follow_lost` | `follow_nobody`, `follow_down`, `follow_busy*`, `follow_already` |
 | STOP, CANCEL | `cmd_stop`, `cmd_cancel` | `stop_*`, `cancel_*` (the task token goes, `cancelled(ACT)`) | `stop_still` ("I am already stopped"); cancel with nothing to drop is `done` |
-| QUERY | `cmd_query(thing)` | `query_seen` | `query_unseen` |
+| QUERY about a thing | `cmd_query(thing)` | `query_seen` | `query_unseen` |
+| QUERY about a place ("what do you see near the window") | `cmd_look(place)` | `look` | `look_unmapped` |
 | TIME, DATE, CHITCHAT | `cmd_time`, `cmd_date`, `cmd_chat` | `time`, `date`, `chat` | — |
 | UNKNOWN | `cmd_unknown` | — | `unknown` |
 
@@ -67,9 +68,14 @@ metis --plugin dog_host:make dog.llp       # the scripted day: run 60 · log · 
 2. `on_event` receives the canonical name with bindings (`go[P=tag3]`) and the
    ground args as a tuple; a host keys on `name.split("[")[0]`.
 3. Open vocabulary ("the red chair near the window") does not enter the
-   catalog: `place` and `thing` are handles the host's table resolves. The six
-   places and five things here are the E10 corpus's; a real host maps
-   perception targets to handles at the intent → atom step.
+   catalog: `place` and `thing` are handles the host's table resolves. The
+   places and things here are the E10 corpus's plus two standing handles,
+   `tag_near` (the nearest tag, "go to the tag") and `elsewhere` (a place the
+   host cannot resolve, so every "not on my map" refusal has an atom); a real
+   host maps perception targets to handles at the intent → atom step.
+4. Quantities (`angle_deg`, `distance_m`, `duration`) never enter the catalog
+   either: they ride with the command in the host's queue, keyed by the
+   command's id, and the port actuates with them (domain-agent step 1).
 
 ## Not yet
 
