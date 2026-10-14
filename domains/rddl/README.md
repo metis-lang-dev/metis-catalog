@@ -20,10 +20,12 @@ Serve: `metis domains/rddl/<domain>.llp` — each catalog carries
 so the prior-flat ports bind without a flag (2026-10-14; before, a bare
 `metis wildfire.llp` refused with "unbound weight port 'pign'"). The
 fitted tables are here (`<domain>.notch.json`, the overlay format of
-`rddl_recorder --overlay`); in the REPL, `notch load <domain>.notch.json`
-ships one as an overlay (metispy 1896e1d; `notch pop` drops it), and a
-catalog served without its plugin now names the plugin beside it and this
-line in its refusal.
+`rddl_recorder --overlay`). Each catalog carries `#notch <domain>.notch.json`
+too, so a served world is the FITTED one (metispy 51cdee5; the footer and
+ctx band say "priced by wildfire-prior-flat; overlays: wildfire.notch.json";
+`notch pop` drops it, and the law-discovery experiment serves a copy without
+the directive). Over 10 seeded runs with the overlay, catch at k0 fired
+0/80 and at k1 6/60, against 34/80 and 31/60 prior-flat.
 
 ## The experiments (one directory each, README = the intelligence)
 

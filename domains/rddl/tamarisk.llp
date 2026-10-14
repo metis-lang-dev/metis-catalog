@@ -308,3 +308,4 @@ qui settled [dyn] : fate -o write.
 #steps 200
 
 #plugin tamarisk/tamarisk_plugin.py:make
+#notch tamarisk.notch.json
