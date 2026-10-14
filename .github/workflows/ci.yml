@@ -37,6 +37,10 @@ jobs:
           make -C metis-lang metisc
       - name: check.sh (roundtrip every catalog + canonical keys)
         run: sh metis-catalog/ci/check.sh
+      - name: intents (each domain's generated intent files are what its intent.yaml makes)
+        run: |
+          python3 -m pip install --quiet pyyaml
+          cd metis-catalog && for f in domains/*/intent.yaml; do python3 tools/intents.py check "$(basename "$(dirname "$f")")"; done
       - name: diagnose.sh (no error diagnostics; reasoned exemptions)
         run: sh metis-catalog/ci/diagnose.sh
       # metispy is PRIVATE: GITHUB_TOKEN cannot read it. The cross-check

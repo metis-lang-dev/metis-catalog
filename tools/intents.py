@@ -1,0 +1,281 @@
+#!/usr/bin/env python3
+"""A domain's intents (e2e-workflow s-143c3088, WORKFLOW.md stage 3): the
+intent pass's grammar and prompts GENERATED from domains/<name>/intent.yaml,
+never written by hand, and the check that maps the domain's corpus through
+them.
+
+    python3 tools/intents.py gen dog            # → domains/dog/intent/{dog.gbnf, dog-prompt.txt, dog-spoken.txt}
+    python3 tools/intents.py check dog          # the generated files are what intent.yaml makes (CI)
+    python3 tools/intents.py schema dog         # the JSON schema the grammar is made from
+    python3 tools/intents.py skeleton plant     # a first intent.yaml from plant.llp's cmd_* atoms and %% lines
+
+intent.yaml (CATALOG.md "intent.yaml"): persona, verbs, slots, guidance,
+examples, spoken — the intent pass; map, values, handles, fallback,
+standing, enders — the mapper; outcomes, alternatives — the replier.
+
+The grammar is the JSON schema's (verbs → the "intent" enum, slots → the
+optional fields in order) in the GBNF shape llama.cpp's
+json_schema_to_grammar.py wrote in 2024-04 (ab9a3240a): one-line JSON
+(space ::= " "?), enums without trailing space, rules sorted by name.
+"""
+import json
+import sys
+from pathlib import Path
+
+import yaml
+
+ROOT = Path(__file__).resolve().parents[1]
+GENERATED = "generated from intent.yaml by tools/intents.py — do not edit"
+
+PRIMITIVES = {
+    "char": r'''[^"\\] | "\\" (["\\/bfnrt] | "u" [0-9a-fA-F] [0-9a-fA-F] [0-9a-fA-F] [0-9a-fA-F])''',
+    "decimal-part": "[0-9] " + "([0-9] " * 15 + ")?" * 15,
+    "integral-part": "[0-9] | [1-9] " + "([0-9] " * 15 + ")?" * 15,
+    "number": '("-"? integral-part) ("." decimal-part)? ([eE] [-+]? integral-part)? space',
+    "space": '" "?',
+    "string": '"\\"" char* "\\"" space',
+}
+PRIMITIVES["decimal-part"] = PRIMITIVES["decimal-part"].replace(" )", ")")
+PRIMITIVES["integral-part"] = PRIMITIVES["integral-part"].replace(" )", ")")
+
+
+def load(name):
+    return yaml.safe_load((ROOT / "domains" / name / "intent.yaml").read_text())
+
+
+def verb_names(spec):
+    out = []
+    for row in spec["verbs"]:
+        v = row["verb"]
+        out += v if isinstance(v, list) else [v]
+    return out
+
+
+# ── the JSON schema ──────────────────────────────────────────────────────────
+
+def _ref(types):
+    return {"type": "object", "properties": {
+        "type": {"enum": types}, "description": {"type": "string"},
+        "attributes": {"type": "object", "properties": {"color": {"type": "string"}, "size": {"type": "string"},
+                                                         "material": {"type": "string"}}}},
+        "required": ["type", "description"]}
+
+
+def _names(vs):
+    """An enum's values are names: YAML 1.1 reads a bare ON / OFF / YES / NO
+    as a boolean — quote it ("ON")."""
+    bad = [v for v in vs if not isinstance(v, str)]
+    if bad:
+        raise ValueError("enum value(s) %r are not names: quote them in intent.yaml" % bad)
+    return list(vs)
+
+
+def slot_schema(s):
+    if s == "number" or s == "string":
+        return {"type": s}
+    if "enum" in s:
+        return {"enum": _names(s["enum"])}
+    if "object" in s:
+        return _ref(_names(s["object"]))
+    if "relations" in s:
+        return {"type": "array", "items": {"type": "object", "properties": {
+            "relation": {"enum": _names(s["relations"])}, "reference": _ref(_names(s["reference"]))},
+            "required": ["relation", "reference"]}}
+    raise ValueError("slot %r: number | string | {enum} | {object} | {relations, reference}" % (s,))
+
+
+def schema(spec):
+    props = {"intent": {"enum": verb_names(spec)}}
+    for k, s in spec.get("slots", {}).items():
+        props[k] = slot_schema(s)
+    return {"type": "object", "properties": props, "required": ["intent"]}
+
+
+# ── the grammar ──────────────────────────────────────────────────────────────
+
+class Gbnf:
+    def __init__(self):
+        self.rules = dict(PRIMITIVES)
+
+    def add(self, name, body):
+        self.rules[name] = body
+        return name
+
+    def value(self, name, s):
+        if "enum" in s:
+            return self.add(name, " | ".join('"\\"%s\\""' % v for v in s["enum"]))
+        t = s.get("type")
+        if t == "number":
+            return "number"
+        if t == "string":
+            return "string"
+        if t == "array":
+            item = self.value(name + "-item", s["items"])
+            return self.add(name, '"[" space (%s ("," space %s)*)? "]" space' % (item, item))
+        if t == "object":
+            return self.obj(name, s)
+        raise ValueError(s)
+
+    def kv(self, name, key, s):
+        return self.add(name + "-kv", '"\\"%s\\"" space ":" space %s' % (key, self.value(name, s)))
+
+    def obj(self, name, s):
+        props = s.get("properties", {})
+        req = [k for k in props if k in s.get("required", [])]
+        opt = [k for k in props if k not in req]
+        rn = lambda k: (name + "-" if name != "root" else "") + k.replace("_", "-")
+        kvs = {k: self.kv(rn(k), k, props[k]) for k in props}
+        # the optional chain: each optional field's -rest offers the ones after it
+        for i, k in enumerate(opt[:-1]):
+            nxt = opt[i + 1]
+            tail = " %s-rest" % rn(nxt) if i + 1 < len(opt) - 1 else ""
+            self.add(rn(k) + "-rest", '( "," space %s )?%s' % (kvs[nxt], tail))
+        alts = [("%s %s-rest" % (kvs[k], rn(k))) if i < len(opt) - 1 else kvs[k] for i, k in enumerate(opt)]
+        if req:
+            body = '"{" space ' + ' "," space '.join(kvs[k] for k in req)
+            if opt:
+                body += ' ( "," space ( %s ) )?' % " | ".join(alts)
+            return self.add(name, body + ' "}" space')
+        return self.add(name, '"{" space  (%s )? "}" space' % " | ".join(alts))
+
+    def text(self):
+        return "\n".join("%s ::= %s" % (k, self.rules[k]) for k in sorted(self.rules))
+
+
+def grammar(spec):
+    g = Gbnf()
+    g.obj("root", schema(spec))
+    return g.text()
+
+
+# ── the prompts ──────────────────────────────────────────────────────────────
+
+def _j(o):
+    return json.dumps(o, ensure_ascii=False, separators=(",", ":"))
+
+
+def prompt(spec):
+    out = [spec["persona"].rstrip("\n"), "", "Intent categories:", "| intent | meaning |", "|--------|---------|"]
+    for row in spec["verbs"]:
+        v = row["verb"]
+        out.append("| %s | %s |" % (" / ".join(v) if isinstance(v, list) else v, row["meaning"]))
+    out += ["", spec["guidance"].rstrip("\n"), "", "## Examples (utterance → JSON)"]
+    for e in spec["examples"]:
+        out.append(e["note"] if isinstance(e, dict) else '"%s" → %s' % (e[0], _j(e[1])))
+    return "\n".join(out) + "\n"
+
+
+def spoken(spec):
+    s = spec.get("spoken")
+    if not s:
+        return ""
+    out = ["", "## " + s["heading"], s["text"].rstrip("\n")]
+    for u, j, said in s["examples"]:
+        out += ['"%s" → %s' % (u, _j(j)), "Spoken response: " + said]
+    return "\n".join(out) + "\n"
+
+
+# ── the draft: intent.yaml's skeleton from the program ──────────────────────
+
+def skeleton(name):
+    """A first intent.yaml from the program alone (the loop console's
+    `intents` hands it to Claude, who writes the meanings, examples and
+    perception vocabulary): one verb per command atom `pred cmd_X[(T)]`, its
+    meaning the %% line of the rule that completes it (done(...)), an
+    argument's type as an enum of the type's constants, one example per
+    verb; the replier's defaults. Not a finished domain: a start."""
+    import re
+    prog = (ROOT / "domains" / name / ("%s.llp" % name)).read_text()
+    types = {m.group(1): m.group(2).split() for m in re.finditer(r"^type\s+(\w+)\s*\{([^}]*)\}", prog, re.M)}
+    about = re.search(r'^provenance\s+text\s+"([^"]*)"', prog, re.M)
+    cmds = [(m.group(1), [a.strip() for a in m.group(2).split(",")] if m.group(2) else [])
+            for m in re.finditer(r"^pred\s+cmd_(\w+)(?:\(([^)]*)\))?\s*:", prog, re.M)]
+    rules, doc = [], None
+    for line in prog.splitlines():
+        t = line.strip()
+        if t.startswith("%%"):
+            doc = t[2:].strip()
+        elif " -o " in t and ":" in t:
+            rules.append((doc, t))
+            doc = None
+        elif t and not t.startswith("%"):
+            doc = None
+
+    def meaning(stem):
+        mine = [(d, r) for d, r in rules if re.search(r"\bcmd_%s\b" % stem, r.split(" -o ")[0])]
+        done = [d for d, r in mine if d and "done(" in r.split(" -o ")[1]]
+        return (done or [d for d, _ in mine if d] or [stem.replace("_", " ")])[0]
+
+    verbs, slots, values, rows, examples = [], {}, {}, [], []
+    for stem, args in cmds:
+        verb = stem.upper()
+        verbs.append({"verb": verb, "meaning": meaning(stem)})
+        atom, ex = "cmd_" + stem, {"intent": verb}
+        if args:
+            binds = []
+            for t in args:
+                vals = types.get(t, [])
+                slots.setdefault(t, {"enum": [v.upper() for v in vals]})
+                values.setdefault(t, {v.upper(): v for v in vals})
+                binds.append("{%s:%s}" % (t, t))
+                if vals:
+                    ex[t] = vals[0].upper()
+            atom += "(%s)" % ", ".join(binds)
+        rows.append({"verb": verb, "atom": atom, "act": stem})
+        examples.append([" ".join([stem.replace("_", " ")] + [ex[t].lower() for t in args if t in ex]), ex])
+    spec = {
+        "persona": "You map what the person says about the %s to exactly one intent JSON per utterance.\n"
+                   "Respond with only the JSON.%s\n" % (name, ("\n\nThe %s: %s." % (name, about.group(1))) if about else ""),
+        "verbs": verbs + [{"verb": "UNKNOWN", "meaning": "anything the %s cannot do" % name}],
+        "slots": slots,
+        "guidance": "Use only the intents and values listed. Omit fields you don't need.\n",
+        "examples": examples + [["order me a pizza", {"intent": "UNKNOWN"}]],
+        "map": rows,
+        "values": values,
+        "enders": ["cmd_%s" % s for s, _ in cmds if s in ("stop", "cancel")],
+        "outcomes": {o: o for o in ("done", "refused", "progress", "expired", "cancelled")
+                     if re.search(r"^pred\s+%s\b" % o, prog, re.M)},
+        "alternatives": {"max": 2, "rules": {}},
+    }
+    head = ("# %s's intents — a DRAFT from %s.llp (tools/intents.py skeleton): one verb per command\n"
+            "# atom; write the meanings, more examples, open-vocabulary slots and handles,\n"
+            "# then `python3 tools/intents.py gen %s` and the check. CATALOG.md \"intent.yaml\".\n") % (name, name, name)
+    class Dumper(yaml.SafeDumper):
+        pass
+    Dumper.add_representer(str, lambda d, v: d.represent_scalar("tag:yaml.org,2002:str", v, style="|" if "\n" in v else None))
+    return head + yaml.dump(spec, Dumper=Dumper, sort_keys=False, allow_unicode=True, width=100)
+
+
+def files(name):
+    spec = load(name)
+    return {"%s.gbnf" % name: grammar(spec), "%s-prompt.txt" % name: prompt(spec),
+            "%s-spoken.txt" % name: spoken(spec)}
+
+
+def main(argv):
+    if len(argv) != 2 or argv[0] not in ("gen", "check", "schema", "skeleton"):
+        print(__doc__)
+        return 2
+    verb, name = argv
+    if verb == "schema":
+        print(json.dumps(schema(load(name)), indent=1))
+        return 0
+    if verb == "skeleton":
+        print(skeleton(name), end="")
+        return 0
+    d = ROOT / "domains" / name / "intent"
+    bad = 0
+    for fn, text in files(name).items():
+        p = d / fn
+        if verb == "gen":
+            d.mkdir(exist_ok=True)
+            p.write_text(text)
+            print("wrote", p.relative_to(ROOT))
+        elif not p.exists() or p.read_text() != text:
+            print("STALE", p.relative_to(ROOT), "(python3 tools/intents.py gen %s)" % name)
+            bad += 1
+    return 1 if bad else 0
+
+
+if __name__ == "__main__":
+    sys.exit(main(sys.argv[1:]))
