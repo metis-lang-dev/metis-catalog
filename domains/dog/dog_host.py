@@ -139,12 +139,16 @@ class DogHost:
         self.beat = 0
         self.due = ()        # (beat, do-line) scheduled by on_event
         self.acted = ()      # actuation log
+        # the hosted day: its script and its end. A driver that brings its own
+        # person and world (the orchestrator's replay) sets script = {} and
+        # last = None (no end); the answers (ANSWERS, due) stay the world's
+        self.script, self.last = SCRIPT, LAST
 
     def bind(self, reg):
         pass                 # no weight ports: the dog's choices are the state's
 
     def tick(self, counts):
-        if self.beat >= LAST:
+        if self.last is not None and self.beat >= self.last:
             return None
         self.beat += 1
         dos = []
@@ -154,7 +158,7 @@ class DogHost:
                 dos.append(f"-{a} {n}")
         dos += [d for b, d in self.due if b == self.beat]
         self.due = tuple(x for x in self.due if x[0] != self.beat)
-        dos += SCRIPT.get(self.beat, [])
+        dos += self.script.get(self.beat, [])
         return dos
 
     def on_event(self, name, args):
