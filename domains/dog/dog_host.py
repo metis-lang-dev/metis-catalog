@@ -38,6 +38,38 @@ PAIRS = (
 )
 
 
+# What the person does to flip a blocking side, in the person's words: the
+# resource.words of a `missing` consult answer (DESIGN v3), templated by the
+# harness, never written by the model (E13 step 2: "you in front of me" is
+# not a thing a person can supply; "come where I can see you" is). {P} is a
+# place handle's display name, {T} a thing's.
+WORDS = {
+    "battery_low": "put me on my charger",
+    "floor_wet": "dry the floor here, or move me to a dry spot",
+    "obstacle": "move whatever is beside me on that side",
+    "wall": "turn me away from the wall",
+    "leg_hot": "give my front leg a minute to cool",
+    "unmapped": "walk me to {P} once so I can map it",
+    "closed": "open the way to {P}",
+    "nobody": "come where I can see you",
+    "unseen": "show me {T} once so I know it",
+    "locked_away": "unlock where {T} is kept",
+}
+
+
+def words(atom, names=None):
+    """The person's words for flipping `atom` (a blocking side, possibly with
+    an argument), or None when the atom is not a blocking side. `names` maps
+    handles to display names; a bare handle is used when it is missing."""
+    name, _, args = atom.partition("(")
+    w = WORDS.get(name)
+    if w is None:
+        return None
+    arg = args.rstrip(")") if args else ""
+    shown = (names or {}).get(arg, arg.replace("_", " "))
+    return w.replace("{P}", shown).replace("{T}", shown)
+
+
 def flips(atom):
     """The complement of a blocker atom, or None when it is not a pair's side
     (then the refusal is not about the world: busy, already, must stand)."""

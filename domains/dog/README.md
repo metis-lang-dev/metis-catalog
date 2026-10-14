@@ -86,3 +86,9 @@ metis --plugin dog_host:make dog.llp       # the scripted day: run 60 · log · 
 - The executive still dispatches the dog intent directly (go/internal/wire);
   putting this catalog between the intent and the robot is the "move under the
   line" of DESIGN.md, a later subject.
+
+**Resource words.** `dog_host.WORDS` gives, for each blocking side of a
+pair, what the person does to flip it, in the person's words ("come where I
+can see you" for `nobody`; `{P}`/`{T}` take the handle's display name).
+`words(atom)` templates one. A `missing` consult answer's `resource.words`
+comes from here, not from the model (E13 step 2 ruling, 2026-10-14).
