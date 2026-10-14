@@ -166,59 +166,81 @@ plain(x3, y3).
 % its ground truth is the header's law, quoted on `catch`, the rule it prices
 weight pign(K) reads {}.
 stage open {
-  %% "a step starts from a state holding, for EACH observed fluent, either its atom (true) or not_<atom> (false) ... plus the action atoms taken that step ... and one tick atom"
+  % evidence: "a step starts from a state holding, for EACH observed fluent, either its atom (true) or not_<atom> (false) ... plus the action atoms taken that step ... and one tick atom"
+  %% [fold]
   begin [dyn] : tick * firstcell(X, Y) -o cell(X, Y) * walk(X, Y).
-  %% "for the cells X in x1 x2 x3, Y in y1 y2 y3"
+  % evidence: "for the cells X in x1 x2 x3, Y in y1 y2 y3"
+  %% [fold]
   visit [dyn] : walk(X, Y) * nextcell(X, Y, U, V) -o cell(U, V) * walk(U, V).
-  %% "for the cells X in x1 x2 x3, Y in y1 y2 y3"
+  % evidence: "for the cells X in x1 x2 x3, Y in y1 y2 y3"
+  %% [fold]
   close [dyn] : walk(X, Y) * lastcell(X, Y) -o ().
 }
 stage count {
-  %% "a cell that is not burning and not out_of_fuel starts burning ... a rate that depends only on k, the number of its neighbors burning at the start of the step"
+  % evidence: "a cell that is not burning and not out_of_fuel starts burning ... a rate that depends only on k, the number of its neighbors burning at the start of the step"
+  %% [fold]
   ready [dyn] : cell(X, Y) * $not_burning(X, Y) * $not_out_of_fuel(X, Y) -o fresh(X, Y) * tally(X, Y, k0) * scan(X, Y, s0).
-  %% "Every cell that was burning at the start of a step is out_of_fuel at its end"
+  % evidence: "Every cell that was burning at the start of a step is out_of_fuel at its end"
+  %% [fold]
   hold [dyn] : cell(X, Y) * $burning(X, Y) -o held(X, Y).
-  %% "A cell that is out_of_fuel and not burning never started burning."
+  % evidence: "A cell that is out_of_fuel and not burning never started burning."
+  %% [fold]
   spent [dyn] : cell(X, Y) * $not_burning(X, Y) * $out_of_fuel(X, Y) -o ().
-  %% "k, the number of its neighbors burning at the start of the step"
+  % evidence: "k, the number of its neighbors burning at the start of the step"
+  %% [fold tally] the fire counts the burning neighbours of each cell
   see_fire [dyn] : scan(X, Y, S) * tally(X, Y, K) * nb(X, Y, S, U, V) * $burning(U, V) * nextslot(S, S2) * next(K, K2) -o scan(X, Y, S2) * tally(X, Y, K2).
-  %% "k, the number of its neighbors burning at the start of the step"
+  % evidence: "k, the number of its neighbors burning at the start of the step"
+  %% [fold tally] the fire counts the burning neighbours of each cell
   see_none [dyn] : scan(X, Y, S) * nb(X, Y, S, U, V) * $not_burning(U, V) * nextslot(S, S2) -o scan(X, Y, S2).
-  %% "The instance's neighbor relation (directed: cell: its neighbors)"
+  % evidence: "The instance's neighbor relation (directed: cell: its neighbors)"
+  %% [fold tally] the fire counts the burning neighbours of each cell
   scan_done [dyn] : scan(X, Y, S) * nbend(X, Y, S) -o ().
 }
 stage act {
-  %% "a burning cell stayed burning 1149 times and stopped 28 times, every stop in a step whose action was put_out on that cell"
+  % evidence: "a burning cell stayed burning 1149 times and stopped 28 times, every stop in a step whose action was put_out on that cell"
+  %% put_out douses the fire at X,Y.
   douse [dyn] : put_out(X, Y) * burning(X, Y) -o not_burning(X, Y).
-  %% "put_out on a cell that is not burning changes nothing (record 0: put_out(x2,y2); record 33: put_out(x2,y1) while burning(x2,y2) starts)"
+  % evidence: "put_out on a cell that is not burning changes nothing (record 0: put_out(x2,y2); record 33: put_out(x2,y1) while burning(x2,y2) starts)"
+  %% put_out at X,Y finds no fire there.
   put_idle [dyn] : put_out(X, Y) * $not_burning(X, Y) -o ().
-  %% "Every cell that was burning at the start of a step is out_of_fuel at its end (1177 of 1177; record 10: burning(x1,y3) gains out_of_fuel(x1,y3))"
+  % evidence: "Every cell that was burning at the start of a step is out_of_fuel at its end (1177 of 1177; record 10: burning(x1,y3) gains out_of_fuel(x1,y3))"
+  %% X,Y burns, and its fuel is spent.
   burn_fuel [dyn] : held(X, Y) * not_out_of_fuel(X, Y) -o out_of_fuel(X, Y).
-  %% "Every cell that was burning at the start of a step is out_of_fuel at its end"
+  % evidence: "Every cell that was burning at the start of a step is out_of_fuel at its end"
+  %% [fold]
   burnt [dyn] : held(X, Y) * $out_of_fuel(X, Y) -o ().
-  %% "cut_out on a non-target cell makes it out_of_fuel (66 of 66; record 3: cut_out(x2,y1))"
+  % evidence: "cut_out on a non-target cell makes it out_of_fuel (66 of 66; record 3: cut_out(x2,y1))"
+  %% cut_out clears the fuel from X,Y.
   cut [dyn] : cut_out(X, Y) * plain(X, Y) * not_out_of_fuel(X, Y) -o out_of_fuel(X, Y).
-  %% "cut_out on a non-target cell makes it out_of_fuel"
+  % evidence: "cut_out on a non-target cell makes it out_of_fuel"
+  %% cut_out at X,Y finds no fuel left.
   cut_bare [dyn] : cut_out(X, Y) * $out_of_fuel(X, Y) -o ().
-  %% "cut_out on a target cell that is not burning leaves it not_out_of_fuel (19 of 19)"
+  % evidence: "cut_out on a target cell that is not burning leaves it not_out_of_fuel (19 of 19)"
+  %% cut_out at the target X,Y changes nothing.
   cut_target [dyn] : cut_out(X, Y) * target(X, Y) -o ().
 }
 stage screen {
-  %% "for target and non-target cells alike, except that a target with k=0 never starts"
+  % evidence: "for target and non-target cells alike, except that a target with k=0 never starts"
+  %% the target X,Y has no burning neighbour and cannot catch.
   calm_target_k0 [dyn] : fresh(X, Y) * tally(X, Y, k0) * target(X, Y) -o ().
 }
 stage ignite {
-  %% "The law is ONE rule over the count k for every cell that may start, its two outcomes (starts burning / stays not_burning) priced by a weight port pign(K) of the count and its complement"
-  %% the header's law for the same rate: "p(burning(xi, yj)=true) = 1 / (1 + exp(4.5 - k)) where k is the number of neighbors on fire"
+  % evidence: "The law is ONE rule over the count k for every cell that may start, its two outcomes (starts burning / stays not_burning) priced by a weight port pign(K) of the count and its complement"
+  % evidence: the header's law for the same rate: "p(burning(xi, yj)=true) = 1 / (1 + exp(4.5 - k)) where k is the number of neighbors on fire"
+  %% X,Y, with K burning neighbours, catches fire | X,Y, with K burning neighbours, stays unburnt.
   catch [dyn] : fresh(X, Y) * tally(X, Y, K) * not_burning(X, Y) -o (burning(X, Y) @w pign(K) | not_burning(X, Y) @w ~pign(K)).
 }
-%% "the neighbors burning at the start of the step" are read before anything changes
+% evidence: "the neighbors burning at the start of the step" are read before anything changes
+%% [fold]
 qui tally_up [dyn] : open -o count.
-%% "Many cells change within ONE step, all at once."
+% evidence: "Many cells change within ONE step, all at once."
+%% [fold]
 qui apply [dyn] : count -o act.
-%% "except that a target with k=0 never starts"
+% evidence: "except that a target with k=0 never starts"
+%% [fold]
 qui sift [dyn] : act -o screen.
-%% "How OFTEN a cell that is not burning and not out_of_fuel starts burning is a rate that depends only on k"
+% evidence: "How OFTEN a cell that is not burning and not out_of_fuel starts burning is a rate that depends only on k"
+%% [fold]
 qui spread [dyn] : screen -o ignite.
 % scene: instance 1's initial state (burning x1,y3; nothing out of fuel), no action; one step settles well within 200 events
 #init burning(x1, y3) 1
