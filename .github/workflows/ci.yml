@@ -41,6 +41,10 @@ jobs:
         run: |
           python3 -m pip install --quiet pyyaml
           cd metis-catalog && for f in domains/*/intent.yaml; do python3 tools/intents.py check "$(basename "$(dirname "$f")")"; done
+      - name: the loader (metis_catalog — every manifest whole, the consoles' index, list)
+        run: |
+          python3 -m pip install --quiet pyyaml pytest
+          cd metis-catalog && python3 -m pytest -q tests && python3 -m metis_catalog list --domains
       - name: diagnose.sh (no error diagnostics; reasoned exemptions)
         run: sh metis-catalog/ci/diagnose.sh
       # metispy is PRIVATE: GITHUB_TOKEN cannot read it. The cross-check

@@ -1,10 +1,57 @@
 # The catalog — one directory per domain
 
 `domains/<name>/` holds everything a domain is; both consoles (metis-loop,
-metis-agent) and both agent backends (go/, py/) read it. The manifest
-`domain.yaml` (name, display, line, voice, program, notch, host, agent,
-intent, clock, pair, docs, tests) is documented here by the domain-catalog
-subject (s-2a2bc758, nina) — section to come.
+metis-agent) and both agent backends (go/, py/) read it through one manifest,
+`domain.yaml`, and one loader, `metis_catalog` (this repo; domain-catalog
+s-2a2bc758).
+
+```
+pip install -e metis-catalog                 # or: the consoles find the sibling checkout
+python -m metis_catalog list [--domains] [--json]    # what both consoles list
+python -m pytest -q tests                    # every manifest whole (CI)
+```
+
+## domain.yaml — one manifest per domain
+
+Paths are relative to the manifest's directory (a program kept beside the
+directory, as rddl's, is named with `../`). Every key but `name` is optional.
+
+```
+name: dog
+display: the dog                  # the narrator's name for it
+line: "a robot dog: …"            # the one display line: the consoles' lists, the orchestrator's INSTALLED domains
+voice: own                        # own (its %% lines say "I") | third
+program: dog.llp                  # the program (#plugin / #notch / #init stay in the file)
+notch: dog.notch.json             # a fitted overlay
+host: dog_host.py:make            # the host (PortPlugin): file.py:factory, or pkg.mod:factory
+agent: agent.py[:variant]         # the domain-agent module; absent with intent.spec: the generic agent
+intent: {spec: intent.yaml, grammar: intent/<n>.gbnf, prompt: intent/<n>-prompt.txt,
+         examples: {gemma4: intent/<n>-spoken.txt}, corpus: intent/<n>-corpus.tsv, tools: {…}, bench: […]}
+clock: {beats: 1}                 # env beats per orchestrator tick (the kitchen: 2)
+pair: [kitchen_shared]            # partners stepped inside its clock, reloaded with it
+partner_of: kitchen               # never loaded alone; listed by its lead
+docs: README.md
+tests: tests/
+records: records/                 # the domain agents' surprise records: records/<session>.jsonl
+```
+
+| who reads what | |
+|---|---|
+| the loop console (metis-loop) | the list (`index`), one click opens `program` + `host` (as an operator's `--host`, never named by the page) + `notch` |
+| the py agent (metis-agent `metis_agent.domains`) | the domain's module: `agent` executed as `metis_agent.domains.<name>` (its `variant(name)` applied), or the generic one from `intent.yaml` + the host; `display`, `voice`, `program` unless the module sets them |
+| the Go agent (metis-agent go/) | `name`, `display`, `line`, `voice`, `intent.grammar` / `prompt` / `examples[template]`, `clock`, `pair`, `partner_of` |
+| the agent console | the list, the `line`, `has` |
+
+**The domains with a manifest:** dog (generic agent, intent.yaml), kitchen
+and kitchen_shared (`agent.py:<variant>` — the agent runs the pair's scene
+from metispy, `metis.domains.kitchen` catalogs; `program` is the authored
+kitchen the loop console opens), wildfire and tamarisk (rddl: program and
+notch beside the directory, the port plugin in it), wgc (the specialist's:
+no host, no intents). **Without one:** a directory whose one catalog is a
+`.llp` is a program-only domain; every `.llp` is listed — with a host, a
+notch or its own README as a domain, else as a plain catalog — what it has
+read off the checkout (`#plugin`, `<stem>_host.py`, `#notch`,
+`<stem>.notch.json`, a README).
 
 ## intent.yaml — what the person may ask the domain (frozen 2026-10-14)
 

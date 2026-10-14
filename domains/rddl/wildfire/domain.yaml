@@ -1,0 +1,12 @@
+# Wildfire (IPPC2014, through the metis loop): the program and its fitted
+# notch beside this directory (rddl/wildfire.llp, rddl/wildfire.notch.json),
+# its port plugin here.
+name: wildfire
+display: the wildfire
+line: "Wildfire: an RDDL gym domain through the metis loop"
+voice: third
+program: ../wildfire.llp
+notch: ../wildfire.notch.json
+host: wildfire_plugin.py:make
+docs: README.md
+records: records/

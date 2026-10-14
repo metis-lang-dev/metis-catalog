@@ -1,0 +1,14 @@
+# The kitchen (Overcooked-AI): the authored program the loop console opens,
+# the hosted kitchen as its host. The domain agent (agent.py) runs the pair's
+# first cook on metispy's pair scene (metis.domains.kitchen catalogs) — the
+# agent's program is the agent module's CATALOG, not `program`.
+name: kitchen
+display: the first cook
+line: "the kitchen: the first cook, its orders and soups"
+voice: third
+program: kitchen.llp
+host: metis.domains.kitchen.host:make
+agent: agent.py:kitchen
+clock: {beats: 2}
+pair: [kitchen_shared]
+records: records/

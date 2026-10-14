@@ -1,0 +1,9 @@
+# Wolf-goat-cabbage: no host, no intents — a domain the consultant answers
+# questions about (metis-agent's specialist, SPECIALIST §6.1).
+name: wgc
+display: the farmer
+line: "wolf-goat-cabbage: the farmer ferries them across, nothing eaten"
+voice: third
+program: wgc.llp
+agent: agent.py
+docs: README.md
