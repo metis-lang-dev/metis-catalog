@@ -90,7 +90,7 @@ metis --plugin dog_host:make dog.llp       # the scripted day: run 60 · log · 
 **Resource words.** `dog_host.WORDS` gives, for each blocking side of a
 pair, what the person does to flip it, in the person's words ("come where I
 can see you" for `nobody`; `{P}`/`{T}` take the handle's display name).
-`words(atom)` templates one. A `missing` consult answer's `resource.words`
+`words(atom)` templates one; `KEYS`/`key(atom)` give what an ask about it must name (the handle's display name, else the object), for the orchestrator's ask check. A `missing` consult answer's `resource.words`
 comes from here, not from the model (E13 step 2 ruling, 2026-10-14).
 
 **Busy.** A `busy` token is held while a task (go, find, follow) is live and

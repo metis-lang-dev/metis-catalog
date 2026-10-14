@@ -57,6 +57,35 @@ WORDS = {
 }
 
 
+# What an ask about the resource must name: the handle's display name where
+# the words take one, else the thing the person acts on. The orchestrator's
+# ask check looks for this, not for the verb phrase (E13 step 3: "open the way
+# to…" rejected "Could you open the kitchen door?" and the re-asks degraded it).
+KEYS = {
+    "battery_low": "charger",
+    "floor_wet": "floor",
+    "obstacle": "side",
+    "wall": "wall",
+    "leg_hot": "leg",
+    "unmapped": "{P}",
+    "closed": "{P}",
+    "nobody": "see",
+    "unseen": "{T}",
+    "locked_away": "{T}",
+}
+
+
+def key(atom, names=None):
+    """The word(s) an ask about flipping `atom` must contain, or None."""
+    name, _, args = atom.partition("(")
+    k = KEYS.get(name)
+    if k is None:
+        return None
+    arg = args.rstrip(")") if args else ""
+    shown = (names or {}).get(arg, arg.replace("_", " "))
+    return k.replace("{P}", shown).replace("{T}", shown)
+
+
 def words(atom, names=None):
     """The person's words for flipping `atom` (a blocking side, possibly with
     an argument), or None when the atom is not a blocking side. `names` maps
