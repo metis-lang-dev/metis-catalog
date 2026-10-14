@@ -15,11 +15,14 @@ tested **the split between LL and runtime**:
   prior-flat base (0.5) plus a notch table fitted from recorded gym
   episodes. The catalogs contain no rate literal.
 
-Serve: `metis --plugin <plugin>:make domains/rddl/<domain>.llp` (the
-plugin is resolved beside the catalog, else in the working directory —
-run from `<domain>/`, or pass `<domain>/<domain>_plugin.py:make`). The
+Serve: `metis domains/rddl/<domain>.llp` — each catalog carries
+`#plugin <domain>/<domain>_plugin.py:make`, resolved beside the catalog,
+so the prior-flat ports bind without a flag (2026-10-14; before, a bare
+`metis wildfire.llp` refused with "unbound weight port 'pign'"). The
 fitted tables are here (`<domain>.notch.json`, the overlay format of
-`rddl_recorder --overlay`).
+`rddl_recorder --overlay`); the REPL applies them through
+`rddl_recorder --overlay` today, a `notch load FILE` verb is filed to
+the metis line.
 
 ## The experiments (one directory each, README = the intelligence)
 

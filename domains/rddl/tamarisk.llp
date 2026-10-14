@@ -263,3 +263,5 @@ qui settled [dyn] : fate -o write.
 #init not_native_at(s4s2) 1
 #init tick 1
 #steps 200
+
+#plugin tamarisk/tamarisk_plugin.py:make

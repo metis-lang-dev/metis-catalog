@@ -241,3 +241,5 @@ qui spread [dyn] : screen -o ignite.
 #init not_out_of_fuel(x3, y3) 1
 #init tick 1
 #steps 200
+
+#plugin wildfire/wildfire_plugin.py:make
