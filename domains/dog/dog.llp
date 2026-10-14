@@ -226,9 +226,9 @@ stage serve {
   cancel_none [dyn] : cmd_cancel * $idle -o done(cancel).
 
   % ── questions and talk: answered from what the dog holds ──
-  %% I tell you where {T} is: I have seen it at {P}.
+  %% I tell you about {T}: last seen at {P}.
   query_seen [dyn] : cmd_query(T) * $seen(T) * $where(T, P) -o done(query).
-  %% I can't say where {T} is: I have not seen it.
+  %% I can't say about {T}: not seen yet.
   query_unseen [dyn] : cmd_query(T) * $unseen(T) -o refused(query).
   %% I tell you what I see around {P}: it is on my map.
   look [dyn] : cmd_look(P) * $mapped(P) -o done(look).
