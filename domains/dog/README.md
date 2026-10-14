@@ -92,3 +92,10 @@ pair, what the person does to flip it, in the person's words ("come where I
 can see you" for `nobody`; `{P}`/`{T}` take the handle's display name).
 `words(atom)` templates one. A `missing` consult answer's `resource.words`
 comes from here, not from the model (E13 step 2 ruling, 2026-10-14).
+
+**Busy.** A `busy` token is held while a task (go, find, follow) is live and
+consumed when `idle` returns, so body actions (sit, lie, turn, move, paw)
+during a task are refused with their own reason ("I can't sit now: I am on a
+task") instead of firing mid-walk; `stop` or `cancel` first. Found while
+reviewing the orchestrator's dialog corpus (E13 step 3, 2026-10-14). Not a
+host pair: the blocker is null, the alternative is the catalog's stop.

@@ -84,6 +84,7 @@ pred cmd_lie : dog.
 pred cmd_turn(side) : dog.
 pred cmd_move(way) : dog.
 pred cmd_paw : dog.
+pred busy : dog.          % held while a task (go, find, follow) is live; idle is its complement
 pred cmd_go(place) : dog.
 pred cmd_find(thing) : dog.
 pred cmd_follow : dog.
@@ -106,41 +107,51 @@ pred cancelled(act) : dog.
 stage serve {
   % ── body actions: immediate, done or refused in the same beat ──
   %% I stand up.
-  stand [dyn] : cmd_stand * posture(P) * other(P, standing) * $battery_ok -o posture(standing) * done(stand).
+  stand [dyn] : cmd_stand * posture(P) * other(P, standing) * $battery_ok * $idle -o posture(standing) * done(stand).
   %% I can't stand: the battery is too low to stand.
-  stand_low [dyn] : cmd_stand * $posture(P) * other(P, standing) * $battery_low -o refused(stand).
+  stand_low [dyn] : cmd_stand * $posture(P) * other(P, standing) * $battery_low * $idle -o refused(stand).
   %% I am already standing.
-  stand_already [dyn] : cmd_stand * $posture(standing) -o refused(stand).
+  stand_already [dyn] : cmd_stand * $posture(standing) * $idle -o refused(stand).
   %% I sit down.
-  sit [dyn] : cmd_sit * posture(P) * other(P, sitting) * $floor_dry -o posture(sitting) * done(sit).
+  sit [dyn] : cmd_sit * posture(P) * other(P, sitting) * $floor_dry * $idle -o posture(sitting) * done(sit).
   %% I can't sit: the floor here is wet.
-  sit_wet [dyn] : cmd_sit * $posture(P) * other(P, sitting) * $floor_wet -o refused(sit).
+  sit_wet [dyn] : cmd_sit * $posture(P) * other(P, sitting) * $floor_wet * $idle -o refused(sit).
   %% I am already sitting.
-  sit_already [dyn] : cmd_sit * $posture(sitting) -o refused(sit).
+  sit_already [dyn] : cmd_sit * $posture(sitting) * $idle -o refused(sit).
   %% I lie down.
-  lie [dyn] : cmd_lie * posture(P) * other(P, lying) -o posture(lying) * done(lie).
+  lie [dyn] : cmd_lie * posture(P) * other(P, lying) * $idle -o posture(lying) * done(lie).
   %% I am already lying down.
-  lie_already [dyn] : cmd_lie * $posture(lying) -o refused(lie).
+  lie_already [dyn] : cmd_lie * $posture(lying) * $idle -o refused(lie).
   %% I turn the way you said.
-  turn [dyn] : cmd_turn(S) * $posture(standing) * $free(S) -o done(turn).
+  turn [dyn] : cmd_turn(S) * $posture(standing) * $free(S) * $idle -o done(turn).
   %% I can't turn that way: an obstacle is too close on that side.
-  turn_obstacle [dyn] : cmd_turn(S) * $posture(standing) * $obstacle(S) -o refused(turn).
+  turn_obstacle [dyn] : cmd_turn(S) * $posture(standing) * $obstacle(S) * $idle -o refused(turn).
   %% I can't turn: I have to stand up first.
-  turn_must_stand [dyn] : cmd_turn(S) * $posture(P) * other(P, standing) -o refused(turn).
+  turn_must_stand [dyn] : cmd_turn(S) * $posture(P) * other(P, standing) * $idle -o refused(turn).
   %% I move the way you said.
-  move [dyn] : cmd_move(W) * $posture(standing) * $clear(W) -o done(move).
+  move [dyn] : cmd_move(W) * $posture(standing) * $clear(W) * $idle -o done(move).
   %% I can't move that way: there is a wall right there.
-  move_wall [dyn] : cmd_move(W) * $posture(standing) * $wall(W) -o refused(move).
+  move_wall [dyn] : cmd_move(W) * $posture(standing) * $wall(W) * $idle -o refused(move).
   %% I can't move: I have to stand up first.
-  move_must_stand [dyn] : cmd_move(W) * $posture(P) * other(P, standing) -o refused(move).
+  move_must_stand [dyn] : cmd_move(W) * $posture(P) * other(P, standing) * $idle -o refused(move).
   %% I give you my paw.
-  paw [dyn] : cmd_paw * $leg_ok -o done(paw).
+  paw [dyn] : cmd_paw * $leg_ok * $idle -o done(paw).
   %% I can't lift my paw: my front leg is overheating.
-  paw_hot [dyn] : cmd_paw * $leg_hot -o refused(paw).
+  paw_hot [dyn] : cmd_paw * $leg_hot * $idle -o refused(paw).
+  %% I can't sit now: I am on a task.
+  sit_busy [dyn] : cmd_sit * $busy -o refused(sit).
+  %% I can't lie down now: I am on a task.
+  lie_busy [dyn] : cmd_lie * $busy -o refused(lie).
+  %% I can't turn now: I am on a task.
+  turn_busy [dyn] : cmd_turn(S) * $busy -o refused(turn).
+  %% I can't move now: I am on a task.
+  move_busy [dyn] : cmd_move(W) * $busy -o refused(move).
+  %% I can't give my paw now: I am on a task.
+  paw_busy [dyn] : cmd_paw * $busy -o refused(paw).
 
   % ── going somewhere: accepted into a task, then the host reports ──
   %% I set off for the place you named.
-  go [dyn] : cmd_go(P) * idle * $posture(standing) * $mapped(P) * $open(P) -o moving(P) * progress(go).
+  go [dyn] : cmd_go(P) * idle * $posture(standing) * $mapped(P) * $open(P) -o moving(P) * progress(go) * busy.
   %% I can't go there: that place is not on my map.
   go_unmapped [dyn] : cmd_go(P) * $unmapped(P) -o refused(go).
   %% I can't go there: the way to it is closed.
@@ -154,15 +165,15 @@ stage serve {
   %% I can't take that now: I am following you.
   go_busy_follow [dyn] : cmd_go(P) * $following -o refused(go).
   %% I have arrived.
-  arrive [dyn] : moving(P) * arrived(P) * at(Q) -o at(P) * idle * done(go).
+  arrive [dyn] : moving(P) * arrived(P) * at(Q) * busy -o at(P) * idle * done(go).
   %% I had to stop: the way is blocked.
-  go_blocked [dyn] : moving(P) * blocked(P) -o idle * refused(go).
+  go_blocked [dyn] : moving(P) * blocked(P) * busy -o idle * refused(go).
   %% Going there timed out: nothing came back in time.
-  go_expire [dyn] : moving(P) * timeout -o idle * expired(go).
+  go_expire [dyn] : moving(P) * timeout * busy -o idle * expired(go).
 
   % ── searching ──
   %% I start looking for it.
-  find [dyn] : cmd_find(T) * idle * $battery_ok -o searching(T) * progress(find).
+  find [dyn] : cmd_find(T) * idle * $battery_ok -o searching(T) * progress(find) * busy.
   %% I can't search: the battery is too low to search.
   find_low [dyn] : cmd_find(T) * $battery_low -o refused(find).
   %% I can't take that now: I am already busy with a task.
@@ -172,17 +183,17 @@ stage serve {
   %% I can't take that now: I am following you.
   find_busy_follow [dyn] : cmd_find(T) * $following -o refused(find).
   %% I found it.
-  found [dyn] : searching(T) * spotted(T) * unseen(T) -o seen(T) * idle * done(find).
+  found [dyn] : searching(T) * spotted(T) * unseen(T) * busy -o seen(T) * idle * done(find).
   %% I found it again.
-  found_again [dyn] : searching(T) * spotted(T) * $seen(T) -o idle * done(find).
+  found_again [dyn] : searching(T) * spotted(T) * $seen(T) * busy -o idle * done(find).
   %% I can't reach it: it is locked away.
-  find_locked [dyn] : searching(T) * locked_away(T) -o idle * refused(find).
+  find_locked [dyn] : searching(T) * locked_away(T) * busy -o idle * refused(find).
   %% The search timed out: nothing found in time.
-  find_expire [dyn] : searching(T) * timeout -o idle * expired(find).
+  find_expire [dyn] : searching(T) * timeout * busy -o idle * expired(find).
 
   % ── following ──
   %% I follow you.
-  follow [dyn] : cmd_follow * idle * $posture(standing) * $person_in_view -o following * progress(follow).
+  follow [dyn] : cmd_follow * idle * $posture(standing) * $person_in_view -o following * progress(follow) * busy.
   %% I can't follow: no person is in view.
   follow_nobody [dyn] : cmd_follow * $nobody -o refused(follow).
   %% I can't follow yet: I have to stand up first.
@@ -194,23 +205,23 @@ stage serve {
   %% I am already following you.
   follow_already [dyn] : cmd_follow * $following -o refused(follow).
   %% I lost you: nobody is in view any more.
-  follow_lost [dyn] : following * lost -o idle * expired(follow).
+  follow_lost [dyn] : following * lost * busy -o idle * expired(follow).
 
   % ── stop and cancel ──
   %% I stop going there.
-  stop_go [dyn] : cmd_stop * moving(P) -o idle * done(stop) * cancelled(go).
+  stop_go [dyn] : cmd_stop * moving(P) * busy -o idle * done(stop) * cancelled(go).
   %% I stop searching.
-  stop_find [dyn] : cmd_stop * searching(T) -o idle * done(stop) * cancelled(find).
+  stop_find [dyn] : cmd_stop * searching(T) * busy -o idle * done(stop) * cancelled(find).
   %% I stop following you.
-  stop_follow [dyn] : cmd_stop * following -o idle * done(stop) * cancelled(follow).
+  stop_follow [dyn] : cmd_stop * following * busy -o idle * done(stop) * cancelled(follow).
   %% I am already stopped.
   stop_still [dyn] : cmd_stop * $idle -o refused(stop).
   %% Okay, I drop that: I am no longer going there.
-  cancel_go [dyn] : cmd_cancel * moving(P) -o idle * done(cancel) * cancelled(go).
+  cancel_go [dyn] : cmd_cancel * moving(P) * busy -o idle * done(cancel) * cancelled(go).
   %% Okay, I drop the search.
-  cancel_find [dyn] : cmd_cancel * searching(T) -o idle * done(cancel) * cancelled(find).
+  cancel_find [dyn] : cmd_cancel * searching(T) * busy -o idle * done(cancel) * cancelled(find).
   %% Okay, I stop following you.
-  cancel_follow [dyn] : cmd_cancel * following -o idle * done(cancel) * cancelled(follow).
+  cancel_follow [dyn] : cmd_cancel * following * busy -o idle * done(cancel) * cancelled(follow).
   %% Okay: there was nothing to drop.
   cancel_none [dyn] : cmd_cancel * $idle -o done(cancel).
 
