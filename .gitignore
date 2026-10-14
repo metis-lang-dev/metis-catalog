@@ -1,0 +1,3 @@
+# host modules imported from a domain dir (dog_host.py …)
+__pycache__/
+*.pyc
