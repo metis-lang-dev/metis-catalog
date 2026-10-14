@@ -39,7 +39,7 @@ records: records/                 # the domain agents' surprise records: records
 |---|---|
 | the loop console (metis-loop) | the list (`index`), one click opens `program` + `host` (as an operator's `--host`, never named by the page) + `notch` |
 | the py agent (metis-agent `metis_agent.domains`) | the domain's module: `agent` executed as `metis_agent.domains.<name>` (its `variant(name)` applied), or the generic one from `intent.yaml` + the host; `display`, `voice`, `program` unless the module sets them |
-| the Go agent (metis-agent go/) | `name`, `display`, `line`, `voice`, `intent.grammar` / `prompt` / `examples[template]`, `clock`, `pair`, `partner_of` |
+| the Go agent (metis-agent go/, `internal/catalog`) | `name`, `display`, `line`, `voice`, `intent.grammar` / `prompt` / `examples[template]` (config `catalog.intent`), `clock`, `pair`, `partner_of`, the directory (watched for a reload); the console's list through this loader (`python -m metis_catalog list --domains --json`), a partner as its own row |
 | the agent console | the list, the `line`, `has` |
 
 **The domains with a manifest:** dog (generic agent, intent.yaml), kitchen

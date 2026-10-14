@@ -13,6 +13,8 @@ intent:
     prompt: intent/dog-prompt.txt
     examples: {gemma4: intent/dog-spoken.txt}
     corpus: intent/dog-corpus.tsv
+    tools: {grammar: intent/bench/dog-tools.gbnf, schema: intent/bench/dog-tools.json}   # E9's T variant (native calls)
+    bench: [intent/bench/dog-tools-prompt.txt, intent/bench/dog-tools-prompt-noex.txt, intent/bench/dog-tools-prompt-rt.txt]   # E9's T prompts
 clock: {beats: 1}
 docs: README.md
 records: records/
