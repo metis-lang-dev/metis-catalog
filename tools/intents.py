@@ -40,7 +40,12 @@ PRIMITIVES["integral-part"] = PRIMITIVES["integral-part"].replace(" )", ")")
 
 
 def load(name):
-    return yaml.safe_load((ROOT / "domains" / name / "intent.yaml").read_text())
+    return load_from(ROOT / "domains" / name)
+
+
+def load_from(d):
+    """A domain directory's intent.yaml (a scratch copy too)."""
+    return yaml.safe_load((Path(d) / "intent.yaml").read_text())
 
 
 def verb_names(spec):
