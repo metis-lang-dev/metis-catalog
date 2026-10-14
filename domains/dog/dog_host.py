@@ -75,13 +75,20 @@ KEYS = {
 }
 
 
+STANDING = ("elsewhere", "tag_near")   # fallback handles, not places a person can act on
+
+
+def _handle(args):
+    return args.rstrip(")") if args else ""
+
+
 def key(atom, names=None):
     """The word(s) an ask about flipping `atom` must contain, or None."""
     name, _, args = atom.partition("(")
     k = KEYS.get(name)
-    if k is None:
+    arg = _handle(args)
+    if k is None or arg in STANDING:
         return None
-    arg = args.rstrip(")") if args else ""
     shown = (names or {}).get(arg, arg.replace("_", " "))
     return k.replace("{P}", shown).replace("{T}", shown)
 
@@ -92,9 +99,9 @@ def words(atom, names=None):
     handles to display names; a bare handle is used when it is missing."""
     name, _, args = atom.partition("(")
     w = WORDS.get(name)
-    if w is None:
+    arg = _handle(args)
+    if w is None or arg in STANDING:     # a standing handle is nothing to ask for
         return None
-    arg = args.rstrip(")") if args else ""
     shown = (names or {}).get(arg, arg.replace("_", " "))
     return w.replace("{P}", shown).replace("{T}", shown)
 

@@ -148,100 +148,143 @@ weight pup reads {}.
 weight prest reads {}.
 weight pnborn reads {}.
 stage snap {
-  %% "Every slot changes within ONE step, all at once, each by what held at the START of the step"
+  % evidence: "Every slot changes within ONE step, all at once, each by what held at the START of the step"
+  %% [fold]
   snap_t [dyn] : tamarisk_at(S) -o old_t(S) * tdue(S) * open(S).
-  %% "Every slot changes within ONE step, all at once, each by what held at the START of the step"
+  % evidence: "Every slot changes within ONE step, all at once, each by what held at the START of the step"
+  %% [fold]
   snap_nt [dyn] : not_tamarisk_at(S) -o old_nt(S) * tdue(S) * open(S).
-  %% "Every slot changes within ONE step, all at once, each by what held at the START of the step"
+  % evidence: "Every slot changes within ONE step, all at once, each by what held at the START of the step"
+  %% [fold]
   snap_n [dyn] : native_at(S) -o old_n(S) * ndue(S).
-  %% "Every slot changes within ONE step, all at once, each by what held at the START of the step"
+  % evidence: "Every slot changes within ONE step, all at once, each by what held at the START of the step"
+  %% [fold]
   snap_nn [dyn] : not_native_at(S) -o old_nn(S) * ndue(S).
 }
 stage rouse {
-  %% "plus the action atoms taken that step (zero or one: eradicate(R) or restore(R), R in r1 r2 r3 r4)"
+  % evidence: "plus the action atoms taken that step (zero or one: eradicate(R) or restore(R), R in r1 r2 r3 r4)"
+  %% [fold]
   rouse_reach [dyn] : open(S) * lead(S, R) -o noerad(R) * norest(R).
 }
 stage act {
-  %% "eradicate on its reach"
+  % evidence: "eradicate on its reach"
+  %% eradicate is applied on reach R.
   take_eradicate [dyn] : eradicate(R) * noerad(R) -o erad(R).
-  %% "restore on its reach"
+  % evidence: "restore on its reach"
+  %% restore is applied on reach R.
   take_restore [dyn] : restore(R) * norest(R) -o rest(R).
-  %% "and one tick atom"
+  % evidence: "and one tick atom"
+  %% [fold]
   take_tick [dyn] : tick -o ().
 }
 stage fate {
-  %% "(1) a slot holding both at the start is a competition: tamarisk stays with one rate and native stays with another, independently of each other, whatever the action"
+  % evidence: "(1) a slot holding both at the start is a competition: tamarisk stays with one rate and native stays with another, independently of each other, whatever the action"
+  %% the tamarisk at S survives the competition with the native | the tamarisk at S dies out in the competition with the native
   t_compete [dyn] : tdue(S) * $old_t(S) * $old_n(S) -o (set_t(S) @w ptcomp | set_nt(S) @w ~ptcomp).
-  %% "(1) a slot holding both at the start is a competition: tamarisk stays with one rate and native stays with another, independently of each other, whatever the action"
+  % evidence: "(1) a slot holding both at the start is a competition: tamarisk stays with one rate and native stays with another, independently of each other, whatever the action"
+  %% the native at S survives the competition with the tamarisk | the native at S dies out in the competition with the tamarisk
   n_compete [dyn] : ndue(S) * $old_t(S) * $old_n(S) -o (set_n(S) @w pncomp | set_nn(S) @w ~pncomp).
-  %% "(2) A slot holding tamarisk and no native: eradicate on its reach removes the tamarisk at a rate (sometimes it survives)"
+  % evidence: "(2) A slot holding tamarisk and no native: eradicate on its reach removes the tamarisk at a rate (sometimes it survives)"
+  %% eradication on reach R removes the tamarisk at S | the tamarisk at S survives eradication on reach R
   t_eradicate [dyn] : tdue(S) * $old_t(S) * $old_nn(S) * on(S, R) * $erad(R) -o (set_nt(S) @w perad | set_t(S) @w ~perad).
-  %% "without eradicate on its reach the tamarisk sometimes dies by itself, at a rate"
+  % evidence: "without eradicate on its reach the tamarisk sometimes dies by itself, at a rate"
+  %% the tamarisk at S dies by itself | the tamarisk at S stays
   t_wither [dyn] : tdue(S) * $old_t(S) * $old_nn(S) * on(S, R) * $noerad(R) -o (set_nt(S) @w ptdie | set_t(S) @w ~ptdie).
-  %% "(2) A slot holding tamarisk and no native" — no native arrives where tamarisk stands alone
+  % evidence: "(2) A slot holding tamarisk and no native" — no native arrives where tamarisk stands alone
+  %% no native arrives at S, where the tamarisk stands alone.
   n_under_tamarisk [dyn] : ndue(S) * $old_t(S) * $old_nn(S) -o set_nn(S).
-  %% "(3) A slot holding native and no tamarisk: restore on its reach keeps the native for sure"
+  % evidence: "(3) A slot holding native and no tamarisk: restore on its reach keeps the native for sure"
+  %% restore on reach R keeps the native at S.
   n_kept [dyn] : ndue(S) * $old_nt(S) * $old_n(S) * on(S, R) * $rest(R) -o set_n(S).
-  %% "otherwise the native sometimes dies by itself, at a rate"
+  % evidence: "otherwise the native sometimes dies by itself, at a rate"
+  %% the native at S dies by itself | the native at S stays
   n_wither [dyn] : ndue(S) * $old_nt(S) * $old_n(S) * on(S, R) * $norest(R) -o (set_nn(S) @w pndie | set_n(S) @w ~pndie).
-  %% "(3) A slot holding native and no tamarisk" — no tamarisk arrives where native stands alone
+  % evidence: "(3) A slot holding native and no tamarisk" — no tamarisk arrives where native stands alone
+  %% no tamarisk arrives at S, where the native stands alone.
   t_under_native [dyn] : tdue(S) * $old_nt(S) * $old_n(S) -o set_nt(S).
-  %% "(4) An empty slot, for tamarisk: with eradicate on its reach no tamarisk arrives that step"
+  % evidence: "(4) An empty slot, for tamarisk: with eradicate on its reach no tamarisk arrives that step"
+  %% eradication on reach R keeps tamarisk out of the empty slot S.
   t_barred [dyn] : tdue(S) * $old_nt(S) * $old_nn(S) * on(S, R) * $erad(R) -o set_nt(S).
-  %% "otherwise tamarisk may arrive by itself (at a rate)"
+  % evidence: "otherwise tamarisk may arrive by itself (at a rate)"
+  %% tamarisk arrives at the empty slot S by itself | no tamarisk arrives at S by itself, and the tamarisk nearby is tried as a source
   t_born [dyn] : tdue(S) * $old_nt(S) * $old_nn(S) * on(S, R) * $noerad(R) -o (set_t(S) @w ptborn | scan(S, p1) @w ~ptborn).
-  %% "EACH tamarisk at the start in the other slot of the same reach ... is a separate independent chance of seeding it"
+  % evidence: "EACH tamarisk at the start in the other slot of the same reach ... is a separate independent chance of seeding it"
+  %% the tamarisk at X, in the same reach, seeds S | the tamarisk at X, in the same reach, does not seed S
   seed_sib [dyn] : scan(S, P) * at(P, X) * $old_t(X) * on(S, R) * on(X, R) * S <> X * nxt(P, Q) -o (set_t(S) @w psib | scan(S, Q) @w ~psib).
-  %% "a source upstream (spreading downstream)" "each has its own rate"
+  % evidence: "a source upstream (spreading downstream)" "each has its own rate"
+  %% the tamarisk at X, upstream, seeds S | the tamarisk at X, upstream, does not seed S
   seed_down [dyn] : scan(S, P) * at(P, X) * $old_t(X) * on(S, R) * on(X, U) * down(U, R) * nxt(P, Q) -o (set_t(S) @w pdown | scan(S, Q) @w ~pdown).
-  %% "a source downstream (spreading upstream, observed rarer)" "each has its own rate"
+  % evidence: "a source downstream (spreading upstream, observed rarer)" "each has its own rate"
+  %% the tamarisk at X, downstream, seeds S | the tamarisk at X, downstream, does not seed S
   seed_up [dyn] : scan(S, P) * at(P, X) * $old_t(X) * on(S, R) * on(X, D) * down(R, D) * nxt(P, Q) -o (set_t(S) @w pup | scan(S, Q) @w ~pup).
-  %% "in the other slot of the same reach, in a slot of the reach just upstream, or in a slot of the reach just downstream" — a slot without tamarisk at the start is no source
+  % evidence: "in the other slot of the same reach, in a slot of the reach just upstream, or in a slot of the reach just downstream" — a slot without tamarisk at the start is no source
+  %% [fold]
   pass_bare [dyn] : scan(S, P) * at(P, X) * $old_nt(X) * nxt(P, Q) -o scan(S, Q).
-  %% "in the other slot of the same reach, in a slot of the reach just upstream, or in a slot of the reach just downstream" — a farther tamarisk is no source
+  % evidence: "in the other slot of the same reach, in a slot of the reach just upstream, or in a slot of the reach just downstream" — a farther tamarisk is no source
+  %% [fold]
   pass_far [dyn] : scan(S, P) * at(P, X) * $old_t(X) * on(S, R) * on(X, U) * apart(R, U) * nxt(P, Q) -o scan(S, Q).
-  %% "the more such sources, the more often it arrives" — every source tried and none seeded: no tamarisk arrives
+  % evidence: "the more such sources, the more often it arrives" — every source tried and none seeded: no tamarisk arrives
+  %% no source seeded S: no tamarisk arrives there.
   seed_none [dyn] : scan(S, P) * stop(P) -o set_nt(S).
-  %% "(5) An empty slot, for native, independently of tamarisk: with restore on its reach a native arrives at a rate (sometimes restore fails)"
+  % evidence: "(5) An empty slot, for native, independently of tamarisk: with restore on its reach a native arrives at a rate (sometimes restore fails)"
+  %% restore on reach R plants a native at S | restore on reach R fails to plant a native at S
   n_planted [dyn] : ndue(S) * $old_nt(S) * $old_nn(S) * on(S, R) * $rest(R) -o (set_n(S) @w prest | set_nn(S) @w ~prest).
-  %% "otherwise a native sometimes arrives by itself, at a rate; tamarisk and native can arrive in the same step and then both are held"
+  % evidence: "otherwise a native sometimes arrives by itself, at a rate; tamarisk and native can arrive in the same step and then both are held"
+  %% a native arrives at the empty slot S by itself | no native arrives at S
   n_born [dyn] : ndue(S) * $old_nt(S) * $old_nn(S) * on(S, R) * $norest(R) -o (set_n(S) @w pnborn | set_nn(S) @w ~pnborn).
 }
 stage write {
-  %% "The next state is read when nothing more can happen, and must again hold, for each observed fluent, exactly one of the atom or not_<atom>"
+  % evidence: "The next state is read when nothing more can happen, and must again hold, for each observed fluent, exactly one of the atom or not_<atom>"
+  %% [fold]
   write_t [dyn] : set_t(S) -o tamarisk_at(S).
-  %% "The next state is read when nothing more can happen, and must again hold, for each observed fluent, exactly one of the atom or not_<atom>"
+  % evidence: "The next state is read when nothing more can happen, and must again hold, for each observed fluent, exactly one of the atom or not_<atom>"
+  %% [fold]
   write_nt [dyn] : set_nt(S) -o not_tamarisk_at(S).
-  %% "The next state is read when nothing more can happen, and must again hold, for each observed fluent, exactly one of the atom or not_<atom>"
+  % evidence: "The next state is read when nothing more can happen, and must again hold, for each observed fluent, exactly one of the atom or not_<atom>"
+  %% [fold]
   write_n [dyn] : set_n(S) -o native_at(S).
-  %% "The next state is read when nothing more can happen, and must again hold, for each observed fluent, exactly one of the atom or not_<atom>"
+  % evidence: "The next state is read when nothing more can happen, and must again hold, for each observed fluent, exactly one of the atom or not_<atom>"
+  %% [fold]
   write_nn [dyn] : set_nn(S) -o not_native_at(S).
-  %% "a plant that arrives this step seeds nothing until the next" — the start-of-step snapshot is spent
+  % evidence: "a plant that arrives this step seeds nothing until the next" — the start-of-step snapshot is spent
+  %% [fold]
   drop_t [dyn] : old_t(S) -o ().
-  %% "a plant that arrives this step seeds nothing until the next" — the start-of-step snapshot is spent
+  % evidence: "a plant that arrives this step seeds nothing until the next" — the start-of-step snapshot is spent
+  %% [fold]
   drop_nt [dyn] : old_nt(S) -o ().
-  %% "a plant that arrives this step seeds nothing until the next" — the start-of-step snapshot is spent
+  % evidence: "a plant that arrives this step seeds nothing until the next" — the start-of-step snapshot is spent
+  %% [fold]
   drop_n [dyn] : old_n(S) -o ().
-  %% "a plant that arrives this step seeds nothing until the next" — the start-of-step snapshot is spent
+  % evidence: "a plant that arrives this step seeds nothing until the next" — the start-of-step snapshot is spent
+  %% [fold]
   drop_nn [dyn] : old_nn(S) -o ().
-  %% "the observed next state never depends on them"
+  % evidence: "the observed next state never depends on them"
+  %% [fold]
   drop_open [dyn] : open(S) -o ().
-  %% "the observed next state never depends on them"
+  % evidence: "the observed next state never depends on them"
+  %% [fold]
   drop_erad [dyn] : erad(R) -o ().
-  %% "the observed next state never depends on them"
+  % evidence: "the observed next state never depends on them"
+  %% [fold]
   drop_noerad [dyn] : noerad(R) -o ().
-  %% "the observed next state never depends on them"
+  % evidence: "the observed next state never depends on them"
+  %% [fold]
   drop_rest [dyn] : rest(R) -o ().
-  %% "the observed next state never depends on them"
+  % evidence: "the observed next state never depends on them"
+  %% [fold]
   drop_norest [dyn] : norest(R) -o ().
 }
-%% "a step starts from a state holding, for EACH observed fluent, either its atom (true) or not_<atom> (false)"
+% evidence: "a step starts from a state holding, for EACH observed fluent, either its atom (true) or not_<atom> (false)"
+%% [fold]
 qui snapped [dyn] : snap -o rouse.
-%% "plus the action atoms taken that step (zero or one: eradicate(R) or restore(R), R in r1 r2 r3 r4)"
+% evidence: "plus the action atoms taken that step (zero or one: eradicate(R) or restore(R), R in r1 r2 r3 r4)"
+%% [fold]
 qui roused [dyn] : rouse -o act.
-%% "Every slot changes within ONE step, all at once, each by what held at the START of the step"
+% evidence: "Every slot changes within ONE step, all at once, each by what held at the START of the step"
+%% [fold]
 qui acted [dyn] : act -o fate.
-%% "The next state is read when nothing more can happen"
+% evidence: "The next state is read when nothing more can happen"
+%% [fold]
 qui settled [dyn] : fate -o write.
 % illustrative initial state
 % scene: instance 1's initial state (tamarisk at s1s1, native at s1s1 s2s2 s3s1), no action

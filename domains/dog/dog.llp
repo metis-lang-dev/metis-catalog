@@ -150,11 +150,11 @@ stage serve {
   paw_busy [dyn] : cmd_paw * $busy -o refused(paw).
 
   % ── going somewhere: accepted into a task, then the host reports ──
-  %% I set off for the place you named.
+  %% I set off for {P}.
   go [dyn] : cmd_go(P) * idle * $posture(standing) * $mapped(P) * $open(P) -o moving(P) * progress(go) * busy.
-  %% I can't go there: that place is not on my map.
+  %% I can't go to {P}: it is not on my map.
   go_unmapped [dyn] : cmd_go(P) * $unmapped(P) -o refused(go).
-  %% I can't go there: the way to it is closed.
+  %% I can't go to {P}: the way to it is closed.
   go_closed [dyn] : cmd_go(P) * $mapped(P) * $closed(P) -o refused(go).
   %% I can't go yet: I have to stand up first.
   go_must_stand [dyn] : cmd_go(P) * $idle * $mapped(P) * $open(P) * $posture(Q) * other(Q, standing) -o refused(go).
@@ -164,15 +164,15 @@ stage serve {
   go_busy_find [dyn] : cmd_go(P) * $searching(T) -o refused(go).
   %% I can't take that now: I am following you.
   go_busy_follow [dyn] : cmd_go(P) * $following -o refused(go).
-  %% I have arrived.
+  %% I have arrived at {P}.
   arrive [dyn] : moving(P) * arrived(P) * at(Q) * busy -o at(P) * idle * done(go).
-  %% I had to stop: the way is blocked.
+  %% I had to stop: the way to {P} is blocked.
   go_blocked [dyn] : moving(P) * blocked(P) * busy -o idle * refused(go).
-  %% Going there timed out: nothing came back in time.
+  %% Going to {P} timed out: nothing came back in time.
   go_expire [dyn] : moving(P) * timeout * busy -o idle * expired(go).
 
   % ── searching ──
-  %% I start looking for it.
+  %% I start looking for {T}.
   find [dyn] : cmd_find(T) * idle * $battery_ok -o searching(T) * progress(find) * busy.
   %% I can't search: the battery is too low to search.
   find_low [dyn] : cmd_find(T) * $battery_low -o refused(find).
@@ -182,13 +182,13 @@ stage serve {
   find_busy_find [dyn] : cmd_find(T) * $searching(U) -o refused(find).
   %% I can't take that now: I am following you.
   find_busy_follow [dyn] : cmd_find(T) * $following -o refused(find).
-  %% I found it.
+  %% I found {T}.
   found [dyn] : searching(T) * spotted(T) * unseen(T) * busy -o seen(T) * idle * done(find).
-  %% I found it again.
+  %% I found {T} again.
   found_again [dyn] : searching(T) * spotted(T) * $seen(T) * busy -o idle * done(find).
-  %% I can't reach it: it is locked away.
+  %% I can't reach {T}: it is locked away.
   find_locked [dyn] : searching(T) * locked_away(T) * busy -o idle * refused(find).
-  %% The search timed out: nothing found in time.
+  %% The search for {T} timed out: nothing found in time.
   find_expire [dyn] : searching(T) * timeout * busy -o idle * expired(find).
 
   % ── following ──
@@ -208,17 +208,17 @@ stage serve {
   follow_lost [dyn] : following * lost * busy -o idle * expired(follow).
 
   % ── stop and cancel ──
-  %% I stop going there.
+  %% I stop going to {P}.
   stop_go [dyn] : cmd_stop * moving(P) * busy -o idle * done(stop) * cancelled(go).
-  %% I stop searching.
+  %% I stop searching for {T}.
   stop_find [dyn] : cmd_stop * searching(T) * busy -o idle * done(stop) * cancelled(find).
   %% I stop following you.
   stop_follow [dyn] : cmd_stop * following * busy -o idle * done(stop) * cancelled(follow).
   %% I am already stopped.
   stop_still [dyn] : cmd_stop * $idle -o refused(stop).
-  %% Okay, I drop that: I am no longer going there.
+  %% Okay, I drop that: I am no longer going to {P}.
   cancel_go [dyn] : cmd_cancel * moving(P) * busy -o idle * done(cancel) * cancelled(go).
-  %% Okay, I drop the search.
+  %% Okay, I drop the search for {T}.
   cancel_find [dyn] : cmd_cancel * searching(T) * busy -o idle * done(cancel) * cancelled(find).
   %% Okay, I stop following you.
   cancel_follow [dyn] : cmd_cancel * following * busy -o idle * done(cancel) * cancelled(follow).
@@ -226,13 +226,13 @@ stage serve {
   cancel_none [dyn] : cmd_cancel * $idle -o done(cancel).
 
   % ── questions and talk: answered from what the dog holds ──
-  %% I tell you where it is: I have seen it at that place.
+  %% I tell you where {T} is: I have seen it at {P}.
   query_seen [dyn] : cmd_query(T) * $seen(T) * $where(T, P) -o done(query).
-  %% I can't say: I have not seen it.
+  %% I can't say where {T} is: I have not seen it.
   query_unseen [dyn] : cmd_query(T) * $unseen(T) -o refused(query).
-  %% I tell you what I see around that place: it is on my map.
+  %% I tell you what I see around {P}: it is on my map.
   look [dyn] : cmd_look(P) * $mapped(P) -o done(look).
-  %% I can't look there: that place is not on my map.
+  %% I can't look at {P}: it is not on my map.
   look_unmapped [dyn] : cmd_look(P) * $unmapped(P) -o refused(look).
   %% I tell you the time.
   time [dyn] : cmd_time -o done(time).
