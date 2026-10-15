@@ -117,10 +117,13 @@ class PlantHost:
         return {"moist": 1 if self.moist else 0, "dry": 0 if self.moist else 1}
 
     def snapshot(self):
-        return (self.beat, self.due, self.acted, self.moist, self.dry_beats, self.visits)
+        return (self.beat, self.due, self.acted, self.moist, self.dry_beats, self.visits)  # JSON data: arrays
 
-    def restore(self, snap):
-        self.beat, self.due, self.acted, self.moist, self.dry_beats, self.visits = snap
+    def restore(self, snap):                          # its JSON form: lists back to tuples
+        beat, due, acted, self.moist, self.dry_beats, self.visits = snap
+        self.beat = beat
+        self.due = tuple((b, d) for b, d in due)
+        self.acted = tuple((b, n, tuple(a)) for b, n, a in acted)
 
 
 def make(case):

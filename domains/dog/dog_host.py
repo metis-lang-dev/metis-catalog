@@ -181,10 +181,13 @@ class DogHost:
             self.due = ()        # the task is over: the world owes it no answer
 
     def snapshot(self):
-        return (self.beat, self.due, self.acted)
+        return (self.beat, self.due, self.acted)      # JSON data: carried as arrays
 
-    def restore(self, snap):
-        self.beat, self.due, self.acted = snap
+    def restore(self, snap):                          # its JSON form: lists back to tuples
+        beat, due, acted = snap
+        self.beat = beat
+        self.due = tuple((b, d) for b, d in due)
+        self.acted = tuple((b, n, tuple(a)) for b, n, a in acted)
 
 
 def make(case):

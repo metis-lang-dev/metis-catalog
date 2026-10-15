@@ -56,8 +56,9 @@ class ReservoirEnv:
     def snapshot(self):
         return (self.level, self.day, self.releases)
 
-    def restore(self, snap):
-        self.level, self.day, self.releases = snap
+    def restore(self, snap):                       # its JSON form: releases a list
+        self.level, self.day, releases = snap
+        self.releases = tuple(releases)
 
 
 def make(case):
