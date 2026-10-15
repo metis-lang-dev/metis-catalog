@@ -22,6 +22,9 @@ display: the dog                  # the narrator's name for it
 line: "a robot dog: …"            # the one display line: the consoles' lists, the orchestrator's INSTALLED domains
 voice: own                        # own (its %% lines say "I") | third
 program: dog.llp                  # the program (#plugin / #notch / #init stay in the file)
+serves: [dog.llp, packs/a.llp]    # the SERVED program's files, in order: the program, then what extends it;
+                                  #   each relative to this directory, or pkg.mod:path inside a package
+                                  #   (the kitchen pair's scenes in metispy); absent: [program] + packs/*.llp
 notch: dog.notch.json             # a fitted overlay
 host: dog_host.py:make            # the host (PortPlugin): file.py:factory, or pkg.mod:factory
 agent: agent.py[:variant]         # the domain-agent module; absent with intent.spec: the generic agent
@@ -34,22 +37,32 @@ docs: README.md
 tests: tests/
 records: records/                 # the domain agents' surprise records: records/<session>.jsonl
 reload: propose                   # when its files change on disk: propose (the agent console says STALE and proposes) | auto (reloaded at its next quiet tick); the agent's config may override
-# packs/*.llp (no key): extension packs, each `extends` the program — the SERVED
-# program is the program plus every pack in name order (Domain.packs(); the agent
-# builds and reloads from the union, the loop console opens them, apply writes them)
+# packs/*.llp: extension packs, each `extends` the program — without `serves`, the
+# SERVED program is the program plus every pack in name order (Domain.serves(); the
+# agent builds and reloads from the union, the loop console opens them, apply writes them)
 ```
+
+**The served program is `Domain.serves()`, and only that** (runtime-binding
+Q1, the architect's ruling): the py domain agent's CATALOG and PACKS (the
+first file and the rest), the artifact emitter (`python -m
+metis.kernel.artifact <n>`), the Go agent, and the loop console's one-click
+open (the packs `serves` lists after the program it opens; none when it
+serves another file) all read it from the manifest. A domain module never
+names its program. The kitchen and kitchen_shared list metispy's pair scenes
+(`metis.domains.kitchen:catalogs/…`): `program` is the authored kitchen the
+loop console opens, `serves` what the agent runs.
 
 | who reads what | |
 |---|---|
-| the loop console (metis-loop) | the list (`index`), one click opens `program` + `host` (as an operator's `--host`, never named by the page) + `notch` |
-| the py agent (metis-agent `metis_agent.domains`) | the domain's module: `agent` executed as `metis_agent.domains.<name>` (its `variant(name)` applied), or the generic one from `intent.yaml` + the host; `display`, `voice`, `program` unless the module sets them |
+| the loop console (metis-loop) | the list (`index`), one click opens `program` + its packs (`serves` after it, else `packs/`) + `host` (as an operator's `--host`, never named by the page) + `notch` |
+| the py agent (metis-agent `metis_agent.domains`) | the domain's module: `agent` executed as `metis_agent.domains.<name>` (its `variant(name)` applied), or the generic one from `intent.yaml` + the host; `display`, `voice` unless the module sets them; the served program from `serves` always |
 | the Go agent (metis-agent go/, `internal/catalog`) | `name`, `display`, `line`, `voice`, every served domain's `intent.grammar` / `prompt` / `examples[template]` and `intent.yaml`'s `asks`, `clock`, `pair`, `partner_of`, `reload`, the directory (watched, `intent/` and `packs/` with it); the programs and their packs through the py domain agents it runs; the console's list through this loader (a partner as its own row, `has` with `packs`) |
 | the agent console | the list, the `line`, `has` |
 
 **The domains with a manifest:** dog (generic agent, intent.yaml), kitchen
 and kitchen_shared (`agent.py:<variant>` — the agent runs the pair's scene
-from metispy, `metis.domains.kitchen` catalogs; `program` is the authored
-kitchen the loop console opens), wildfire and tamarisk (rddl: program and
+from metispy, its manifest's `serves`; `program` is the authored kitchen the
+loop console opens), wildfire and tamarisk (rddl: program and
 notch beside the directory, the port plugin in it), wgc (the specialist's:
 no host, no intents). **Without one:** a directory whose one catalog is a
 `.llp` is a program-only domain; every `.llp` is listed — with a host, a

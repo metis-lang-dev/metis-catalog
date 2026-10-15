@@ -33,5 +33,7 @@ FACTORY = {"kitchen": "make_pair_kitchen", "kitchen_shared": "make_pair_shared"}
 
 def variant(name):
     """The namespace of the cook `name` (the loader updates the module with it)."""
-    return dict(NAME=name, DISPLAY=DISPLAYS[name], CATALOG=pair.SCENES[name],
+    # the served program is the manifest's `serves:` (pair.SCENES[name]),
+    # which the loader reads — no CATALOG here (runtime-binding Q1)
+    return dict(NAME=name, DISPLAY=DISPLAYS[name],
                 PLUGIN="metis.domains.kitchen.pair:" + FACTORY[name])
