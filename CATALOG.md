@@ -33,6 +33,7 @@ partner_of: kitchen               # never loaded alone; listed by its lead
 docs: README.md
 tests: tests/
 records: records/                 # the domain agents' surprise records: records/<session>.jsonl
+reload: propose                   # when its files change on disk: propose (the agent console says STALE and proposes) | auto (reloaded at its next quiet tick); the agent's config may override
 # packs/*.llp (no key): extension packs, each `extends` the program — the SERVED
 # program is the program plus every pack in name order (Domain.packs(); the agent
 # builds and reloads from the union, the loop console opens them, apply writes them)
