@@ -2,3 +2,7 @@
 __pycache__/
 *.pyc
 *.egg-info/
+
+# the domain agents' surprise records (records sink, e2e-workflow s-143c3088): the hand-off
+# between the agent and the loop console on one host, not catalog content
+domains/*/records/
