@@ -53,7 +53,7 @@ def test_the_index_lists_every_catalog_the_domains_first():
     kinds = [e["kind"] for e in es]
     assert kinds == sorted(kinds, key=lambda k: k != "domain")
     named = [e["name"] for e in es if e["manifest"]]
-    assert named[:5] == ["dog", "kitchen", "tamarisk", "wgc", "wildfire"]           # the manifests first
+    assert named[:6] == ["dog", "kitchen", "plant", "tamarisk", "wgc", "wildfire"]  # the manifests first
     assert "kitchen_shared" not in [e["name"] for e in es]                           # a partner is listed by its lead
     by = {e["path"]: e for e in es}
     assert by["domains/rddl/wildfire"]["notch"] == "wildfire.notch.json"
