@@ -42,7 +42,7 @@ records: records/                 # the domain agents' surprise records: records
 |---|---|
 | the loop console (metis-loop) | the list (`index`), one click opens `program` + `host` (as an operator's `--host`, never named by the page) + `notch` |
 | the py agent (metis-agent `metis_agent.domains`) | the domain's module: `agent` executed as `metis_agent.domains.<name>` (its `variant(name)` applied), or the generic one from `intent.yaml` + the host; `display`, `voice`, `program` unless the module sets them |
-| the Go agent (metis-agent go/, `internal/catalog`) | `name`, `display`, `line`, `voice`, `intent.grammar` / `prompt` / `examples[template]` (config `catalog.intent`), `clock`, `pair`, `partner_of`, the directory (watched for a reload); the console's list through this loader (`python -m metis_catalog list --domains --json`), a partner as its own row |
+| the Go agent (metis-agent go/, `internal/catalog`) | `name`, `display`, `line`, `voice`, every served domain's `intent.grammar` / `prompt` / `examples[template]` and `intent.yaml`'s `asks`, `clock`, `pair`, `partner_of`, `reload`, the directory (watched, `intent/` and `packs/` with it); the programs and their packs through the py domain agents it runs; the console's list through this loader (a partner as its own row, `has` with `packs`) |
 | the agent console | the list, the `line`, `has` |
 
 **The domains with a manifest:** dog (generic agent, intent.yaml), kitchen
@@ -55,6 +55,37 @@ no host, no intents). **Without one:** a directory whose one catalog is a
 notch or its own README as a domain, else as a plain catalog — what it has
 read off the checkout (`#plugin`, `<stem>_host.py`, `#notch`,
 `<stem>.notch.json`, a README).
+
+### Packs and the world's reports (the architect's rulings, 2026-10-15)
+
+A pack in `packs/` is merged into the SERVED program: the agent builds and
+reloads from the program plus every pack in name order, gated and accepted
+in turn (a pack the gate refuses fails the build). The key is the union's.
+The watcher marks a pack's change like the program's, so a pack applied from
+the loop console is proposed for reload (or reloaded under `reload: auto`).
+
+A pack that explains an off-model change must have a trigger. **A host's
+report precedes the off-model effect it explains by at least one beat.**
+
+Take the plant (metis-catalog 0b9539e). Its host reports `+visitor` one beat
+before the visitor's watering:
+- At the report's tick the reading is still consistent (dry), and the
+  checkpoint holds `visitor`.
+- Without the pack, the next tick's watering is the surprise, its record's
+  init `{dry, visitor}`: the loop mines it and writes the pack
+  `visitor_waters [dyn] : dry * visitor -o moist`.
+- With the pack served, `dry * visitor` is enabled at the report's tick and
+  the kernel fires `visitor_waters` itself, so the visit is modelled and
+  raises no surprise.
+
+Two shapes fail:
+- **A report and the change it explains in the same tick.** No record can
+  explain it: the watch reads the env before any rule fires.
+- **A triggerless rule** (`dry -o moist`). The sampler fires it on its own,
+  so it models the change away (and here makes watering unreachable).
+
+The watch compares the reading with the program at every tick, and stays so
+(no "settle before comparing").
 
 ## intent.yaml — what the person may ask the domain (frozen 2026-10-14)
 
