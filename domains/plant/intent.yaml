@@ -1,0 +1,63 @@
+# plant's intents — CATALOG.md "intent.yaml": what the person may ask the potted plant.
+persona: |
+  You map what the person says about the plant to exactly one intent JSON per utterance.
+  Respond with only the JSON.
+
+  The plant: a potted plant that dries out: the person waters it or asks how it is.
+verbs:
+- verb: WATER
+  meaning: The person waters the plant; when its soil is dry it becomes moist again.
+- verb: CHECK
+  meaning: The person asks how the plant is; it reports whether its soil is moist or dry without changing anything.
+- verb: UNKNOWN
+  meaning: anything the plant cannot do
+slots: {}
+guidance: |
+  Use only the intents and values listed. Omit fields you don't need.
+  Giving the plant water, a drink or a splash is WATER. Asking how it is, whether
+  it is thirsty, or whether the soil is dry or moist is CHECK — asking about
+  thirst is a question, not a watering.
+examples:
+- - water
+  - intent: WATER
+- - water the plant
+  - intent: WATER
+- - give it a drink
+  - intent: WATER
+- - pour some water in the pot
+  - intent: WATER
+- - the soil looks parched, let me water it
+  - intent: WATER
+- - check
+  - intent: CHECK
+- - how is the plant doing?
+  - intent: CHECK
+- - is it thirsty?
+  - intent: CHECK
+- - is the soil dry?
+  - intent: CHECK
+- - how are you, little plant?
+  - intent: CHECK
+- - order me a pizza
+  - intent: UNKNOWN
+- - repot it into a bigger pot
+  - intent: UNKNOWN
+- - put it in the sun
+  - intent: UNKNOWN
+map:
+- verb: WATER
+  atom: cmd_water
+  act: water
+- verb: CHECK
+  atom: cmd_check
+  act: check
+values: {}
+enders: []
+outcomes:
+  done: done
+  checked: done      # CHECK's answer: its %% line (check_moist, check_dry)
+alternatives:
+  max: 2
+  rules: {}
+# the verbs that ask the plant a question: never judged talk (CATALOG.md asks)
+asks: [CHECK]
