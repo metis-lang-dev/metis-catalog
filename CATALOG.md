@@ -29,7 +29,9 @@ notch: dog.notch.json             # a fitted overlay
 host: dog_host.py:make            # the host (PortPlugin): file.py:factory, or pkg.mod:factory
 agent: agent.py[:variant]         # the domain-agent module; absent with intent.spec: the generic agent
 intent: {spec: intent.yaml, grammar: intent/<n>.gbnf, prompt: intent/<n>-prompt.txt,
-         examples: {gemma4: intent/<n>-spoken.txt}, corpus: intent/<n>-corpus.tsv, tools: {…}, bench: […]}
+         examples: {gemma4: intent/<n>-spoken.txt}, corpus: intent/<n>-corpus.tsv}
+                                  # J material only: the intent JSON a domain is talked to in; T (the REPL's
+                                  #   tool-call syntax) lives with the REPL in metispy, never here (catalog-entry)
 clock: {beats: 1}                 # env beats per orchestrator tick (the kitchen: 2)
 pair: [kitchen_shared]            # partners stepped inside its clock, reloaded with it
 partner_of: kitchen               # never loaded alone; listed by its lead

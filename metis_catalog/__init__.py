@@ -12,7 +12,7 @@ Each domain is one directory under domains/ with a manifest, domain.yaml:
     notch: dog.notch.json
     host: dog_host.py:make            # file.py:factory (relative) or pkg.mod:factory
     agent: agent.py[:VARIANT]         # the domain-agent module; absent with intent.spec: the generic agent
-    intent: {spec, grammar, prompt, examples: {gemma4: …}, tools: {…}, corpus, bench: […]}
+    intent: {spec, grammar, prompt, examples: {gemma4: …}, corpus}   # J material only
     clock: {beats: 1}                 # env beats per orchestrator tick
     pair: [kitchen_shared]            # partners stepped inside its clock
     partner_of: kitchen               # never loaded alone
@@ -114,7 +114,8 @@ class Domain:
 
     @property
     def intent(self):
-        """The intent material's paths (spec, grammar, prompt, examples, tools, corpus, bench)."""
+        """The intent material's paths (spec, grammar, prompt, examples, corpus):
+        J only — the REPL's tool syntax (T) is metispy's, never the catalog's."""
         i = self.manifest.get("intent") or {}
         out = {}
         for k, v in i.items():
