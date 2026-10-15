@@ -101,11 +101,21 @@ name (`"ON"`); the generator refuses a non-name enum value.
 
 | key | shape | meaning |
 |---|---|---|
-| `outcomes` | `{predicate: status}` | an outcome atom → the result status (`done`, `refused`, `progress`, `expired`, `cancelled`) |
+| `outcomes` | `{predicate: status}` | an outcome atom → the result status (`done`, `refused`, `progress`, `expired`, `cancelled`): every atom a command's rule produces that no rule reads (the plant's `checked`, so CHECK's answer is its `%%` line); the skeleton infers them |
 | `alternatives` | `{max, places?: {rules, act, slot, where: [p, q]}, rules: {rule: [act]}}` | a refusal's way out as typed intents in the domain's dictionary: per rule a fixed list (`[]`: none), or for `places.rules` the handles with `p(h)` and `q(h)` true, in the program's order, at most `max` |
 
 The outcomes' words are the program's `%%` lines; the world (complementary
 pairs, a blocker's words, the answers to a long command) is the host's.
+
+### The orchestrator (e2e-workflow step 4)
+
+| key | shape | meaning |
+|---|---|---|
+| `asks` | `[VERB]` | the verbs that ask the domain a question (the dog's `QUERY`, the plant's `CHECK`): words in question form mapped to one are the domain's question, never judged talk by the orchestrator's info-or-command judge. Every rule of an ask's command keeps the state (only `$`-premises besides the command): `check` refuses one that consumes, and the loop console's `intents` propose refuses it with why; the skeleton lists the candidates (the commands whose rules only read the state) |
+
+With several intent domains served, the orchestrator's J names its domain
+first (`{"domain":"plant","intent":"WATER"}`), under the union of the
+domains' generated grammars (metis-agent DESIGN, "Several intent domains").
 
 Example: `domains/dog/intent.yaml` (generates the dog's grammar with the
 same rules as the hand-written one and its prompts byte for byte; the

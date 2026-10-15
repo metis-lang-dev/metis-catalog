@@ -182,6 +182,76 @@ def spoken(spec):
 
 # ── the draft: intent.yaml's skeleton from the program ──────────────────────
 
+def program_rules(prog):
+    """The program's rules: (its %% line, name, premises, products), atoms
+    as written ("$moist" a premise kept, "cmd_check" one consumed)."""
+    import re
+    out, doc = [], None
+    for line in prog.splitlines():
+        t = line.strip()
+        if t.startswith("%%"):
+            doc = t[2:].strip()
+        elif " -o " in t and ":" in t:
+            name = t.split()[0]
+            lhs, rhs = t.split(":", 1)[1].split(" -o ", 1)
+            atoms = lambda s: [a.strip().rstrip(".").strip() for a in s.split("*") if a.strip().rstrip(".").strip()]
+            out.append((doc, name, atoms(lhs), atoms(rhs)))
+            doc = None
+        elif t and not t.startswith("%"):
+            doc = None
+    return out
+
+
+def _pred(atom):
+    return atom.lstrip("$").split("(")[0].strip()
+
+
+def command_rules(rules, stem):
+    """The rules that consume the command cmd_<stem>."""
+    return [r for r in rules if any(_pred(a) == "cmd_" + stem and not a.startswith("$") for a in r[2])]
+
+
+def outcome_atoms(rules):
+    """What a command's rule produces that no rule reads: the outcome tokens
+    the host narrates and retracts (done(water), checked(moist)) — the
+    replier's `outcomes` keys; the domain's state (moist, which dry_out
+    consumes) is not one."""
+    read = {_pred(a) for r in rules for a in r[2]}
+    out = []
+    for _, _, lhs, rhs in rules:
+        if any(_pred(a).startswith("cmd_") for a in lhs):
+            for a in rhs:
+                p = _pred(a)
+                if not p.startswith("cmd_") and p not in read and p not in out:
+                    out.append(p)
+    return out
+
+
+def asks_problems(spec, prog):
+    """An ask must ask: every rule of each command its verb maps to keeps
+    the state ($-premises only, besides the command) — else it changes the
+    world and is a command, not a question (CATALOG.md `asks`)."""
+    rules, out = program_rules(prog), []
+    names = verb_names(spec)
+    for v in spec.get("asks") or []:
+        if v not in names:
+            out.append("asks %s: no such verb" % v)
+            continue
+        for row in spec.get("map") or []:
+            if row.get("verb") != v:
+                continue
+            stem = row["atom"].split("(")[0][len("cmd_"):]
+            rs = command_rules(rules, stem)
+            if not rs:
+                out.append("asks %s: %s has no rule in the program" % (v, row["atom"].split("(")[0]))
+            for _, rn, lhs, _ in rs:
+                taken = [a for a in lhs if not a.startswith("$") and _pred(a) != "cmd_" + stem]
+                if taken:
+                    out.append("asks %s: rule %s consumes %s — it changes the state, so %s is a command, not a question"
+                               % (v, rn, ", ".join(taken), v))
+    return out
+
+
 def skeleton(name):
     """A first intent.yaml from the program alone (the loop console's
     `intents` hands it to Claude, who writes the meanings, examples and
@@ -228,6 +298,10 @@ def skeleton(name):
             atom += "(%s)" % ", ".join(binds)
         rows.append({"verb": verb, "atom": atom, "act": stem})
         examples.append([" ".join([stem.replace("_", " ")] + [ex[t].lower() for t in args if t in ex]), ex])
+    asks = [s.upper() for s, _ in cmds if s not in ("time", "date", "chat", "chitchat", "unknown", "stop", "cancel")
+            and command_rules(program_rules(prog), s)
+            and all(all(a.startswith("$") or _pred(a) == "cmd_" + s for a in lhs)
+                    for _, _, lhs, _ in command_rules(program_rules(prog), s))]
     spec = {
         "persona": "You map what the person says about the %s to exactly one intent JSON per utterance.\n"
                    "Respond with only the JSON.%s\n" % (name, ("\n\nThe %s: %s." % (name, about.group(1))) if about else ""),
@@ -238,13 +312,18 @@ def skeleton(name):
         "map": rows,
         "values": values,
         "enders": ["cmd_%s" % s for s, _ in cmds if s in ("stop", "cancel")],
-        "outcomes": {o: o for o in ("done", "refused", "progress", "expired", "cancelled")
-                     if re.search(r"^pred\s+%s\b" % o, prog, re.M)},
+        # every atom a command's rule produces that no rule reads: done unless it names its status
+        "outcomes": {o: (o if o in ("done", "refused", "progress", "expired", "cancelled") else "done")
+                     for o in outcome_atoms(program_rules(prog))},
         "alternatives": {"max": 2, "rules": {}},
     }
+    if asks:   # candidates: the commands whose rules only read the state; keep the questions
+        spec["asks"] = asks
     head = ("# %s's intents — a DRAFT from %s.llp (tools/intents.py skeleton): one verb per command\n"
             "# atom; write the meanings, more examples, open-vocabulary slots and handles,\n"
-            "# then `python3 tools/intents.py gen %s` and the check. CATALOG.md \"intent.yaml\".\n") % (name, name, name)
+            "# then `python3 tools/intents.py gen %s` and the check. CATALOG.md \"intent.yaml\".\n"
+            "# outcomes: what a command's rule produces that no rule reads. asks: CANDIDATES, the\n"
+            "# commands whose rules only read the state — keep the ones the person asks as a question.\n") % (name, name, name)
     class Dumper(yaml.SafeDumper):
         pass
     Dumper.add_representer(str, lambda d, v: d.represent_scalar("tag:yaml.org,2002:str", v, style="|" if "\n" in v else None))
@@ -270,6 +349,11 @@ def main(argv):
         return 0
     d = ROOT / "domains" / name / "intent"
     bad = 0
+    prog = ROOT / "domains" / name / ("%s.llp" % name)
+    if verb == "check" and prog.is_file():
+        for msg in asks_problems(load(name), prog.read_text()):
+            print("ASKS", msg)
+            bad += 1
     for fn, text in files(name).items():
         p = d / fn
         if verb == "gen":

@@ -156,6 +156,9 @@ standing: [tag_near, elsewhere]
 
 # the commands that end what runs: they act on the tick they arrive
 enders: [cmd_stop, cmd_cancel]
+# the verbs that ask the dog a question (QUERY: where a thing is, what is near it):
+# words in question form mapped to one are never judged talk (CATALOG.md asks)
+asks: [QUERY]
 
 # ── the replier: outcome predicate → result status; a refusal's alternatives ──
 outcomes: {done: done, refused: refused, progress: progress, expired: expired, cancelled: cancelled}
