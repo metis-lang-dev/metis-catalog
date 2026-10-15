@@ -96,10 +96,12 @@ class PlantHost:
             dos.append("+sun")
         if not self.moist:                            # the visitor: off-model
             self.dry_beats += 1
-            if self.dry_beats >= VISITOR_AFTER:
+            if self.dry_beats == VISITOR_AFTER - 1:
+                dos.append("+visitor")            # the world's report: someone came by (a beat before the watering,
+                print(f"  [host beat {self.beat}] a visitor came by", file=sys.stderr)   # so the record's checkpoint holds it)
+            elif self.dry_beats >= VISITOR_AFTER:
                 self.moist, self.dry_beats, self.visits = True, 0, self.visits + 1
-                dos.append("+visitor")            # the world's report of the visit; the watering itself is off-model
-                print(f"  [host beat {self.beat}] a visitor watered the plant", file=sys.stderr)
+                print(f"  [host beat {self.beat}] the visitor watered the plant", file=sys.stderr)
         dos += self.script.get(self.beat, [])
         return dos
 
