@@ -15,6 +15,7 @@ pred cmd_check : plant.
 pred done(water) : plant.
 pred checked(soil) : plant.
 pred sun : plant.
+pred visitor : plant.        % the world's report: someone came by (the host, or the person's World tab)
 
 stage main {
   %% The sun has been on me for a while; my soil dries out.

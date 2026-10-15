@@ -11,9 +11,13 @@ the SENSOR face (`observe`) reads the soil, which the plant's program predicts
   script = {} and last = None.
 - on_event: dry_out and water move the env's soil with the program.
 - observe: {moist, dry} as the env has them. After VISITOR_AFTER dry beats
-  a visitor waters the plant — the env turns moist while the program says
-  dry: an unmodeled reading, the surprise the loop console gets to explain
-  ("a visitor waters me": the pack that makes the next visit explained).
+  a visitor waters the plant: the host reports `+visitor` (a world fact the
+  program declares) and the env turns moist while the program says dry — an
+  unmodeled reading, the surprise the loop console gets to explain. The pack
+  `visitor_waters [dyn] : dry * visitor -o moist.` consumes the report, so
+  the next visit is EXPLAINED by that rule (the kernel's recover), never
+  fired by the sampler on its own (a triggerless rule would model the visit
+  away and make watering unreachable — nina's finding, 2026-10-15).
 PURITY: the env mutates only in tick/on_event; snapshot is total."""
 import sys
 
@@ -94,6 +98,7 @@ class PlantHost:
             self.dry_beats += 1
             if self.dry_beats >= VISITOR_AFTER:
                 self.moist, self.dry_beats, self.visits = True, 0, self.visits + 1
+                dos.append("+visitor")            # the world's report of the visit; the watering itself is off-model
                 print(f"  [host beat {self.beat}] a visitor watered the plant", file=sys.stderr)
         dos += self.script.get(self.beat, [])
         return dos
