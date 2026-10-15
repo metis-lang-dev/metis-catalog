@@ -7,6 +7,8 @@ Each domain is one directory under domains/ with a manifest, domain.yaml:
     line: "a robot dog: …"            # the one display line (consoles, the orchestrator's INSTALLED list)
     voice: own                        # own | third
     program: dog.llp                  # paths are relative to the manifest's directory
+    serves: [a.llp, …]                # the served program's files, in order (pkg.mod:path allowed);
+                                      #   absent: [program] + packs/*.llp — Domain.serves()
     notch: dog.notch.json
     host: dog_host.py:make            # file.py:factory (relative) or pkg.mod:factory
     agent: agent.py[:VARIANT]         # the domain-agent module; absent with intent.spec: the generic agent
@@ -25,7 +27,7 @@ what it has read off the checkout (#plugin, #notch, a README).
     import metis_catalog as mc
     mc.root()                 # the checkout ($METIS_CATALOG, else this package's repo)
     mc.domains()              # [Domain] — every manifest, by name
-    mc.get("dog")             # Domain: .program .packs() .host .host_spec_for(program_dir) .intent … .has()
+    mc.get("dog")             # Domain: .program .packs() .serves() .host .host_spec_for(program_dir) .intent … .has()
     mc.index()                # every catalog for a console's list: the domains first (display line, has)
 
     python -m metis_catalog list [--json]
@@ -133,6 +135,18 @@ class Domain:
         d = self.dir / "packs"
         return sorted(p.resolve() for p in d.glob("*.llp")) if d.is_dir() else []
 
+    def serves(self):
+        """The served program's files, in order: the program first, then
+        what extends it (runtime-binding Q1, the architect's ruling). The
+        manifest's `serves: [files]` — each relative to the manifest's
+        directory, or `pkg.mod:path` inside an importable package (the
+        kitchen pair's scenes live in metispy) — else [program] + packs().
+        py, Go and the artifact emitter read the served program here only."""
+        s = self.manifest.get("serves")
+        if not s:
+            return ([self.program] if self.program else []) + self.packs()
+        return [_served_file(self.dir, x) for x in s]
+
     @property
     def records(self):
         return self.dir / (self.manifest.get("records") or "records")
@@ -158,6 +172,20 @@ class Domain:
         return {"program": bool(self.program and self.program.is_file()), "notch": bool(self.notch and self.notch.is_file()),
                 "host": self.host is not None, "agent": self.agent is not None or bool(self.intent.get("spec")),
                 "intent": bool(self.intent), "readme": self.readme is not None, "packs": bool(self.packs())}
+
+
+def _served_file(base, entry):
+    """One `serves` entry: a path relative to `base`, or pkg.mod:path."""
+    mod, sep, rel = str(entry).partition(":")
+    if sep and rel and "/" not in mod and not mod.endswith(".llp"):
+        import importlib.util
+        spec = importlib.util.find_spec(mod)
+        if spec is None:
+            raise ValueError("serves %r: no package %r" % (entry, mod))
+        root = (Path(next(iter(spec.submodule_search_locations)))
+                if spec.submodule_search_locations else Path(spec.origin).parent)
+        return (root / rel).resolve()
+    return (Path(base) / entry).resolve()
 
 
 def _manifests(r=None):

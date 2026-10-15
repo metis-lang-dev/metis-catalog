@@ -81,3 +81,33 @@ def test_packs_are_the_programs_extensions_in_name_order(tmp_path):
     assert [x.name for x in p.packs()] == ["a_sun.llp", "visitor.llp"] and p.has()["packs"]
     row = next(e for e in mc.index(tmp_path) if e["name"] == "plant")
     assert row["has"]["packs"]
+
+
+def test_serves_is_the_program_plus_packs_unless_the_manifest_lists_it(tmp_path):
+    """runtime-binding Q1 (the architect's ruling): the served program's
+    files are the manifest's `serves:` (relative to its directory, or
+    pkg.mod:path), else [program] + packs/*.llp — py, Go and the artifact
+    emitter read only this."""
+    import metis_catalog as mc
+    d = tmp_path / "domains/plant"
+    (d / "packs").mkdir(parents=True)
+    (d / "domain.yaml").write_text("name: plant\nline: a plant\nprogram: plant.llp\n")
+    (d / "plant.llp").write_text("catalog plant 1.\n")
+    (d / "packs" / "visitor.llp").write_text("catalog visitor 1.\nextends plant.\n")
+    assert [x.name for x in mc.get("plant", tmp_path).serves()] == ["plant.llp", "visitor.llp"]
+    (d / "domain.yaml").write_text("name: plant\nline: a plant\nprogram: plant.llp\n"
+                                   "serves: [other/scene.llp, 'metis_catalog:__init__.py']\n")
+    s = mc.get("plant", tmp_path).serves()
+    assert s[0] == (d / "other/scene.llp").resolve()
+    assert s[1] == (ROOT / "metis_catalog" / "__init__.py").resolve()
+
+
+def test_the_kitchen_pair_serves_its_pair_scenes():
+    """The kitchen's agents serve metispy's pair scenes (metis.domains.kitchen
+    pair.SCENES), not the loop console's kitchen.llp."""
+    import metis_catalog as mc
+    pytest.importorskip("metis.domains.kitchen")
+    k, s = mc.get("kitchen").serves(), mc.get("kitchen_shared").serves()
+    assert [x.name for x in k] == ["kitchen_host.llp"] and k[0].is_file()
+    assert [x.name for x in s] == ["kitchen_shared.llp"] and s[0].is_file()
+    assert k[0].parent.name == "catalogs" and s[0].parent.name == "shared"
