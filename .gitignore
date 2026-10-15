@@ -7,6 +7,6 @@ __pycache__/
 # between the agent and the loop console on one host, not catalog content
 domains/*/records/
 
-# the domain artifacts (python -m metis.kernel.artifact <n>: ground.wire + sidecar.json,
-# runtime-binding s-9054df5d step 2): built from the program plus its packs, never committed
+# the packages' bundles (python -m metis.kernel.artifact <n>: ground.wire + sidecar.json,
+# runtime-binding s-9054df5d step 2): built from the program plus its extensions, never committed
 domains/*/build/

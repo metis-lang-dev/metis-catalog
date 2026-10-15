@@ -1,6 +1,5 @@
 # The kitchen's second cook: stepped inside the kitchen's clock (one env),
 # never loaded alone; its program is metispy's shared/kitchen_shared.llp.
-name: kitchen_shared
 display: the second cook
 line: "the kitchen's second cook (partner_load: the onion it holds into the first cook's pot)"
 voice: third

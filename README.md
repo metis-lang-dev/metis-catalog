@@ -20,7 +20,7 @@ across benchmarks, each a full LLP world model.
 | `domains/CEPTRE-PORTS.md` | the Ceptre → metis porting track: the recipe and the per-port log. |
 | --- | --- |
 | `road/` | the production road catalog (`road_catalog.llp`, served by the runtime) + the certified increment history (`road_handles{,2,3,4}.llp`, `road_zones.llp`) + the exact-filter referee catalog (`road_grid.llp`, opaque RSS ports BY DESIGN — referee, never runtime). |
-| `packs/` | admission-gated extension packs (containment-typed: packs constrain, never enable). |
+| `packs/` | the road catalog's admission-gated packs (metispy's scene/loop vocabulary; containment-typed: they constrain, never enable). A domain package's are its `extensions/` (CATALOG.md). |
 | `demo/` | tutorial catalogs. |
 | `scenes/` | generated scene instances (the include-adopts-catalog pattern) + the case manifest — how a domain-generic catalog meets a concrete situation. |
 | `goldens/` | committed artifacts + expectations: the product IR artifact the runtime loads (`*_ir_artifact.txt`), per-scene decision/marginal expectations (`*_ir_expect.txt`), canonical keys (`KEYS.txt`). Expectation floats come from the metispy exact referee; keys are cross-toolchain (metisc == metispy, byte-equal). |
@@ -40,7 +40,7 @@ cites. metis-loop keeps only the loop machinery.
 | `domains/rddl/elevators/` | IPPC elevators — the first RDDL run; the recipe, cards and interface the shelf reused |
 | `domains/rddl/hanoi/` | rddlrepository arcade Tower of Hanoi (Tier-2 probe) |
 | `domains/planning/bridge-torch/` | bridge and torch — imperative vs declarative; the "mechanism, not ledger" doctrine |
-| `domains/planning/wolf-goat-cabbage/` | wolf, goat and cabbage — the ferry/shore settle tick |
+| `domains/planning/wgc/` | wolf, goat and cabbage — the ferry/shore settle tick |
 | `domains/ports/port-proto/` | the PortPlugin conformance fixtures |
 | `demo/surprise-demo/` | the pantry world: a planted gap, the surprise walkthrough |
 | `demo/synthetic-meadow/` | the first end-to-end surprise cycle in the REPL |

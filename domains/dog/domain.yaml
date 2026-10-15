@@ -1,18 +1,11 @@
 # The dog (metis-agent's robot dog): its program, its host, and the intents
 # the person may give it (intent.yaml → the generated intent/ files). No agent
 # module: the generic domain agent (metis-agent intent_domain) reads intent.yaml.
-name: dog
 display: the dog
 line: "a robot dog: walks to places, finds things, sits and stands"
 voice: own
 program: dog.llp
 host: dog_host.py:make
-intent:
-    spec: intent.yaml
-    grammar: intent/dog.gbnf
-    prompt: intent/dog-prompt.txt
-    examples: {gemma4: intent/dog-spoken.txt}
-    corpus: intent/dog-corpus.tsv
+intent: {spec: intent.yaml}   # the generated files at fixed names in intent/
 clock: {beats: 1}
-docs: README.md
 records: records/

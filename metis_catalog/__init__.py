@@ -1,24 +1,25 @@
 """metis_catalog — the catalog's loader (domain-catalog s-2a2bc758; CATALOG.md).
 
-Each domain is one directory under domains/ with a manifest, domain.yaml:
+Each domain package is one directory under domains/ (its name is the
+directory's) with a manifest, domain.yaml; every key is optional and the
+loader refuses any other (check_manifest; CATALOG.md lists each key's reader):
 
-    name: dog
+    program: dog.llp                  # paths are relative to the manifest's directory
+    extensions: [extensions/a.llp]    # absent: extensions/*.llp in name order (each `extends` the program)
+    serves: [a.llp, …]                # the served program's files, in order (pkg.mod:path allowed);
+                                      #   absent: [program] + extensions — Domain.serves()
+    host: dog_host.py:make            # file.py:factory (relative) or pkg.mod:factory
+    intent: {spec: intent.yaml}       # J only; the generated files at fixed names in intent/
+    clock: {beats: 1}                 # env beats per orchestrator tick
+    reload: propose                   # propose | auto
+    records: records/                 # the agents' surprise records (records/<session>.jsonl)
     display: the dog                  # the narrator's name
     line: "a robot dog: …"            # the one display line (consoles, the orchestrator's INSTALLED list)
     voice: own                        # own | third
-    program: dog.llp                  # paths are relative to the manifest's directory
-    serves: [a.llp, …]                # the served program's files, in order (pkg.mod:path allowed);
-                                      #   absent: [program] + packs/*.llp — Domain.serves()
-    notch: dog.notch.json
-    host: dog_host.py:make            # file.py:factory (relative) or pkg.mod:factory
     agent: agent.py[:VARIANT]         # the domain-agent module; absent with intent.spec: the generic agent
-    intent: {spec, grammar, prompt, examples: {gemma4: …}, corpus}   # J material only
-    clock: {beats: 1}                 # env beats per orchestrator tick
     pair: [kitchen_shared]            # partners stepped inside its clock
     partner_of: kitchen               # never loaded alone
-    docs: README.md
-    tests: tests/
-    records: records/                 # the agents' surprise records (records/<session>.jsonl)
+    notch: dog.notch.json             # a fitted overlay
 
 A directory whose only catalog is one .llp needs no manifest (a
 program-only domain); every other .llp is listed as a plain catalog, with
@@ -27,7 +28,7 @@ what it has read off the checkout (#plugin, #notch, a README).
     import metis_catalog as mc
     mc.root()                 # the checkout ($METIS_CATALOG, else this package's repo)
     mc.domains()              # [Domain] — every manifest, by name
-    mc.get("dog")             # Domain: .program .packs() .serves() .host .host_spec_for(program_dir) .intent … .has()
+    mc.get("dog")             # Domain: .program .extensions() .serves() .host .host_spec_for(program_dir) .intent … .has()
     mc.index()                # every catalog for a console's list: the domains first (display line, has)
 
     python -m metis_catalog list [--json]
@@ -114,26 +115,35 @@ class Domain:
 
     @property
     def intent(self):
-        """The intent material's paths (spec, grammar, prompt, examples, corpus):
-        J only — the REPL's tool syntax (T) is metispy's, never the catalog's."""
+        """The intent material's paths: the manifest names only the spec
+        (intent: {spec: intent.yaml}); the generated files sit at fixed names
+        in intent/ and are listed when present — grammar <n>.gbnf, prompt
+        <n>-prompt.txt, examples {gemma4: <n>-spoken.txt}, corpus
+        <n>-corpus.tsv (catalog-entry step 2). J only: the REPL's tool
+        syntax (T) is metispy's, never the catalog's."""
         i = self.manifest.get("intent") or {}
-        out = {}
-        for k, v in i.items():
-            if isinstance(v, dict):
-                out[k] = {kk: self.path(vv) for kk, vv in v.items()}
-            elif isinstance(v, list):
-                out[k] = [self.path(x) for x in v]
-            else:
-                out[k] = self.path(v)
+        if not i.get("spec"):
+            return {}
+        out, d = {"spec": self.path(i["spec"])}, self.dir / "intent"
+        for k, f in (("grammar", "%s.gbnf"), ("prompt", "%s-prompt.txt"), ("corpus", "%s-corpus.tsv")):
+            if (d / (f % self.name)).is_file():
+                out[k] = (d / (f % self.name)).resolve()
+        if (d / ("%s-spoken.txt" % self.name)).is_file():
+            out["examples"] = {"gemma4": (d / ("%s-spoken.txt" % self.name)).resolve()}
         return out
 
-    def packs(self):
-        """The domain's extension packs: packs/*.llp beside the manifest, in
-        name order (each `extends` the program). The served program is the
-        program PLUS every pack (human-loop step 1, the architect's ruling):
-        the domain agent builds and reloads from the union, the loop
-        console's one-click open loads them, apply writes them there."""
-        d = self.dir / "packs"
+    def extensions(self):
+        """The domain's extensions, in order: the manifest's `extensions:
+        [files]` (relative), else extensions/*.llp beside the manifest in
+        name order — each `extends` the program (the language's word). The
+        served program is the program PLUS every extension (human-loop step
+        1, the architect's ruling): the domain agent builds and reloads from
+        the union, the loop console's one-click open loads them, apply
+        writes them there."""
+        e = self.manifest.get("extensions")
+        if e:
+            return [self.path(x) for x in e]
+        d = self.dir / "extensions"
         return sorted(p.resolve() for p in d.glob("*.llp")) if d.is_dir() else []
 
     def serves(self):
@@ -141,11 +151,11 @@ class Domain:
         what extends it (runtime-binding Q1, the architect's ruling). The
         manifest's `serves: [files]` — each relative to the manifest's
         directory, or `pkg.mod:path` inside an importable package (the
-        kitchen pair's scenes live in metispy) — else [program] + packs().
+        kitchen pair's scenes live in metispy) — else [program] + extensions().
         py, Go and the artifact emitter read the served program here only."""
         s = self.manifest.get("serves")
         if not s:
-            return ([self.program] if self.program else []) + self.packs()
+            return ([self.program] if self.program else []) + self.extensions()
         return [_served_file(self.dir, x) for x in s]
 
     @property
@@ -154,8 +164,8 @@ class Domain:
 
     @property
     def readme(self):
-        r = self.path(self.manifest.get("docs") or "README.md")
-        return r if r and r.is_file() else None
+        r = self.dir / "README.md"
+        return r.resolve() if r.is_file() else None
 
     @property
     def clock(self):
@@ -172,7 +182,7 @@ class Domain:
     def has(self):
         return {"program": bool(self.program and self.program.is_file()), "notch": bool(self.notch and self.notch.is_file()),
                 "host": self.host is not None, "agent": self.agent is not None or bool(self.intent.get("spec")),
-                "intent": bool(self.intent), "readme": self.readme is not None, "packs": bool(self.packs())}
+                "intent": bool(self.intent), "readme": self.readme is not None, "extensions": bool(self.extensions())}
 
 
 def _served_file(base, entry):
@@ -189,15 +199,49 @@ def _served_file(base, entry):
     return (Path(base) / entry).resolve()
 
 
+# The package's manifest: every key and its reader (CATALOG.md has the table).
+KEYS = ("program", "extensions", "serves", "host", "intent", "clock", "reload", "records",
+        "display", "line", "voice", "agent", "pair", "partner_of", "notch")
+INTENT_KEYS = ("spec",)
+
+
+class ManifestError(ValueError):
+    pass
+
+
+def check_manifest(p):
+    """A domain.yaml read and checked: a mapping of the known keys only,
+    intent {spec} only (catalog-entry step 2: the loader refuses an unknown
+    key). The package's name is its directory's."""
+    m = yaml.safe_load(Path(p).read_text()) or {}
+    if not isinstance(m, dict):
+        raise ManifestError("%s: a manifest is a mapping" % p)
+    bad = sorted(k for k in m if k not in KEYS)
+    if bad:
+        raise ManifestError("%s: unknown key%s %s (the package's keys: %s)"
+                            % (p, "s" if len(bad) > 1 else "", ", ".join(bad), ", ".join(KEYS)))
+    i = m.get("intent")
+    if i is not None:
+        if not isinstance(i, dict) or not i.get("spec"):
+            raise ManifestError("%s: intent is {spec: intent.yaml}" % p)
+        bad = sorted(k for k in i if k not in INTENT_KEYS)
+        if bad:
+            raise ManifestError("%s: unknown intent key%s %s (intent is {spec}; the generated files sit "
+                                "at fixed names in intent/)" % (p, "s" if len(bad) > 1 else "", ", ".join(bad)))
+    for k in ("extensions", "serves", "pair"):
+        if k in m and not isinstance(m[k], list):
+            raise ManifestError("%s: %s is a list" % (p, k))
+    if m.get("reload") not in (None, "propose", "auto"):
+        raise ManifestError("%s: reload is propose or auto" % p)
+    return m
+
+
 def _manifests(r=None):
     r = Path(r) if r else root()
     for p in sorted((r / "domains").rglob("domain.yaml")):
         if ".git" in p.parts or "__pycache__" in p.parts:
             continue
-        m = yaml.safe_load(p.read_text()) or {}
-        if not isinstance(m, dict) or not m.get("name"):
-            raise ValueError("%s: a manifest needs a name" % p)
-        yield Domain(str(m["name"]), p.parent.resolve(), m)
+        yield Domain(p.parent.name, p.parent.resolve(), check_manifest(p))
 
 
 def domains(r=None):
@@ -273,7 +317,7 @@ def _inferred(r, path, table):
             "manifest": None, "host": host, "notch": notch,
             "readme": readme.relative_to(r).as_posix() if readme else None,
             "has": {"program": True, "host": bool(host), "notch": bool(notch), "readme": bool(readme),
-                    "agent": False, "intent": False, "packs": False}}
+                    "agent": False, "intent": False, "extensions": False}}
 
 
 def index(r=None):

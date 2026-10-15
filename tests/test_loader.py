@@ -66,36 +66,36 @@ def test_list_cli():
     assert "a robot dog" in out and out.splitlines()[1].split()[:2] == ["domain", "dog"]
 
 
-def test_packs_are_the_programs_extensions_in_name_order(tmp_path):
+def test_the_extensions_are_the_programs_in_name_order(tmp_path):
     """human-loop step 1 (the architect's ruling): a domain's served
-    program is its program plus every packs/*.llp, in name order."""
+    program is its program plus every extensions/*.llp, in name order."""
     import metis_catalog as mc
     d = tmp_path / "domains/plant"
-    (d / "packs").mkdir(parents=True)
-    (d / "domain.yaml").write_text("name: plant\nline: a plant\nprogram: plant.llp\n")
+    (d / "extensions").mkdir(parents=True)
+    (d / "domain.yaml").write_text("line: a plant\nprogram: plant.llp\n")
     (d / "plant.llp").write_text("catalog plant 1.\n")
-    assert mc.get("plant", tmp_path).packs() == [] and not mc.get("plant", tmp_path).has()["packs"]
+    assert mc.get("plant", tmp_path).extensions() == [] and not mc.get("plant", tmp_path).has()["extensions"]
     for n in ("visitor", "a_sun", "notes.txt"):
-        (d / "packs" / (n if "." in n else n + ".llp")).write_text("catalog %s 1.\nextends plant.\n" % n)
+        (d / "extensions" / (n if "." in n else n + ".llp")).write_text("catalog %s 1.\nextends plant.\n" % n)
     p = mc.get("plant", tmp_path)
-    assert [x.name for x in p.packs()] == ["a_sun.llp", "visitor.llp"] and p.has()["packs"]
+    assert [x.name for x in p.extensions()] == ["a_sun.llp", "visitor.llp"] and p.has()["extensions"]
     row = next(e for e in mc.index(tmp_path) if e["name"] == "plant")
-    assert row["has"]["packs"]
+    assert row["has"]["extensions"]
 
 
-def test_serves_is_the_program_plus_packs_unless_the_manifest_lists_it(tmp_path):
+def test_serves_is_the_program_plus_extensions_unless_the_manifest_lists_it(tmp_path):
     """runtime-binding Q1 (the architect's ruling): the served program's
     files are the manifest's `serves:` (relative to its directory, or
-    pkg.mod:path), else [program] + packs/*.llp — py, Go and the artifact
+    pkg.mod:path), else [program] + extensions/*.llp — py, Go and the bundle
     emitter read only this."""
     import metis_catalog as mc
     d = tmp_path / "domains/plant"
-    (d / "packs").mkdir(parents=True)
-    (d / "domain.yaml").write_text("name: plant\nline: a plant\nprogram: plant.llp\n")
+    (d / "extensions").mkdir(parents=True)
+    (d / "domain.yaml").write_text("line: a plant\nprogram: plant.llp\n")
     (d / "plant.llp").write_text("catalog plant 1.\n")
-    (d / "packs" / "visitor.llp").write_text("catalog visitor 1.\nextends plant.\n")
+    (d / "extensions" / "visitor.llp").write_text("catalog visitor 1.\nextends plant.\n")
     assert [x.name for x in mc.get("plant", tmp_path).serves()] == ["plant.llp", "visitor.llp"]
-    (d / "domain.yaml").write_text("name: plant\nline: a plant\nprogram: plant.llp\n"
+    (d / "domain.yaml").write_text("line: a plant\nprogram: plant.llp\n"
                                    "serves: [other/scene.llp, 'metis_catalog:__init__.py']\n")
     s = mc.get("plant", tmp_path).serves()
     assert s[0] == (d / "other/scene.llp").resolve()
@@ -111,3 +111,46 @@ def test_the_kitchen_pair_serves_its_pair_scenes():
     assert [x.name for x in k] == ["kitchen_host.llp"] and k[0].is_file()
     assert [x.name for x in s] == ["kitchen_shared.llp"] and s[0].is_file()
     assert k[0].parent.name == "catalogs" and s[0].parent.name == "shared"
+
+
+def test_the_manifests_extensions_list_orders_them(tmp_path):
+    d = tmp_path / "domains/plant"
+    (d / "extensions").mkdir(parents=True)
+    (d / "plant.llp").write_text("catalog plant 1.\n")
+    for n in ("a_sun", "visitor"):
+        (d / "extensions" / (n + ".llp")).write_text("catalog %s 1.\nextends plant.\n" % n)
+    (d / "domain.yaml").write_text("program: plant.llp\nextensions: [extensions/visitor.llp]\n")
+    p = mc.get("plant", tmp_path)
+    assert [x.name for x in p.extensions()] == ["visitor.llp"]
+    assert [x.name for x in p.serves()] == ["plant.llp", "visitor.llp"]
+
+
+@pytest.mark.parametrize("yaml_text, why", [
+    ("name: plant\nprogram: plant.llp\n", "unknown key name"),
+    ("program: plant.llp\ndocs: README.md\n", "unknown key docs"),
+    ("program: plant.llp\npacks: [a.llp]\n", "unknown key packs"),
+    ("program: plant.llp\nintent: {spec: intent.yaml, grammar: intent/plant.gbnf}\n", "unknown intent key grammar"),
+    ("program: plant.llp\nintent: {grammar: intent/plant.gbnf}\n", "intent is {spec"),
+    ("program: plant.llp\nreload: sometimes\n", "reload is propose or auto"),
+    ("program: plant.llp\nextensions: a.llp\n", "extensions is a list"),
+])
+def test_the_loader_refuses_what_a_package_does_not_carry(tmp_path, yaml_text, why):
+    """catalog-entry step 2: the package's keys only (CATALOG.md's table)."""
+    d = tmp_path / "domains/plant"
+    d.mkdir(parents=True)
+    (d / "domain.yaml").write_text(yaml_text)
+    with pytest.raises(mc.ManifestError, match=why):
+        mc.domains(tmp_path)
+
+
+def test_the_name_is_the_directorys_and_the_intent_files_are_derived(tmp_path):
+    d = tmp_path / "domains/sub/plant"
+    (d / "intent").mkdir(parents=True)
+    (d / "domain.yaml").write_text("program: plant.llp\nintent: {spec: intent.yaml}\n")
+    (d / "intent.yaml").write_text("{}\n")
+    for f in ("plant.gbnf", "plant-prompt.txt", "plant-spoken.txt"):
+        (d / "intent" / f).write_text("x\n")
+    p = mc.get("plant", tmp_path)
+    assert p.name == "plant" and p.display == "plant"
+    assert {k: (v.name if hasattr(v, "name") else {t: x.name for t, x in v.items()}) for k, v in p.intent.items()} == \
+        {"spec": "intent.yaml", "grammar": "plant.gbnf", "prompt": "plant-prompt.txt", "examples": {"gemma4": "plant-spoken.txt"}}

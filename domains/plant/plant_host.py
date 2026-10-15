@@ -13,7 +13,7 @@ the SENSOR face (`observe`) reads the soil, which the plant's program predicts
 - observe: {moist, dry} as the env has them. After VISITOR_AFTER dry beats
   a visitor waters the plant: the host reports `+visitor` (a world fact the
   program declares) and the env turns moist while the program says dry — an
-  unmodeled reading, the surprise the loop console gets to explain. The pack
+  unmodeled reading, the surprise the loop console gets to explain. The extension
   `visitor_waters [dyn] : dry * visitor -o moist.` consumes the report, so
   the next visit is EXPLAINED by that rule (the kernel's recover), never
   fired by the sampler on its own (a triggerless rule would model the visit

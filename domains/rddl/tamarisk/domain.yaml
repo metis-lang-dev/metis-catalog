@@ -1,11 +1,9 @@
 # Tamarisk (IPPC2014 invasive species, through the metis loop): the program
 # and its fitted notch beside this directory, its port plugin here.
-name: tamarisk
 display: the tamarisk
 line: "Tamarisk: an RDDL gym domain through the metis loop"
 voice: third
 program: ../tamarisk.llp
 notch: ../tamarisk.notch.json
 host: tamarisk_plugin.py:make
-docs: README.md
 records: records/

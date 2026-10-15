@@ -2,7 +2,6 @@
 # the hosted kitchen as its host. The domain agent (agent.py) runs the pair's
 # first cook on metispy's pair scene (metis.domains.kitchen catalogs) — the
 # served program is `serves` (the pair scene), not `program`.
-name: kitchen
 display: the first cook
 line: "the kitchen: the first cook, its orders and soups"
 voice: third

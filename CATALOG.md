@@ -1,96 +1,116 @@
-# The catalog — one directory per domain
+# The catalog — one domain package per directory
 
-`domains/<name>/` holds everything a domain is; both consoles (metis-loop,
-metis-agent) and both agent backends (go/, py/) read it through one manifest,
-`domain.yaml`, and one loader, `metis_catalog` (this repo; domain-catalog
-s-2a2bc758).
+## The words (the user's, 2026-10-15)
+
+| word | what it is |
+|---|---|
+| **domain** | the thing modelled: the dog, the plant, the kitchen |
+| **domain package** (`pkg` in code) | its directory in the catalog, `domains/<name>/`: what the user checks out and the loop develops; the same package serves the loop and the agent |
+| **extension** | a catalog in the package's `extensions/` (`catalog <card> 1. extends <name>`, the language's word): the served program is the program plus its extensions |
+| **bundle** | what the emitter forms from a package for the C++/Go runtime: `ground.wire` + `sidecar.json` (+ `program.ir`, `tools.json`); `python -m metis.kernel.artifact <name>` |
+| **card** | an offerable catalog at the served node (unchanged) |
+
+**Pack and extension.** In the REPL a gated candidate is a *pack* (`gate`,
+`accept`, `export` writes `pack1.llp`: the language's word, metispy's); once
+accepted into a package it is written as `extensions/<card>.llp`, an
+extension (the architect's ruling, 2026-10-15).
+
+Both consoles (metis-loop, metis-agent) and both agent backends (go/, py/)
+read a package through one manifest, `domain.yaml`, and one loader,
+`metis_catalog` (this repo; domain-catalog s-2a2bc758, catalog-entry
+s-65dd0863).
 
 ```
 pip install -e metis-catalog                 # or: the consoles find the sibling checkout
 python -m metis_catalog list [--domains] [--json]    # what both consoles list
-python -m pytest -q tests                    # every manifest whole (CI)
+python -m pytest -q tests                    # every package's manifest, files and generated intents (CI)
 ```
 
-## domain.yaml — one manifest per domain
+## domain.yaml — the package's manifest
 
-Paths are relative to the manifest's directory (a program kept beside the
-directory, as rddl's, is named with `../`). Every key but `name` is optional.
+**The reference: the dog** (`domains/dog/domain.yaml`, its keys):
 
 ```
-name: dog
-display: the dog                  # the narrator's name for it
-line: "a robot dog: …"            # the one display line: the consoles' lists, the orchestrator's INSTALLED domains
-voice: own                        # own (its %% lines say "I") | third
-program: dog.llp                  # the program (#plugin / #notch / #init stay in the file)
-serves: [dog.llp, packs/a.llp]    # the SERVED program's files, in order: the program, then what extends it;
-                                  #   each relative to this directory, or pkg.mod:path inside a package
-                                  #   (the kitchen pair's scenes in metispy); absent: [program] + packs/*.llp
-notch: dog.notch.json             # a fitted overlay
-host: dog_host.py:make            # the host (PortPlugin): file.py:factory, or pkg.mod:factory
-agent: agent.py[:variant]         # the domain-agent module; absent with intent.spec: the generic agent
-intent: {spec: intent.yaml, grammar: intent/<n>.gbnf, prompt: intent/<n>-prompt.txt,
-         examples: {gemma4: intent/<n>-spoken.txt}, corpus: intent/<n>-corpus.tsv}
-                                  # J material only: the intent JSON a domain is talked to in; T (the REPL's
-                                  #   tool-call syntax) lives with the REPL in metispy, never here (catalog-entry)
-clock: {beats: 1}                 # env beats per orchestrator tick (the kitchen: 2)
-pair: [kitchen_shared]            # partners stepped inside its clock, reloaded with it
-partner_of: kitchen               # never loaded alone; listed by its lead
-docs: README.md
-tests: tests/
-records: records/                 # the domain agents' surprise records: records/<session>.jsonl
-reload: propose                   # when its files change on disk: propose (the agent console says STALE and proposes) | auto (reloaded at its next quiet tick); the agent's config may override
-# packs/*.llp: extension packs, each `extends` the program — without `serves`, the
-# SERVED program is the program plus every pack in name order (Domain.serves(); the
-# agent builds and reloads from the union, the loop console opens them, apply writes them)
+display: the dog
+line: "a robot dog: walks to places, finds things, sits and stands"
+voice: own
+program: dog.llp
+host: dog_host.py:make
+intent: {spec: intent.yaml}
+clock: {beats: 1}
+records: records/
 ```
 
-**The served program is `Domain.serves()`, and only that** (runtime-binding
-Q1, the architect's ruling): the py domain agent's CATALOG and PACKS (the
-first file and the rest), the artifact emitter (`python -m
-metis.kernel.artifact <n>`), the Go agent, and the loop console's one-click
-open (the packs `serves` lists after the program it opens; none when it
-serves another file) all read it from the manifest. A domain module never
-names its program. The kitchen and kitchen_shared list metispy's pair scenes
-(`metis.domains.kitchen:catalogs/…`): `program` is the authored kitchen the
-loop console opens, `serves` what the agent runs.
+with, in the directory: `dog.llp`, `dog_host.py`, `intent.yaml`, the
+generated `intent/` (`dog.gbnf`, `dog-prompt.txt`, `dog-spoken.txt`,
+`dog-corpus.tsv`), `README.md`, and `records/` (git-ignored). An
+`extensions/` directory joins it when an extension is applied (the plant's
+`extensions/visitor.llp`).
 
-| who reads what | |
-|---|---|
-| the loop console (metis-loop) | the list (`index`), one click opens `program` + its packs (`serves` after it, else `packs/`) + `host` (as an operator's `--host`, never named by the page) + `notch` |
-| the py agent (metis-agent `metis_agent.domains`) | the domain's module: `agent` executed as `metis_agent.domains.<name>` (its `variant(name)` applied), or the generic one from `intent.yaml` + the host; `display`, `voice` unless the module sets them; the served program from `serves` always |
-| the Go agent (metis-agent go/, `internal/catalog`) | `name`, `display`, `line`, `voice`, every served domain's `intent.grammar` / `prompt` / `examples[template]` and `intent.yaml`'s `asks`, `clock`, `pair`, `partner_of`, `reload`, the directory (watched, `intent/` and `packs/` with it); the programs and their packs through the py domain agents it runs; the console's list through this loader (a partner as its own row, `has` with `packs`) |
-| the agent console | the list, the `line`, `has` |
+**The package's name is its directory's.** Paths are relative to the
+manifest's directory (a program kept beside it, as rddl's, is named with
+`../`). Every key is optional, and **the loader refuses any other**
+(`metis_catalog.check_manifest`; `tests/test_packages.py` runs it over every
+package in CI, with each package's files and its generated intent files).
 
-**The domains with a manifest:** dog (generic agent, intent.yaml), kitchen
-and kitchen_shared (`agent.py:<variant>` — the agent runs the pair's scene
-from metispy, its manifest's `serves`; `program` is the authored kitchen the
-loop console opens), wildfire and tamarisk (rddl: program and
-notch beside the directory, the port plugin in it), wgc (the specialist's:
-no host, no intents). **Without one:** a directory whose one catalog is a
-`.llp` is a program-only domain; every `.llp` is listed — with a host, a
-notch or its own README as a domain, else as a plain catalog — what it has
-read off the checkout (`#plugin`, `<stem>_host.py`, `#notch`,
-`<stem>.notch.json`, a README).
+| key | shape | who reads it |
+|---|---|---|
+| `program` | `dog.llp` — the program (`#plugin` / `#notch` / `#init` stay in the file) | the loop console's one-click open; the served program's first file |
+| `extensions` | `[extensions/a.llp, …]`; absent: `extensions/*.llp` in name order | the served program after the program (`Domain.extensions()`); the loop console opens them with it, apply writes them there |
+| `serves` | `[a.llp, …]`, each relative or `pkg.mod:path` in a package; absent: `[program] + extensions` | **the served program, and only this** (`Domain.serves()`): the py agent's CATALOG + EXTENSIONS, the bundle emitter, the Go agent, the loop console's open (the extensions it lists after the program) |
+| `host` | `file.py:factory` or `pkg.mod:factory` (a PortPlugin) | the py agent (attached to its Repl), the loop console (an operator's `--host`, never named by the page) |
+| `intent` | `{spec: intent.yaml}` only | the generic py agent (mapper, replier from the spec); the intent pass's files are **derived** at fixed names, `intent/<name>.gbnf`, `<name>-prompt.txt`, `<name>-spoken.txt` (the gemma4 template's examples), `<name>-corpus.tsv`, listed in `Domain.intent` when present — py and Go read them there. J material only: T (the REPL's tool-call syntax) is metispy's |
+| `clock` | `{beats: 1}` — env beats per orchestrator tick (the kitchen: 2) | the agents' clock |
+| `reload` | `propose` (the agent console says STALE and proposes) \| `auto` (reloaded at its next quiet tick); the agent's config may override | the agents' watch |
+| `records` | `records/` (git-ignored) — the agents' surprise records, `records/<session>.jsonl` | the agents' sink; the loop console's Records dock |
+| `display` | the narrator's name for it | the orchestrator, the narrator, both consoles |
+| `line` | the one display line | the consoles' lists, the orchestrator's INSTALLED domains |
+| `voice` | `own` (its `%%` lines say "I") \| `third` | the narrator, the replier |
+| `agent` | `agent.py[:variant]` — the domain-agent module; absent with `intent`: the generic agent | the py agent (`metis_agent.domains.<name>`, its `variant(name)` applied): the kitchen pair, wgc |
+| `pair` | `[kitchen_shared]` — partners stepped inside its clock, reloaded with it | both agents |
+| `partner_of` | `kitchen` — never loaded alone, listed by its lead | both agents, the consoles' lists |
+| `notch` | `wildfire.notch.json` — a fitted overlay | the loop console's open |
 
-### Packs and the world's reports (the architect's rulings, 2026-10-15)
+Gone with catalog-entry step 2 (their readers derive them): `name` (the
+directory's), `docs` (`README.md` by convention), `tests`, and
+`intent.grammar` / `prompt` / `examples` / `corpus` (the fixed names above).
+Gone with step 1: `intent.tools` / `intent.bench` (E9's T bench).
 
-A pack in `packs/` is merged into the SERVED program: the agent builds and
-reloads from the program plus every pack in name order, gated and accepted
-in turn (a pack the gate refuses fails the build). The key is the union's.
-The watcher marks a pack's change like the program's, so a pack applied from
-the loop console is proposed for reload (or reloaded under `reload: auto`).
+**The served program.** The kitchen and kitchen_shared list metispy's pair
+scenes in `serves` (`metis.domains.kitchen:catalogs/…`): `program` is the
+authored kitchen the loop console opens, `serves` what the agent runs. A
+domain module never names its program.
 
-A pack that explains an off-model change must have a trigger. **A host's
+**The packages:** dog (generic agent, intent.yaml), plant (generic agent,
+an extension), kitchen and kitchen_shared (`agent.py:<variant>`, the pair's
+scenes), wildfire and tamarisk (rddl: program and notch beside the
+directory, the port plugin in it), wgc (`domains/planning/wgc`, the
+specialist's: no host, no intents). **Without a manifest:** a directory
+whose one catalog is a `.llp` is a program-only domain; every `.llp` is
+listed — with a host, a notch or its own README as a domain, else as a plain
+catalog — what it has read off the checkout (`#plugin`, `<stem>_host.py`,
+`#notch`, `<stem>.notch.json`, a README).
+
+### Extensions and the world's reports (the architect's rulings, 2026-10-15)
+
+An extension in `extensions/` is merged into the SERVED program: the agent
+builds and reloads from the program plus every extension in order, gated and
+accepted in turn (an extension the gate refuses fails the build). The key is
+the union's. The watcher marks an extension's change like the program's, so
+an extension applied from the loop console is proposed for reload (or
+reloaded under `reload: auto`).
+
+An extension that explains an off-model change must have a trigger. **A host's
 report precedes the off-model effect it explains by at least one beat.**
 
 Take the plant (metis-catalog 0b9539e). Its host reports `+visitor` one beat
 before the visitor's watering:
 - At the report's tick the reading is still consistent (dry), and the
   checkpoint holds `visitor`.
-- Without the pack, the next tick's watering is the surprise, its record's
-  init `{dry, visitor}`: the loop mines it and writes the pack
+- Without the extension, the next tick's watering is the surprise, its
+  record's init `{dry, visitor}`: the loop mines it and writes the extension
   `visitor_waters [dyn] : dry * visitor -o moist`.
-- With the pack served, `dry * visitor` is enabled at the report's tick and
+- With the extension served, `dry * visitor` is enabled at the report's tick and
   the kernel fires `visitor_waters` itself, so the visit is modelled and
   raises no surprise.
 
@@ -118,9 +138,9 @@ python3 tools/intents.py schema <name>   # the JSON schema the grammar is made f
 metis-agent/py: .venv/bin/python -m metis_agent.intent_check <name> [--no-model]   # the corpus through them
 ```
 
-`domain.yaml` points at the generated files: `intent: {spec: intent.yaml,
-grammar: intent/<name>.gbnf, prompt: intent/<name>-prompt.txt, examples:
-{gemma4: intent/<name>-spoken.txt}, corpus: intent/<name>-corpus.tsv}`.
+`domain.yaml` names only the spec, `intent: {spec: intent.yaml}`; the
+generated files sit at the fixed names above (`intent/<name>.gbnf`,
+`<name>-prompt.txt`, `<name>-spoken.txt`, `<name>-corpus.tsv`).
 
 ### The intent pass (generated into intent/)
 

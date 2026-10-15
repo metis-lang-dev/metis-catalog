@@ -1,14 +1,8 @@
-name: plant
 display: the plant
 line: "a potted plant that dries out: the person waters it or asks how it is"
 voice: third
 program: plant.llp
 host: plant_host.py:make
-intent:
-    spec: intent.yaml
-    grammar: intent/plant.gbnf
-    prompt: intent/plant-prompt.txt
-    examples: {gemma4: intent/plant-spoken.txt}
+intent: {spec: intent.yaml}   # the generated files at fixed names in intent/
 clock: {beats: 1}
-docs: README.md
 records: records/
