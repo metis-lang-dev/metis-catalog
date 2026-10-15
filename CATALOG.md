@@ -33,6 +33,9 @@ partner_of: kitchen               # never loaded alone; listed by its lead
 docs: README.md
 tests: tests/
 records: records/                 # the domain agents' surprise records: records/<session>.jsonl
+# packs/*.llp (no key): extension packs, each `extends` the program — the SERVED
+# program is the program plus every pack in name order (Domain.packs(); the agent
+# builds and reloads from the union, the loop console opens them, apply writes them)
 ```
 
 | who reads what | |

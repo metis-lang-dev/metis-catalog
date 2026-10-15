@@ -25,7 +25,7 @@ what it has read off the checkout (#plugin, #notch, a README).
     import metis_catalog as mc
     mc.root()                 # the checkout ($METIS_CATALOG, else this package's repo)
     mc.domains()              # [Domain] — every manifest, by name
-    mc.get("dog")             # Domain: .program .host .host_spec_for(program_dir) .intent … .has()
+    mc.get("dog")             # Domain: .program .packs() .host .host_spec_for(program_dir) .intent … .has()
     mc.index()                # every catalog for a console's list: the domains first (display line, has)
 
     python -m metis_catalog list [--json]
@@ -124,6 +124,15 @@ class Domain:
                 out[k] = self.path(v)
         return out
 
+    def packs(self):
+        """The domain's extension packs: packs/*.llp beside the manifest, in
+        name order (each `extends` the program). The served program is the
+        program PLUS every pack (human-loop step 1, the architect's ruling):
+        the domain agent builds and reloads from the union, the loop
+        console's one-click open loads them, apply writes them there."""
+        d = self.dir / "packs"
+        return sorted(p.resolve() for p in d.glob("*.llp")) if d.is_dir() else []
+
     @property
     def records(self):
         return self.dir / (self.manifest.get("records") or "records")
@@ -148,7 +157,7 @@ class Domain:
     def has(self):
         return {"program": bool(self.program and self.program.is_file()), "notch": bool(self.notch and self.notch.is_file()),
                 "host": self.host is not None, "agent": self.agent is not None or bool(self.intent.get("spec")),
-                "intent": bool(self.intent), "readme": self.readme is not None}
+                "intent": bool(self.intent), "readme": self.readme is not None, "packs": bool(self.packs())}
 
 
 def _manifests(r=None):
@@ -235,7 +244,7 @@ def _inferred(r, path, table):
             "manifest": None, "host": host, "notch": notch,
             "readme": readme.relative_to(r).as_posix() if readme else None,
             "has": {"program": True, "host": bool(host), "notch": bool(notch), "readme": bool(readme),
-                    "agent": False, "intent": False}}
+                    "agent": False, "intent": False, "packs": False}}
 
 
 def index(r=None):

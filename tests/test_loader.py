@@ -64,3 +64,20 @@ def test_list_cli():
     out = subprocess.run([sys.executable, "-m", "metis_catalog", "list", "--domains"], cwd=ROOT,
                          capture_output=True, text=True, check=True).stdout
     assert "a robot dog" in out and out.splitlines()[1].split()[:2] == ["domain", "dog"]
+
+
+def test_packs_are_the_programs_extensions_in_name_order(tmp_path):
+    """human-loop step 1 (the architect's ruling): a domain's served
+    program is its program plus every packs/*.llp, in name order."""
+    import metis_catalog as mc
+    d = tmp_path / "domains/plant"
+    (d / "packs").mkdir(parents=True)
+    (d / "domain.yaml").write_text("name: plant\nline: a plant\nprogram: plant.llp\n")
+    (d / "plant.llp").write_text("catalog plant 1.\n")
+    assert mc.get("plant", tmp_path).packs() == [] and not mc.get("plant", tmp_path).has()["packs"]
+    for n in ("visitor", "a_sun", "notes.txt"):
+        (d / "packs" / (n if "." in n else n + ".llp")).write_text("catalog %s 1.\nextends plant.\n" % n)
+    p = mc.get("plant", tmp_path)
+    assert [x.name for x in p.packs()] == ["a_sun.llp", "visitor.llp"] and p.has()["packs"]
+    row = next(e for e in mc.index(tmp_path) if e["name"] == "plant")
+    assert row["has"]["packs"]
