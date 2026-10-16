@@ -190,7 +190,10 @@ def _served_file(base, entry):
     mod, sep, rel = str(entry).partition(":")
     if sep and rel and "/" not in mod and not mod.endswith(".llp"):
         import importlib.util
-        spec = importlib.util.find_spec(mod)
+        try:
+            spec = importlib.util.find_spec(mod)
+        except ModuleNotFoundError:     # its parent package is not installed
+            spec = None
         if spec is None:
             raise ValueError("serves %r: no package %r" % (entry, mod))
         root = (Path(next(iter(spec.submodule_search_locations)))

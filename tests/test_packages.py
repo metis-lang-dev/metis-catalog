@@ -29,5 +29,9 @@ def test_the_generated_intent_files_are_current(d):
 
 @pytest.mark.parametrize("d", PACKAGES, ids=lambda d: d.name)
 def test_the_packages_files_are_there(d):
-    for p in ([d.program] if d.manifest.get("program") else []) + d.extensions() + d.serves():
+    try:
+        served = d.serves()
+    except ValueError as e:         # a pkg.mod:path whose package is not installed
+        pytest.skip(f"{d.name} serves from a package not installed here: {e}")
+    for p in ([d.program] if d.manifest.get("program") else []) + d.extensions() + served:
         assert p.is_file(), (d.name, p)
