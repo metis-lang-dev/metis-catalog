@@ -2,6 +2,7 @@
 manifest carries only the package's keys (the loader refuses any other),
 its files are there, and its generated intent files are what its
 intent.yaml makes (tools/intents.py check)."""
+import importlib.util
 import subprocess
 import sys
 from pathlib import Path
@@ -29,9 +30,13 @@ def test_the_generated_intent_files_are_current(d):
 
 @pytest.mark.parametrize("d", PACKAGES, ids=lambda d: d.name)
 def test_the_packages_files_are_there(d):
-    try:
-        served = d.serves()
-    except ValueError as e:         # a pkg.mod:path whose package is not installed
-        pytest.skip(f"{d.name} serves from a package not installed here: {e}")
-    for p in ([d.program] if d.manifest.get("program") else []) + d.extensions() + served:
+    # a pkg.mod:path whose top-level package is not installed here (the
+    # kitchen pair's scenes live in metispy): skipped; any other serves
+    # error — a typo'd module with the package installed — fails
+    tops = {str(x).partition(":")[0].split(".")[0] for x in d.manifest.get("serves") or []
+            if ":" in str(x) and not str(x).partition(":")[0].endswith(".llp")}
+    missing = sorted(t for t in tops if importlib.util.find_spec(t) is None)
+    if missing:
+        pytest.skip(f"{d.name} serves from {', '.join(missing)}, not installed here")
+    for p in ([d.program] if d.manifest.get("program") else []) + d.extensions() + d.serves():
         assert p.is_file(), (d.name, p)
