@@ -21,9 +21,10 @@ def _base(p):
     rel = p.relative_to(ROOT).parts
     if not (len(rel) == 4 and rel[0] == "domains" and rel[2] == "extensions"):
         return None
-    import yaml
-    pkg = p.parent.parent
-    prog = (yaml.safe_load((pkg / "domain.yaml").read_text()) or {}).get("program")
+    import re                       # the manifest's program: line, as diagnose.sh's sed
+    pkg = p.parent.parent           # reads it (this step's python has no pyyaml)
+    m = re.search(r"^program:[ \t]*([^\s#]+)", (pkg / "domain.yaml").read_text(), re.M)
+    prog = m and m.group(1)
     if not prog or not (pkg / prog).is_file():
         raise ValueError(f"an extension of {pkg.name}, whose manifest names "
                          "no program to compile it with")
