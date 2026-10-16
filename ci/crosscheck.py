@@ -8,6 +8,28 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 
 
+def _compile(p):
+    from metis.lang import compile_catalog, parse, resolve_includes
+    return compile_catalog(resolve_includes(parse(p.read_text(), file=str(p)),
+                                            p.parent))
+
+
+def _base(p):
+    """A domain package's extension (domains/*/extensions/*.llp) compiles
+    with the program it extends, the manifest's program: — the rule
+    ci/diagnose.sh gives metisc as --base. Anything else: None."""
+    rel = p.relative_to(ROOT).parts
+    if not (len(rel) == 4 and rel[0] == "domains" and rel[2] == "extensions"):
+        return None
+    import yaml
+    pkg = p.parent.parent
+    prog = (yaml.safe_load((pkg / "domain.yaml").read_text()) or {}).get("program")
+    if not prog or not (pkg / prog).is_file():
+        raise ValueError(f"an extension of {pkg.name}, whose manifest names "
+                         "no program to compile it with")
+    return pkg / prog
+
+
 def main() -> int:
     from metis.lang import compile_catalog, parse, resolve_includes
     exempt = {l.split()[0] for l in (ROOT / "ci/diag-exempt.txt")
@@ -21,9 +43,12 @@ def main() -> int:
             continue
         p = ROOT / f
         try:
+            base = _base(p)                 # an extension: with its program
             compile_catalog(resolve_includes(parse(p.read_text(), file=f),
-                                             p.parent))
-            print(f"ok   {f}")
+                                             p.parent),
+                            base and _compile(base))
+            print(f"ok   {f}" + (f" (with {base.relative_to(ROOT)})"
+                                 if base else ""))
         except Exception as e:                      # noqa: BLE001
             bad += 1
             print(f"FAIL {f}: metispy disagrees with metisc's clean "
