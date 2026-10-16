@@ -19,8 +19,6 @@ jobs:
   catalogs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
-    env:
-      HAVE_READ_TOKEN: ${{ secrets.METIS_READ_TOKEN != '' }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -47,28 +45,17 @@ jobs:
           cd metis-catalog && python3 -m pytest -q tests && python3 -m metis_catalog list --domains
       - name: diagnose.sh (no error diagnostics; reasoned exemptions)
         run: sh metis-catalog/ci/diagnose.sh
-      # metispy is PRIVATE: GITHUB_TOKEN cannot read it. The cross-check
-      # runs when the repo secret METIS_READ_TOKEN (fine-grained PAT,
-      # Contents: read on metis-lang-dev/metispy) exists; otherwise it
-      # says so in the job summary instead of passing silently.
-      - name: Checkout metispy (private; needs METIS_READ_TOKEN)
-        if: env.HAVE_READ_TOKEN == 'true'
+      # the cross-check against metispy (public sibling): every clean
+      # catalog compiles under the python referee too
+      - name: Checkout metispy (public sibling)
         uses: actions/checkout@v4
         with:
           repository: metis-lang-dev/metispy
-          token: ${{ secrets.METIS_READ_TOKEN }}
           path: metispy
       - uses: actions/setup-python@v5
-        if: env.HAVE_READ_TOKEN == 'true'
         with:
           python-version: '3.12'
       - name: crosscheck.py (metispy agrees with metisc)
-        if: env.HAVE_READ_TOKEN == 'true'
         run: |
           pip install -e ./metispy
           cd metis-catalog && python ci/crosscheck.py
-      - name: Cross-check NOT run (no METIS_READ_TOKEN)
-        if: env.HAVE_READ_TOKEN != 'true'
-        run: |
-          echo "::warning::metispy cross-check skipped: add repo secret METIS_READ_TOKEN (fine-grained PAT, Contents: read on metis-lang-dev/metispy)"
-          echo "### metispy cross-check NOT run — secret METIS_READ_TOKEN missing (Contents: read on metis-lang-dev/metispy)" >> "$GITHUB_STEP_SUMMARY"
