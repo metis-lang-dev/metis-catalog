@@ -7,7 +7,7 @@
 | **domain** | the thing modelled: the dog, the plant, the kitchen |
 | **domain package** (`pkg` in code) | its directory in the catalog, `domains/<name>/`: what the user checks out and the loop develops; the same package serves the loop and the agent |
 | **extension** | a catalog in the package's `extensions/` (`catalog <card> 1. extends <name>`, the language's word): the served program is the program plus its extensions |
-| **bundle** | what the emitter forms from a package for the C++/Go runtime: `ground.wire` + `sidecar.json` (+ `program.ir`, `tools.json`); `python -m metis.kernel.artifact <name>` |
+| **bundle** | what the emitter forms from a package for the C++/Go runtime: `ground.wire` + `sidecar.json` (+ `program.ir`, `tools.json`); `python -m metis.kernel.artifact <name>`. `ground.wire` is compiled by the OCaml compiler, `metisc --wire <program> [--extension e.llp]…` (`$METISC`, else `metisc` on PATH): OCaml-authoritative. Without metisc, metispy's `emit_artifact` covers, byte-equal (metispy gate 4 and metis-lang gate 12) and logged (`ground.wire by …`). A failing metisc is an error, never covered. `sidecar.json`, `tools.json` and `program.ir` are metispy's harness data (bundle-compiler s-3985caf6) |
 | **card** | an offerable catalog at the served node (unchanged) |
 
 **Pack and extension.** In the REPL a gated candidate is a *pack* (`gate`,
