@@ -49,9 +49,13 @@ generated `intent/` (`dog.gbnf`, `dog-prompt.txt`, `dog-spoken.txt`,
 
 **The package's name is its directory's.** Paths are relative to the
 manifest's directory (a program kept beside it, as rddl's, is named with
-`../`). Every key is optional, and **the loader refuses any other**
-(`metis_catalog.check_manifest`; `tests/test_packages.py` runs it over every
-package in CI, with each package's files and its generated intent files).
+`../`), and **never leave the catalog root**. A package may name a
+neighbour's file (`../kitchen/agent.py`), but not an absolute path or one
+that climbs out of the checkout; `pkg.mod:path` and `pkg.mod:factory` name
+a package, not a file. Every key is optional, and **the loader refuses any
+other** (`metis_catalog.check_manifest`; `tests/test_packages.py` runs it
+over every package in CI, with each package's files and its generated intent
+files).
 
 | key | shape | who reads it |
 |---|---|---|

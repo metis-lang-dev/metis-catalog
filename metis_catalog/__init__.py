@@ -212,10 +212,45 @@ class ManifestError(ValueError):
     pass
 
 
-def check_manifest(p):
+def _catalog_root(p):
+    """The catalog root a manifest lives in: the parent of the outermost
+    `domains` directory above it, or None outside a domains/ tree."""
+    ups = [a for a in Path(os.path.abspath(p)).parents if a.name == "domains"]
+    return ups[-1].parent if ups else None
+
+
+def _paths(m):
+    """(key, path text) for every value of a manifest that names a file: the
+    program, its extensions, the served files (not pkg.mod:path), a file.py
+    host, the agent module, the notch, the records, the intent spec."""
+    for k in ("program", "notch", "records"):
+        if isinstance(m.get(k), str):
+            yield k, m[k]
+    for k in ("extensions", "serves"):
+        for x in m.get(k) or []:
+            mod, sep, rel = str(x).partition(":")
+            if k == "serves" and sep and rel and "/" not in mod and not mod.endswith(".llp"):
+                continue                         # pkg.mod:path, inside an importable package
+            yield k, str(x)
+    if isinstance(m.get("host"), str):
+        mod, _, _ = m["host"].rpartition(":")
+        if mod.endswith(".py"):
+            yield "host", mod
+    if isinstance(m.get("agent"), str):
+        yield "agent", m["agent"].partition(":")[0]
+    if isinstance(m.get("intent"), dict) and isinstance(m["intent"].get("spec"), str):
+        yield "intent.spec", m["intent"]["spec"]
+
+
+def check_manifest(p, root=None):
     """A domain.yaml read and checked: a mapping of the known keys only,
     intent {spec} only (catalog-entry step 2: the loader refuses an unknown
-    key). The package's name is its directory's."""
+    key). The package's name is its directory's. Every path it names stays
+    inside the catalog root (`root`, else the parent of the domains/ tree
+    the manifest is in; a manifest outside one is checked for its keys
+    only): relative, and normalized it does not climb out of the root — a
+    package may name its neighbour's file (../kitchen/agent.py), never one
+    outside the catalog."""
     m = yaml.safe_load(Path(p).read_text()) or {}
     if not isinstance(m, dict):
         raise ManifestError("%s: a manifest is a mapping" % p)
@@ -236,6 +271,16 @@ def check_manifest(p):
             raise ManifestError("%s: %s is a list" % (p, k))
     if m.get("reload") not in (None, "propose", "auto"):
         raise ManifestError("%s: reload is propose or auto" % p)
+    r = Path(os.path.abspath(root)) if root else _catalog_root(p)
+    if r is not None:
+        base = Path(os.path.abspath(p)).parent
+        for k, v in _paths(m):
+            if os.path.isabs(v) or v.startswith("~"):
+                raise ManifestError("%s: %s %r is absolute: a package names its files relative to its manifest"
+                                    % (p, k, v))
+            q = os.path.normpath(base / v)
+            if os.path.commonpath([q, str(r)]) != str(r):
+                raise ManifestError("%s: %s %r leaves the catalog root %s" % (p, k, v, r))
     return m
 
 
@@ -244,7 +289,7 @@ def _manifests(r=None):
     for p in sorted((r / "domains").rglob("domain.yaml")):
         if ".git" in p.parts or "__pycache__" in p.parts:
             continue
-        yield Domain(p.parent.name, p.parent.resolve(), check_manifest(p))
+        yield Domain(p.parent.name, p.parent.resolve(), check_manifest(p, r))
 
 
 def domains(r=None):

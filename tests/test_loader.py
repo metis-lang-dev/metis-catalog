@@ -133,6 +133,16 @@ def test_the_manifests_extensions_list_orders_them(tmp_path):
     ("program: plant.llp\nintent: {grammar: intent/plant.gbnf}\n", "intent is {spec"),
     ("program: plant.llp\nreload: sometimes\n", "reload is propose or auto"),
     ("program: plant.llp\nextensions: a.llp\n", "extensions is a list"),
+    # every path stays inside the catalog root (nina's catalog-sdk review, note a)
+    ("program: ../../../../etc/passwd\n", "program '../../../../etc/passwd' leaves the catalog root"),
+    ("program: /etc/passwd\n", "program '/etc/passwd' is absolute"),
+    ("program: plant.llp\nextensions: [../../../x.llp]\n", "extensions '../../../x.llp' leaves"),
+    ("serves: [plant.llp, ../../../x.llp]\n", "serves '../../../x.llp' leaves"),
+    ("program: plant.llp\nhost: ../../../h.py:make\n", "host '../../../h.py' leaves"),
+    ("program: plant.llp\nagent: ../../../a.py:v\n", "agent '../../../a.py' leaves"),
+    ("program: plant.llp\nnotch: ../../../n.notch.json\n", "notch '../../../n.notch.json' leaves"),
+    ("program: plant.llp\nrecords: ../../../r/\n", "records '../../../r/' leaves"),
+    ("program: plant.llp\nintent: {spec: ../../../i.yaml}\n", "intent.spec '../../../i.yaml' leaves"),
 ])
 def test_the_loader_refuses_what_a_package_does_not_carry(tmp_path, yaml_text, why):
     """catalog-entry step 2: the package's keys only (CATALOG.md's table)."""
@@ -154,3 +164,26 @@ def test_the_name_is_the_directorys_and_the_intent_files_are_derived(tmp_path):
     assert p.name == "plant" and p.display == "plant"
     assert {k: (v.name if hasattr(v, "name") else {t: x.name for t, x in v.items()}) for k, v in p.intent.items()} == \
         {"spec": "intent.yaml", "grammar": "plant.gbnf", "prompt": "plant-prompt.txt", "examples": {"gemma4": "plant-spoken.txt"}}
+
+
+def test_a_package_may_name_its_neighbours_files_never_outside(tmp_path):
+    """Containment is the catalog root's, not the package's: the kitchen
+    pair's partner names ../kitchen/agent.py, an rddl package its program one
+    level up (../wildfire.llp); a pkg.mod:path or pkg.mod:factory names a
+    package, not a file. A manifest outside a domains/ tree is checked for
+    its keys only (its root is unknown), unless the root is given."""
+    k = tmp_path / "domains/kitchen_shared"
+    k.mkdir(parents=True)
+    (k / "domain.yaml").write_text('agent: ../kitchen/agent.py:kitchen_shared\n'
+                                   'serves: ["metis.domains.kitchen:catalogs/shared/kitchen_shared.llp"]\n'
+                                   'host: metis.domains.kitchen.host:make\n')
+    w = tmp_path / "domains/rddl/wildfire"
+    w.mkdir(parents=True)
+    (w / "domain.yaml").write_text("program: ../wildfire.llp\nnotch: ../wildfire.notch.json\n")
+    assert [d.name for d in mc.domains(tmp_path)] == ["kitchen_shared", "wildfire"]
+    loose = tmp_path / "elsewhere/domain.yaml"
+    loose.parent.mkdir()
+    loose.write_text("program: ../../../x.llp\n")
+    assert mc.check_manifest(loose)["program"] == "../../../x.llp"
+    with pytest.raises(mc.ManifestError, match="leaves the catalog root"):
+        mc.check_manifest(loose, root=tmp_path)
