@@ -1,0 +1,47 @@
+% Navigation, IPPC 2011 instance 1 (rddlrepository Navigation_MDP_ippc2011): the
+% instance's grid as cells and adjacency facts over the lifted domain nav_domain.llp.
+% Generated from the gym's non-fluents (EAST, NORTH, the init state) for rddl-worlds
+% s-242c7c3f; the death rates P and the goal are the gym's, bound by nav_host.py.
+catalog nav 1.
+provenance hand "generated from IPPC 2011 Navigation instance 1" "2026-10-18".
+include "nav_domain.llp".
+type cell {x6_y12 x6_y15 x6_y20 x9_y12 x9_y15 x9_y20 x14_y12 x14_y15 x14_y20 x21_y12 x21_y15 x21_y20}.
+east(x14_y12,x21_y12).
+east(x14_y15,x21_y15).
+east(x14_y20,x21_y20).
+east(x6_y12,x9_y12).
+east(x6_y15,x9_y15).
+east(x6_y20,x9_y20).
+east(x9_y12,x14_y12).
+east(x9_y15,x14_y15).
+east(x9_y20,x14_y20).
+north(x14_y12,x14_y15).
+north(x14_y15,x14_y20).
+north(x21_y12,x21_y15).
+north(x21_y15,x21_y20).
+north(x6_y12,x6_y15).
+north(x6_y15,x6_y20).
+north(x9_y12,x9_y15).
+north(x9_y15,x9_y20).
+south(x14_y15,x14_y12).
+south(x14_y20,x14_y15).
+south(x21_y15,x21_y12).
+south(x21_y20,x21_y15).
+south(x6_y15,x6_y12).
+south(x6_y20,x6_y15).
+south(x9_y15,x9_y12).
+south(x9_y20,x9_y15).
+west(x14_y12,x9_y12).
+west(x14_y15,x9_y15).
+west(x14_y20,x9_y20).
+west(x21_y12,x14_y12).
+west(x21_y15,x14_y15).
+west(x21_y20,x14_y20).
+west(x9_y12,x6_y12).
+west(x9_y15,x6_y15).
+west(x9_y20,x6_y20).
+#init at(x21_y12) 1
+#steps 40
+#seeds 3
+#query at(x21_y20)
+#query dead

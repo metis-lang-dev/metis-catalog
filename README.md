@@ -12,7 +12,7 @@ across benchmarks, each a full LLP world model.
 | `domains/love_triangle/`, `tragedy/`, `herstory/`, `talespin/`, `three_pigs/`, `three_pigs_connectives/` | the Ceptre lineage, each a catalog domain (domain.yaml, the program, a README of where it came from): Martens' love triangle (A Midsummer Night's Dream), with the ORIGINAL `love-triangle.cep` beside it, and the interactive-lp story worlds — samples become an exact measure, `#interactive` becomes a policy hook, the trace becomes a MAP plot summary. They take no commands: no intent.yaml, so the domain agent opens each with no verbs. `domains/CEPTRE-PORTS.md` tracks the ports; the wider origin corpus (79 `.cep`: vampire, civ, sokoban, cocktails…) lives in the `if` archive, ports welcome. |
 | `domains/gol/` | Game of Life (IPPC) — exact live play via the factored one-step agent. |
 | `domains/kitchen/` | Overcooked-AI — partner-posterior overlay, intent choice on the measure. |
-| `domains/nav/` | IPPC Navigation — provably optimal. |
+| `domains/nav/` | IPPC Navigation — provably optimal; the reference RDDL world: a package whose host steps the IPPC 2011 gym (`tools/rddl_host.py`, `tools/rddl_gym.py`), no intents. |
 | `domains/sysadmin/` | IPPC SysAdmin — the genericity proof domain. |
 | `domains/xtraffic/` | CrossingTraffic — lifted includes, sampling evaluator. |
 | `domains/rddl/` | RDDL gym domains formalized through the metis loop (Wildfire, Tamarisk; the elevators and hanoi experiments): structure in LL, rates as runtime weight ports fitted from gym episodes. |

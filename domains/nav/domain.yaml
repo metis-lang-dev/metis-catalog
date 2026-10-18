@@ -1,0 +1,10 @@
+# Navigation (IPPC 2011, instance 1) as an RDDL world: the program is the
+# formalization, the gym is the world (nav_host.py over tools/rddl_host.py).
+# No intents: the program chooses the moves; the domain agent opens it with no verbs.
+display: the robot
+line: "Navigation: a robot crosses a grid of deadly cells to its goal (the IPPC 2011 gym)"
+voice: third
+program: nav.llp
+host: nav_host.py:make
+clock: {beats: 1}
+records: records/
