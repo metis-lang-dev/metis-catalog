@@ -2,4 +2,3 @@
 program: love_triangle.llp
 clock: {beats: 1}
 records: records/
-intent: {spec: intent.yaml}

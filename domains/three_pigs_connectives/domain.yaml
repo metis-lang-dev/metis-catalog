@@ -2,4 +2,3 @@
 program: three_pigs_connectives.llp
 clock: {beats: 1}
 records: records/
-intent: {spec: intent.yaml}

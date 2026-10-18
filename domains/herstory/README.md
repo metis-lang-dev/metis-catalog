@@ -19,7 +19,7 @@ Every life/death marginal is exactly 0 or 1 (Florence and Simon die, the twins l
 
 ## Commands
 
-This world takes no commands. Its `intent.yaml` knows only UNKNOWN, present because the domain agent opens no domain without one.
+This world takes no commands. The domain has no `intent.yaml`; the domain agent opens it with no verbs (its clock beats, every intent is refused).
 
 ## Running
 

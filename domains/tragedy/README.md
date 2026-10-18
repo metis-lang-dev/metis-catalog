@@ -7,7 +7,7 @@ Every Ceptre rule is here under its original name, with the Ceptre idiom `consum
 - **v2**: distinctness guards (`<>`) added to prevent self-unification artifacts.
 - **v3**: fidelity fix — at the two sites where the original overlaps `$a` with another `a` premise (eroticize, divorce), the tokens are written out as consume-and-reproduce, matching Ceptre's semantics.
 
-The world takes no commands, so `intent.yaml` knows only `UNKNOWN`; it is there because the domain agent opens no domain without one.
+The world takes no commands: the domain has no `intent.yaml`, and the domain agent opens it with no verbs (its clock beats, every intent is refused).
 
 **Provenance**: hand port, 2026-10-03. `interactive-lp/examples/tragedy.cep`.
 

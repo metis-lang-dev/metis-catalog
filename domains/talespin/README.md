@@ -19,6 +19,6 @@ Oddities kept: move may "move" to the place one already is (L = M); ingest consu
 
 Provenance: hand-port from `interactive-lp/examples/talespin.cep`, 2026-10-03.
 
-The world takes no commands; `intent.yaml` knows only UNKNOWN (the domain agent opens no domain without one).
+The world takes no commands: the domain has no `intent.yaml`, and the domain agent opens it with no verbs (its clock beats, every intent is refused).
 
 To run: `metisc --run talespin.llp` runs the case its `#` lines give; `#interactive main` lets you choose each event.

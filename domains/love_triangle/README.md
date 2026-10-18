@@ -4,7 +4,7 @@ A port of Ceptre's `love-triangle.cep` tutorial: jealousy and moving on among th
 
 When A loves B and C loves A (C ≠ A), C grows angry at both A and B. Three angers at the beloved and the love dies (the `move_on` rule). The world runs to quiescence in one beat; some loves burn out, others survive.
 
-The world takes no commands, so `intent.yaml` knows only UNKNOWN; it is there because the domain agent opens no domain without one.
+The world takes no commands: the domain has no `intent.yaml`, and the domain agent opens it with no verbs (its clock beats, every intent is refused).
 
 Run with `metisc --run love_triangle.llp` to replay the case its `#init`/`#steps`/`#seeds`/`#query` lines give.
 

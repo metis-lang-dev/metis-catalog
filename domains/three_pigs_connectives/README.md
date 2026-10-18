@@ -30,7 +30,7 @@ Lesson in the weights: branch weights are not just a split of the outcome — th
 
 ## Commands
 
-The world takes no commands (no `cmd_*` atoms), so `intent.yaml` knows only UNKNOWN — it is there because the domain agent opens no domain without one.
+The world takes no commands (no `cmd_*` atoms): the domain has no `intent.yaml`, and the domain agent opens it with no verbs (its clock beats, every intent is refused).
 
 ## Running
 

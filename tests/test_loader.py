@@ -60,6 +60,9 @@ def test_the_index_lists_every_catalog_the_domains_first():
     by = {e["path"]: e for e in es}
     assert by["domains/rddl/wildfire"]["notch"] == "wildfire.notch.json"
     assert by["domains/three_pigs/three_pigs"]["kind"] == "domain"
+    for n in ("herstory", "love_triangle", "talespin", "three_pigs", "three_pigs_connectives", "tragedy"):
+        h = mc.get(n, ROOT).has()                                            # no intents: the domain agent opens
+        assert h["program"] and not h["intent"] and not h["agent"], n        # them with no verbs (agent-no-intent)
     assert by["domains/logic/ll"]["kind"] == "catalog"                               # program only, no manifest
 
 
