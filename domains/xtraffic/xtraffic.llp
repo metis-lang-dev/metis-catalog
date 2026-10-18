@@ -1,0 +1,67 @@
+% CrossingTraffic, IPPC 2011 instance 1 (rddlrepository CrossingTraffic_MDP_ippc2011): the
+% instance's grid as cells, adjacency, the obstacle-row chain and the goal over the lifted
+% domain xtraffic_domain.llp. Generated from the gym's non-fluents (EAST, NORTH, MIN/MAX-YPOS,
+% GOAL, the init state) by metispy's gen_instance for rddl-worlds s-242c7c3f; INPUT-RATE is the
+% gym's, bound by xtraffic_host.py.
+catalog xtraffic 1.
+provenance hand "generated from IPPC 2011 CrossingTraffic instance 1" "2026-10-18".
+include "xtraffic_domain.llp".
+type cell {x1_y1 x1_y2 x1_y3 x2_y1 x2_y2 x2_y3 x3_y1 x3_y2 x3_y3}.
+type idx {i0 .. i3}.
+east(x1_y1,x2_y1).
+north(x1_y1,x1_y2).
+east(x1_y2,x2_y2).
+north(x1_y2,x1_y3).
+south(x1_y2,x1_y1).
+east(x1_y3,x2_y3).
+south(x1_y3,x1_y2).
+east(x2_y1,x3_y1).
+north(x2_y1,x2_y2).
+west(x2_y1,x1_y1).
+east(x2_y2,x3_y2).
+north(x2_y2,x2_y3).
+south(x2_y2,x2_y1).
+west(x2_y2,x1_y2).
+east(x2_y3,x3_y3).
+south(x2_y3,x2_y2).
+west(x2_y3,x1_y3).
+north(x3_y1,x3_y2).
+west(x3_y1,x2_y1).
+north(x3_y2,x3_y3).
+south(x3_y2,x3_y1).
+west(x3_y2,x2_y2).
+south(x3_y3,x3_y2).
+west(x3_y3,x2_y3).
+noadj_north(x1_y3).
+noadj_north(x2_y3).
+noadj_north(x3_y3).
+noadj_south(x1_y1).
+noadj_south(x2_y1).
+noadj_south(x3_y1).
+noadj_east(x3_y1).
+noadj_east(x3_y2).
+noadj_east(x3_y3).
+noadj_west(x1_y1).
+noadj_west(x1_y2).
+noadj_west(x1_y3).
+cidx(x1_y2,i0).
+cidx(x2_y2,i1).
+cidx(x3_y2,i2).
+succ(i0,i1).
+succ(i1,i2).
+succ(i2,i3).
+goal(x3_y3).
+lastidx(i3).
+ocell(x1_y2).
+ocell(x2_y2).
+ocell(x3_y2).
+#init mvt 1
+#init rob(x3_y1) 1
+#init o(x1_y2) 1
+#init e(x2_y2) 1
+#init o(x3_y2) 1
+#steps 560
+#seeds 3
+#query rob(x3_y3)
+#query dead
+#query paid

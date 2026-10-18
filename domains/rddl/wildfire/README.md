@@ -1,5 +1,7 @@
 # Wildfire: an RDDL gym domain through the metis loop
 
+> **Moved (rddl-worlds s-242c7c3f, 2026-10-18):** the program, its notch and the manifest are now the package `domains/wildfire/` (`wildfire.llp`, `wildfire.notch.json`, `domain.yaml`, a gym host `wildfire_host.py`). This folder is the experiment's record; its `../wildfire.llp` paths below are as they were.
+
 **Produced:** `../wildfire.llp` (catalog 5), served with
 `wildfire_plugin.py` plus the fitted table `../wildfire.notch.json`.
 **Source:** rddlrepository `Wildfire_MDP_ippc2014` (IPPC2014), with its

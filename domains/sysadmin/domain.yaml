@@ -1,0 +1,12 @@
+# SysAdmin (IPPC 2011, instance 1) as an RDDL world: the program is the
+# formalization (the 2-computer fixture sysadmin2.llp, unchanged), the gym is
+# the world (sysadmin_host.py over tools/rddl_host.py). The program's a and b
+# are the gym's c6 and c8 (the instance's one mutually connected pair).
+# No intents: the program has no action rule (rb is read, never produced).
+display: the network
+line: "SysAdmin: computers on a network fail and recover, watched two at a time (the IPPC 2011 gym)"
+voice: third
+program: sysadmin2.llp
+host: sysadmin_host.py:make
+clock: {beats: 1}
+records: records/

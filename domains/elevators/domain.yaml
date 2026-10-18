@@ -1,0 +1,10 @@
+# Elevators (IPPC 2011, instance 8) as an RDDL world: the program is the
+# formalization, the gym is the world (elevators_host.py over tools/rddl_host.py).
+# No intents: the program chooses the moves; the domain agent opens it with no verbs.
+display: the elevators
+line: "Elevators: two elevators carry passengers to the top or bottom floor (the IPPC 2011 gym)"
+voice: third
+program: elevators.llp
+host: elevators_host.py:make
+clock: {beats: 1}
+records: records/

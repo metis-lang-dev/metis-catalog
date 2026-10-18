@@ -37,9 +37,9 @@ def test_paths_and_the_host_spec():
     assert dog.program == ROOT / "domains/dog/dog.llp" and dog.voice == "own" and dog.display == "the dog"
     assert dog.host_spec_for() == "dog_host.py:make" and dog.intent["grammar"].name == "dog.gbnf"
     assert dog.agent is None and dog.has()["agent"] and dog.has()["intent"]          # the generic agent, from intent.yaml
-    assert wf.program == ROOT / "domains/rddl/wildfire.llp"
-    assert wf.host_spec_for() == "wildfire/wildfire_plugin.py:make"                  # as wildfire.llp's own #plugin
-    assert "#plugin wildfire/wildfire_plugin.py:make" in wf.program.read_text()
+    assert wf.program == ROOT / "domains/wildfire/wildfire.llp"                      # an RDDL world package (rddl-worlds)
+    assert wf.host_spec_for() == "wildfire_host.py:make"                             # as wildfire.llp's own #plugin
+    assert "#plugin wildfire_host.py:make" in wf.program.read_text()
     assert kit.host_spec_for() == "metis.domains.kitchen.host:make" and kit.agent[1] == "kitchen"
     assert kit.clock == {"beats": 2} and kit.pair == ["kitchen_shared"]
     with pytest.raises(KeyError):
@@ -55,10 +55,11 @@ def test_the_index_lists_every_catalog_the_domains_first():
     named = [e["name"] for e in es if e["manifest"]]
     assert named == sorted(named)                                                    # the manifests first, by name
     assert {"dog", "kitchen", "plant", "tamarisk", "wgc", "wildfire",                # the fiction ports: domains
-            "herstory", "love_triangle", "talespin", "three_pigs", "three_pigs_connectives", "tragedy"} <= set(named)
+            "herstory", "love_triangle", "talespin", "three_pigs", "three_pigs_connectives", "tragedy",
+            "nav", "xtraffic", "gol", "sysadmin", "hanoi", "elevators"} <= set(named)   # the RDDL worlds too
     assert "kitchen_shared" not in [e["name"] for e in es]                           # a partner is listed by its lead
     by = {e["path"]: e for e in es}
-    assert by["domains/rddl/wildfire"]["notch"] == "wildfire.notch.json"
+    assert by["domains/wildfire/wildfire"]["notch"] == "wildfire.notch.json"
     assert by["domains/three_pigs/three_pigs"]["kind"] == "domain"
     for n in ("herstory", "love_triangle", "talespin", "three_pigs", "three_pigs_connectives", "tragedy"):
         h = mc.get(n, ROOT).has()                                            # no intents: the domain agent opens

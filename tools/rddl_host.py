@@ -118,13 +118,37 @@ class RddlHost:
     extra(obs)         -> {atom: n}: readings derived from the gym's state (nav's `dead`)
     weights            {port: fn(args, counts, host)}: the weight ports the host binds
     tick_token         `+tick` every beat (a program that steps by a tick resource)
+
+    A world whose program does not act but OBSERVES (rddl_recorder's
+    transitions: the state, the action taken and a tick in, the next state
+    out; wildfire, tamarisk, elevators) sets `policy`:
+    policy             "random" (pyRDDLGym's RandomAgent, seeded per episode, the
+                       recorder's agent) | "noop": the host acts. Each tick: the
+                       program brought to the gym's state, the action and tick
+                       atoms of the last step taken off, the gym stepped by the
+                       policy, its action's true fluents and `+tick` given to the
+                       program, whose cycle then computes the next state.
+    negatives          a false fluent is also `not_<atom>` (the recorder's --negatives)
+    transient          the program's in-cycle predicates: while any is held the
+                       reading waits (observe gives nothing), so the watch scores
+                       the settled cycle (the recorder's frame readout); taken off
+                       at each tick, as the step's action atoms are
+    tokens             atoms handed to the program with each step's input besides
+                       `tick` (a cycle's start token: sysadmin's `m(i0)`)
+    action_atom(key)   a true action fluent -> the program's atom, or None
+                       (default rddl_recorder's mapping)
     """
 
     def __init__(self, case=None, *, problem, instance="1", seed=1, atom=atom_of, action_of=None,
-                 extra=None, weights=None, tick_token=False):
+                 extra=None, weights=None, tick_token=False, policy=None, negatives=False, transient=(),
+                 tokens=(), action_atom=atom_of):
         self.problem, self.instance = problem, str(instance)
         self.atom, self.action_of = atom, action_of or (lambda name, args: None)
         self.extra, self.weights, self.tick_token = extra, dict(weights or {}), tick_token
+        if policy not in (None, "random", "noop"):
+            raise ValueError("policy: random | noop | None, not %r" % policy)
+        self.policy, self.negatives, self.transient = policy, negatives, set(transient)
+        self.tokens, self.action_atom = tuple(tokens), action_atom
         self.gym = GymClient(problem, instance)
         info = self.gym.info
         self.horizon, self.nonfluents = info["horizon"], info["nonfluents"]
@@ -134,9 +158,9 @@ class RddlHost:
             a = self.atom(k)
             if a is not None:
                 self.observed[a] = k
+        self.action_preds = {k.replace("-", "_") for k in self.action_keys}     # put-out -> put_out(…)
         # the domain agent's AgentHost reads these of a hosted day
         self.beat, self.due, self.script, self.last = 0, (), {}, None
-        self.acted = ()
         self.next_seed = seed
         self._reset(seed)
 
@@ -147,15 +171,18 @@ class RddlHost:
         self.actions = []                        # (step, action) of this episode: the snapshot
         self.sets = []                           # (step, fluents) the driver set
         self.t, self.done, self.reward = 0, False, 0.0
+        self.stalled = False                     # an observing program that stopped taking its steps
         self._take(self.gym.call("reset", seed=seed))
         self.stepped = False
 
     def _take(self, out):
         self.obs, self.values = set(out["obs"]), out["values"]
 
-    def _step(self, action):
-        out = self.gym.call("step", action=action)
+    def _step(self, action, policy=None):
+        out = self.gym.call("step", action=action, policy=policy) if policy else self.gym.call("step", action=action)
         self._take(out)
+        action = out.get("action", action)       # the policy's draw, so a restore replays it
+        self.last_action = action
         self.actions.append((self.t, action))
         self.t += 1
         self.reward += out["reward"]
@@ -169,9 +196,14 @@ class RddlHost:
 
     def reading(self):
         r = {a: (1 if k in self.obs else 0) for a, k in self.observed.items()}
+        if self.negatives:
+            r.update({"not_" + a: (0 if k in self.obs else 1) for a, k in self.observed.items()})
         if self.extra:
             r.update(self.extra(self))
         return r
+
+    def settled(self, counts):
+        return not any(n > 0 and a.split("(")[0] in self.transient for a, n in counts.items())
 
     # ── the host faces ──
     def bind(self, reg):
@@ -179,22 +211,58 @@ class RddlHost:
             reg.weight(port, lambda args, counts, fn=fn: fn(args, counts, self))
 
     def on_event(self, name, args):
-        self.acted += ((self.beat, name, tuple(args)),)
         action = self.action_of(name, args)
         if action is not None and not self.done:
             self._step(action)
 
     def observe(self, counts):
+        if self.done:
+            return {}                            # the episode is over: the world answers nothing more
+        if self.policy and self.t == 0:
+            return {}                            # an observing world before its first step: no outcome to read
+                                                 # (a program whose #init holds a step's input runs it uncompared)
+        if self.transient and not self.settled(counts) and not self.stalled:
+            return {}                            # the program's cycle is in flight: nothing to read yet
         return self.reading()
 
     def tick(self, counts):
         if self.done:
             return None
         self.beat += 1
+        if self.policy:
+            return self._observer_tick(counts)
         if not self.stepped and not self.done:
             self._step({})                       # the world moves on its own: one beat, one step
         self.stepped = False
         dos = self.sync(counts)                  # the program's state brought to the gym's
+        if self.tick_token:
+            dos.append("+tick")
+        return dos
+
+    def _observer_tick(self, counts):
+        """The recorder's transition as one beat: the program at the gym's state
+        (its leftover action and tick atoms taken off), the gym stepped by the
+        policy, the action's true fluents and the tick handed to the program."""
+        off = self.action_preds | self.transient | {"tick"}
+        left = [(a, n) for a, n in sorted(counts.items()) if n > 0 and a.split("(")[0] in off]
+        if self.t > 0 and left and not self.stalled:
+            # the last step's input was never taken: the program's cycle did not run.
+            # The reading is not deferred from here on, so the stall shows as the
+            # program's state against the gym's (not as a silence)
+            self.stalled = True
+            return []
+        if self.stalled:
+            self._step({}, policy=self.policy)   # the world goes on; the program does not
+            self.stepped = False
+            return []
+        dos = self.sync(counts)
+        for a, n in left:
+            dos.append("-%s %d" % (a, n))
+        self._step({}, policy=self.policy)
+        self.stepped = False
+        acts = [self.action_atom(k) for k, v in sorted(self.last_action.items()) if v is True or v == 1]
+        dos += ["+" + a for a in acts if a]
+        dos += ["+" + a for a in self.tokens]
         if self.tick_token:
             dos.append("+tick")
         return dos
@@ -252,8 +320,11 @@ class RddlHost:
                 "actions": self.action_keys, "weights": sorted(self.weights)}
 
     def snapshot(self):
+        # the episode only, bounded by the horizon: the repl stores a snapshot after
+        # every fired row, so nothing here may grow per fired event (`acted` did:
+        # quadratic, a 23.7 GB xtraffic run — rddl-worlds step 3)
         return {"seed": self.seed, "t": self.t, "beat": self.beat, "actions": [[t, a] for t, a in self.actions],
-                "sets": [[t, f] for t, f in self.sets], "acted": [list(x) for x in self.acted]}
+                "sets": [[t, f] for t, f in self.sets]}
 
     def restore(self, snap):
         """The episode replayed on the gym: its seed, then the steps and the sets in order."""
@@ -268,4 +339,3 @@ class RddlHost:
             if t < snap["t"]:
                 self._step(acts.get(t, {}))
         self.beat, self.stepped = snap["beat"], False
-        self.acted = tuple((b, n, tuple(a)) for b, n, a in snap["acted"])

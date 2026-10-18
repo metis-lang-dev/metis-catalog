@@ -1,5 +1,7 @@
 # rddl — RDDL gym domains formalized through the metis loop
 
+> **Packaged (rddl-worlds s-242c7c3f, 2026-10-18):** Wildfire and Tamarisk moved to `domains/wildfire/` and `domains/tamarisk/` (program, notch, manifest, a gym host); elevators and hanoi are packaged as `domains/elevators/` and `domains/hanoi/`. The folders here are the experiments' records; their paths below are as they were.
+
 These come from subject rddl-tier1 (closed 2026-10-11). Wildfire and
 Tamarisk are SYNTHETIC IPPC2014 benchmark domains (rddlrepository,
 played in pyRDDLGym). The exercise was not to reproduce the gym. It

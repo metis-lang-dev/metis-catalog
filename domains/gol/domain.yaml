@@ -1,0 +1,10 @@
+# Game of Life (IPPC 2011, instance 1) as an RDDL world: the program is the
+# formalization (metispy's sync compilation, written out), the gym is the world
+# (gol_host.py over tools/rddl_host.py). No intents: the domain agent opens it with no verbs.
+display: the grid
+line: "Game of Life: a 3x3 grid of cells lives, dies and is born by Conway's rule, with noise (the IPPC 2011 gym)"
+voice: third
+program: gol.llp
+host: gol_host.py:make
+clock: {beats: 1}
+records: records/

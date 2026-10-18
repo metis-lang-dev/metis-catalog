@@ -10,12 +10,13 @@ across benchmarks, each a full LLP world model.
 | dir | what |
 | --- | --- |
 | `domains/love_triangle/`, `tragedy/`, `herstory/`, `talespin/`, `three_pigs/`, `three_pigs_connectives/` | the Ceptre lineage, each a catalog domain (domain.yaml, the program, a README of where it came from): Martens' love triangle (A Midsummer Night's Dream), with the ORIGINAL `love-triangle.cep` beside it, and the interactive-lp story worlds — samples become an exact measure, `#interactive` becomes a policy hook, the trace becomes a MAP plot summary. They take no commands: no intent.yaml, so the domain agent opens each with no verbs. `domains/CEPTRE-PORTS.md` tracks the ports; the wider origin corpus (79 `.cep`: vampire, civ, sokoban, cocktails…) lives in the `if` archive, ports welcome. |
-| `domains/gol/` | Game of Life (IPPC) — exact live play via the factored one-step agent. |
+| `domains/gol/` | Game of Life (IPPC) — exact live play via the factored one-step agent; an RDDL world package (the program written out by metispy's generator, a gym host). |
 | `domains/kitchen/` | Overcooked-AI — partner-posterior overlay, intent choice on the measure. |
 | `domains/nav/` | IPPC Navigation — provably optimal; the reference RDDL world: a package whose host steps the IPPC 2011 gym (`tools/rddl_host.py`, `tools/rddl_gym.py`), no intents. |
-| `domains/sysadmin/` | IPPC SysAdmin — the genericity proof domain. |
-| `domains/xtraffic/` | CrossingTraffic — lifted includes, sampling evaluator. |
-| `domains/rddl/` | RDDL gym domains formalized through the metis loop (Wildfire, Tamarisk; the elevators and hanoi experiments): structure in LL, rates as runtime weight ports fitted from gym episodes. |
+| `domains/sysadmin/` | IPPC SysAdmin — the genericity proof domain; an RDDL world package (the 2-computer program on two of the gym's computers). |
+| `domains/xtraffic/` | CrossingTraffic — lifted includes, sampling evaluator; an RDDL world package (instance 1 over the lifted domain, a gym host). |
+| `domains/wildfire/`, `tamarisk/`, `elevators/`, `hanoi/` | the RDDL gym domains formalized through the metis loop, as RDDL world packages (a gym host each; wildfire and tamarisk with their fitted notch). |
+| `domains/rddl/` | the records of those formalization experiments: structure in LL, rates as runtime weight ports fitted from gym episodes. |
 | `domains/ports/` | the port-plugin conformance fixtures (sensor, reservoir, clock): rates and exogenous input from a live environment. |
 | `domains/CEPTRE-PORTS.md` | the Ceptre → metis porting track: the recipe and the per-port log. |
 | --- | --- |

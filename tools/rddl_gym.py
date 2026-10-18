@@ -11,7 +11,9 @@ on a failure; the process stays up):
   {"op": "open", "problem": P, "instance": I}
       -> {"horizon", "state": [fluent keys], "actions": [...], "nonfluents": {key: value}}
   {"op": "reset", "seed": S}           -> {"obs": [true boolean keys], "values": {key: number}}
-  {"op": "step", "action": {key: v}}   -> {"obs", "values", "reward", "done"}
+  {"op": "step", "action": {key: v}}   -> {"obs", "values", "reward", "done", "action"}
+  {"op": "step", "policy": "random"}   the action drawn by pyRDDLGym's RandomAgent, seeded
+                                       with the episode's seed at reset (rddl_recorder's agent)
   {"op": "set", "fluents": {key: v}}   -> {"obs", "values"}   a state fluent or a non-fluent,
                                                               grounded (`robot-at___x6__y12`);
                                                               a non-fluent holds until the next open
@@ -79,14 +81,23 @@ class Gym:
                 self.env.state[key] = v
 
     def reset(self, seed):
+        from pyRDDLGym.core.policy import RandomAgent
+        self.agent = RandomAgent(action_space=self.env.action_space,
+                                 num_actions=self.env.max_allowed_actions, seed=int(seed))
         obs, _ = self.env.reset(seed=int(seed))
+        self.last = obs
         if self.override:
             self._set(dict(self.override))
         return self._obs(obs)
 
-    def step(self, action):
+    def step(self, action, policy=None):
+        if policy == "random":
+            action = {k: jsonable(v) for k, v in self.agent.sample_action(self.last).items()}
+        elif policy not in (None, "noop"):
+            raise ValueError("policy: random | noop, not %r" % policy)
         obs, r, term, trunc, _ = self.env.step(dict(action))
-        return dict(self._obs(obs), reward=float(r), done=bool(term or trunc))
+        self.last = obs
+        return dict(self._obs(obs), reward=float(r), done=bool(term or trunc), action=dict(action))
 
     def set(self, fluents):
         self._set(fluents)
@@ -111,7 +122,7 @@ def main():
             elif op == "reset":
                 out = g.reset(req.get("seed", 1))
             elif op == "step":
-                out = g.step(req.get("action") or {})
+                out = g.step(req.get("action") or {}, req.get("policy"))
             elif op == "set":
                 out = g.set(req.get("fluents") or {})
             else:

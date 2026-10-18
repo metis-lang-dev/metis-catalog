@@ -264,5 +264,5 @@ qui spread [dyn] : screen -o ignite.
 #init tick 1
 #steps 200
 
-#plugin wildfire/wildfire_plugin.py:make
+#plugin wildfire_host.py:make
 #notch wildfire.notch.json

@@ -16,7 +16,7 @@ road/road_handles.llp        template (lane types from metispy)
 road/road_handles2.llp       template (lane types from metispy)
 road/road_handles3.llp       template (lane types from metispy)
 road/road_handles4.llp       template (lane types from metispy)
-domains/xtraffic/xtraffic_domain.llp  template (types from metispy xtraffic/model.py)
+domains/xtraffic/xtraffic_domain.llp  template, typed by domains/xtraffic/xtraffic.llp (instance 1, rddl-worlds)
 # packs: `extends road.` needs a base; against the instantiated road
 # (scenes/prodcat_instance.llp) wcmark is var-untypable — finding, road
 # catalog work is parked by the user

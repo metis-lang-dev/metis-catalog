@@ -1,0 +1,10 @@
+# Tamarisk (IPPC 2014, instance 1) as an RDDL world: the program (formalized in the
+# metis loop from episodes, domains/rddl/tamarisk/) and its fitted notch; the host
+# steps the gym (tamarisk_host.py over tools/rddl_host.py). No intents.
+display: the tamarisk
+line: "Tamarisk: an invasive plant spreads along four river reaches while a manager eradicates and restores (the IPPC 2014 gym)"
+voice: third
+program: tamarisk.llp
+notch: tamarisk.notch.json
+host: tamarisk_host.py:make
+records: records/

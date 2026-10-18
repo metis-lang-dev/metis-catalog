@@ -84,3 +84,48 @@ def test_nav_host_world_lines_seed_and_episode_end():
     assert h.done and h.t == 40 and h.tick({}) is None     # the gym's horizon ends the episode
     h.reseed(3)
     assert (h.seed, h.t, h.done) == (3, 0, False)
+
+
+@needs_gym
+def test_the_snapshot_does_not_grow_with_fired_events():
+    """The repl stores the host's snapshot after every fired row: a snapshot
+    that grew per event made it quadratic (a 23.7 GB xtraffic run, rddl-worlds
+    step 3). It holds the episode only, bounded by the horizon."""
+    import json
+    h = nav().make({})
+    size = len(json.dumps(h.snapshot()))
+    for _ in range(500):
+        h.on_event("other_rule", ())                       # a fired row that is no action
+    assert len(json.dumps(h.snapshot())) == size
+
+
+def wildfire():
+    spec = importlib.util.spec_from_file_location("wildfire_host_t", ROOT / "domains/wildfire/wildfire_host.py")
+    m = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(m)
+    return m
+
+
+@needs_gym
+def test_an_observing_world_hands_the_step_in_and_reads_the_settled_cycle():
+    """Observer mode (wildfire): the host acts (the seeded random agent), the
+    program gets the action's atoms and a tick, the reading waits for its cycle;
+    an input it never took is a stall, and the reading shows it."""
+    h = wildfire().make({})
+    assert h.policy == "random" and h.negatives and "tick" in h.transient
+    assert h.observe({}) == {}                                   # before the first step: nothing to read
+    r = h.reading()
+    assert r["burning(x1,y3)"] == 1 and r["not_burning(x1,y3)"] == 0 and r["not_burning(x2,y2)"] == 1
+    dos = h.tick({"burning(x1,y3)": 1})                          # the program had no not_ atoms yet
+    assert h.t == 1 and "+tick" in dos and "+not_burning(x2,y2) 1" in dos
+    acts = [d for d in dos if d.startswith(("+put_out", "+cut_out"))]
+    assert len(acts) <= 1 and all("(" in a for a in acts)        # the agent's action, as the program's atom
+    held = {"tick": 1, "walk(x1,y1)": 1}
+    assert h.observe(held) == {}                                 # the cycle in flight
+    assert h.observe({}) == h.reading()                          # settled: the gym's state
+    assert h.tick(held) == [] and h.stalled and h.t == 1         # the input was never taken: a stall
+    assert h.observe(held) == h.reading()                        # from now on read at once
+    assert h.tick(held) == [] and h.t == 2                       # the world goes on without the program
+    a = wildfire().make({})
+    a.tick({})
+    assert a.last_action == h.actions[0][1]                      # the agent is seeded per episode

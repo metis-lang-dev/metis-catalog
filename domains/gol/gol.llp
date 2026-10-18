@@ -1,12 +1,133 @@
-% Port manifest for the Game of Life domain. The program is built by
-% the seam (kernel.sync + the instance topology); the catalog's job
-% here is the framework contract — declared ports, bound at load,
-% fail-fast. Rules stay code-side because the topology is per-instance
-% (the same note as sysadmin's per-instance chain).
-catalog gol 1.
-provenance hand "IPPC 2011 Game of Life port manifest" "2026-07-18".
+% Game of Life, IPPC 2011 instance 1 (rddlrepository GameOfLife_MDP_ippc2011): the 3x3
+% grid. GENERATED for rddl-worlds s-242c7c3f by metispy's own code, unchanged:
+% metis.domains.gol.model.gen_catalog(cells, neighbors) with cells and neighbors from
+% metis.domains.gol.rddl_adapter.load("1") (the instance's NEIGHBOR non-fluents); the
+% #init lines are model.catalog_init(cells, the instance's init-state), #steps is
+% kernel.steps_per_tick(9). The life(C) port is bound by gol_host.py from the
+% instance's NOISE-PROB and NEIGHBOR (metispy's life_bindings).
+% GENERATED — Game of Life, the sync shape authored as text.
+catalog gol 2.
+provenance hand "text recode of the sync compilation" "2026-07-22".
 layers (dyn).
 stages (mark update sweep).
-
+type cell {x1__y1 x1__y2 x1__y3 x2__y1 x2__y2 x2__y3 x3__y1 x3__y2 x3__y3}.
+type idx {i0 .. i9}.
+namespace state produce (dyn).
+pred a(cell) : state.
+pred d(cell) : state.
+pred pa(cell) : state.
+pred pd(cell) : state.
+pred tok(cell) : state.
+pred na(cell) : state.
+pred nd(cell) : state.
+pred force(cell) : state.
+pred m(idx) : state.
+pred u(idx) : state.
+pred s(idx) : state.
+bwd cidx(cell,idx).
+bwd succ(idx,idx).
+bwd adj(cell,cell).
+cidx(x1__y1,i0).
+cidx(x1__y2,i1).
+cidx(x1__y3,i2).
+cidx(x2__y1,i3).
+cidx(x2__y2,i4).
+cidx(x2__y3,i5).
+cidx(x3__y1,i6).
+cidx(x3__y2,i7).
+cidx(x3__y3,i8).
+succ(i0,i1).
+succ(i1,i2).
+succ(i2,i3).
+succ(i3,i4).
+succ(i4,i5).
+succ(i5,i6).
+succ(i6,i7).
+succ(i7,i8).
+succ(i8,i9).
+adj(x1__y1,x1__y2).
+adj(x1__y1,x2__y1).
+adj(x1__y1,x2__y2).
+adj(x1__y2,x1__y1).
+adj(x1__y2,x1__y3).
+adj(x1__y2,x2__y1).
+adj(x1__y2,x2__y2).
+adj(x1__y2,x2__y3).
+adj(x1__y3,x1__y2).
+adj(x1__y3,x2__y2).
+adj(x1__y3,x2__y3).
+adj(x2__y1,x1__y1).
+adj(x2__y1,x1__y2).
+adj(x2__y1,x2__y2).
+adj(x2__y1,x3__y1).
+adj(x2__y1,x3__y2).
+adj(x2__y2,x1__y1).
+adj(x2__y2,x1__y2).
+adj(x2__y2,x1__y3).
+adj(x2__y2,x2__y1).
+adj(x2__y2,x2__y3).
+adj(x2__y2,x3__y1).
+adj(x2__y2,x3__y2).
+adj(x2__y2,x3__y3).
+adj(x2__y3,x1__y2).
+adj(x2__y3,x1__y3).
+adj(x2__y3,x2__y2).
+adj(x2__y3,x3__y2).
+adj(x2__y3,x3__y3).
+adj(x3__y1,x2__y1).
+adj(x3__y1,x2__y2).
+adj(x3__y1,x3__y2).
+adj(x3__y2,x2__y1).
+adj(x3__y2,x2__y2).
+adj(x3__y2,x2__y3).
+adj(x3__y2,x3__y1).
+adj(x3__y2,x3__y3).
+adj(x3__y3,x2__y2).
+adj(x3__y3,x2__y3).
+adj(x3__y3,x3__y2).
 input grid.
 output action.
+weight life(C) reads {force(C), pa(C), pa(D) if adj(C,D)}.
+stage mark {
+  %% snapshot an alive cell.
+  mr [dyn] : m(I) * a(C) * cidx(C,I) * succ(I,I2) -o pa(C) * tok(C) * m(I2).
+  %% snapshot a dead cell.
+  md [dyn] : m(I) * d(C) * cidx(C,I) * succ(I,I2) -o pd(C) * tok(C) * m(I2).
+}
+stage update {
+  %% was alive, stays alive.
+  up [dyn] : u(I) * tok(C) * $pa(C) * cidx(C,I) * succ(I,I2) -o na(C) * u(I2)  @w life(C).
+  %% was alive, dies.
+  dn [dyn] : u(I) * tok(C) * $pa(C) * cidx(C,I) * succ(I,I2) -o nd(C) * u(I2)  @w ~life(C).
+  %% was dead, is born.
+  rv [dyn] : u(I) * tok(C) * $pd(C) * cidx(C,I) * succ(I,I2) -o na(C) * u(I2)  @w life(C).
+  %% was dead, stays dead.
+  st [dyn] : u(I) * tok(C) * $pd(C) * cidx(C,I) * succ(I,I2) -o nd(C) * u(I2)  @w ~life(C).
+}
+stage sweep {
+  %% commit: was alive, next alive.
+  swaa [dyn] : s(I) * pa(C) * na(C) * cidx(C,I) * succ(I,I2) -o a(C) * s(I2).
+  %% commit: was alive, next dead.
+  swad [dyn] : s(I) * pa(C) * nd(C) * cidx(C,I) * succ(I,I2) -o d(C) * s(I2).
+  %% commit: was dead, next alive.
+  swda [dyn] : s(I) * pd(C) * na(C) * cidx(C,I) * succ(I,I2) -o a(C) * s(I2).
+  %% commit: was dead, next dead.
+  swdd [dyn] : s(I) * pd(C) * nd(C) * cidx(C,I) * succ(I,I2) -o d(C) * s(I2).
+}
+%% snapshot done -> update pass.
+qui mu [dyn] : mark * m(i9) -o update * u(i0).
+%% update done -> commit.
+qui us [dyn] : update * u(i9) -o sweep * s(i0).
+%% committed -> next tick.
+qui sm [dyn] : sweep * s(i9) -o mark * m(i0).
+#init m(i0) 1
+#init a(x1__y1) 1
+#init d(x1__y2) 1
+#init a(x1__y3) 1
+#init a(x2__y1) 1
+#init a(x2__y2) 1
+#init d(x2__y3) 1
+#init d(x3__y1) 1
+#init d(x3__y2) 1
+#init d(x3__y3) 1
+#steps 30

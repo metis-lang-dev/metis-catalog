@@ -1,0 +1,10 @@
+# Tower of Hanoi (rddlrepository TowerOfHanoi_arcade, instance 0) as an RDDL world:
+# the program is the formalization, the gym is the world (hanoi_host.py over tools/rddl_host.py).
+# No intents: the program chooses the moves; the domain agent opens it with no verbs.
+display: the tower
+line: "Tower of Hanoi: disks move one at a time between three rods, never onto a smaller disk (the arcade gym)"
+voice: third
+program: hanoi.llp
+host: hanoi_host.py:make
+clock: {beats: 1}
+records: records/

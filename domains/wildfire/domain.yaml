@@ -1,0 +1,10 @@
+# Wildfire (IPPC 2014, instance 1) as an RDDL world: the program (formalized in the
+# metis loop from episodes, domains/rddl/wildfire/) and its fitted notch; the host
+# steps the gym (wildfire_host.py over tools/rddl_host.py). No intents.
+display: the wildfire
+line: "Wildfire: a 3x3 forest burns while a manager puts out and cuts (the IPPC 2014 gym)"
+voice: third
+program: wildfire.llp
+notch: wildfire.notch.json
+host: wildfire_host.py:make
+records: records/

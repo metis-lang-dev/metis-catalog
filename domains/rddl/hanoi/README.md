@@ -1,5 +1,7 @@
 # hanoi — Tower of Hanoi born from the RDDL header (Tier-2 investigation)
 
+> **Packaged (rddl-worlds s-242c7c3f, 2026-10-18):** `hanoi.llp` is now the program of the package `domains/hanoi/` (byte-equal, with a gym host). This folder is the experiment's record.
+
 Concluded metis-loop experiment (2026-10-09), copied from
 `metis-loop/experiments/hanoi/`. Unlike the Tier-1 gym domains in
 `../README.md`, this domain has no stochastics, no ports and no notch

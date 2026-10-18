@@ -1,5 +1,7 @@
 # Tamarisk: an RDDL gym domain through the metis loop
 
+> **Moved (rddl-worlds s-242c7c3f, 2026-10-18):** the program, its notch and the manifest are now the package `domains/tamarisk/` (`tamarisk.llp`, `tamarisk.notch.json`, `domain.yaml`, a gym host `tamarisk_host.py`). This folder is the experiment's record; its `../tamarisk.llp` paths below are as they were.
+
 **Produced:** `../tamarisk.llp` (catalog 2), served with
 `tamarisk_plugin.py` plus the fitted table `../tamarisk.notch.json`.
 **Source:** rddlrepository `Tamarisk_MDP_ippc2014` (IPPC2014, the RL

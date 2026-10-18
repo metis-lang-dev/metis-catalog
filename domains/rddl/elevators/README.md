@@ -1,5 +1,7 @@
 # Elevators: the first RDDL gym domain through the metis loop
 
+> **Packaged (rddl-worlds s-242c7c3f, 2026-10-18):** `elevators_born.llp` is now the program of the package `domains/elevators/` (as `elevators.llp`, byte-equal, with a gym host). This folder is the experiment's record.
+
 **Produced:** no catalog domain file. The experiment was never promoted.
 The last accepted world is `iter2-world/` (`base.llp` = catalog
 `elevators_observed`, iter1's accepted base, key `b7ad6fca…`; `pack1.llp`
