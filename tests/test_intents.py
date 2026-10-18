@@ -53,3 +53,20 @@ def test_the_catalogs_asks_hold_and_the_drafts_infer_them():
     if plant.is_file():
         sk = yaml.safe_load(I.skeleton("plant"))
         assert sk["asks"] == ["CHECK"] and sk["outcomes"] == {"done": "done", "checked": "done"}
+
+
+def test_an_empty_generated_file_is_not_written(tmp_path, monkeypatch):
+    """A spec without `spoken` makes an empty -spoken.txt: gen does not write it and
+    check does not ask for it; one that is there is still checked (loop-fixes s-855d8067)."""
+    d = tmp_path / "domains" / "plant"
+    d.mkdir(parents=True)
+    (d / "plant.llp").write_text(PROG)
+    monkeypatch.setattr(I, "ROOT", tmp_path)
+    assert "spoken" not in yaml.safe_load(I.skeleton("plant"))
+    (d / "intent.yaml").write_text(I.skeleton("plant"))
+    assert I.files("plant")["plant-spoken.txt"] == ""
+    assert I.main(["gen", "plant"]) == 0
+    assert sorted(p.name for p in (d / "intent").iterdir()) == ["plant-prompt.txt", "plant.gbnf"]
+    assert I.main(["check", "plant"]) == 0
+    (d / "intent" / "plant-spoken.txt").write_text("stale\n")
+    assert I.main(["check", "plant"]) == 1

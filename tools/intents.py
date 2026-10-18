@@ -356,6 +356,8 @@ def main(argv):
             bad += 1
     for fn, text in files(name).items():
         p = d / fn
+        if not text and not p.exists():   # an empty file is not written (a spec without spoken: no -spoken.txt)
+            continue
         if verb == "gen":
             d.mkdir(exist_ok=True)
             p.write_text(text)
