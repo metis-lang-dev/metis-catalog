@@ -1,7 +1,7 @@
 """SysAdmin's host (rddl-worlds s-242c7c3f): the IPPC 2011 SysAdmin gym,
 instance 1, through the catalog's RDDL world host (tools/rddl_host.py).
 
-- The program is the 2-computer fixture sysadmin2.llp (computers a, b,
+- The program is the 2-computer fixture sysadmin.llp (catalog sysadmin2; computers a, b,
   adj(a,b), adj(b,a)); every gym instance has 10 computers or more. The
   program's a and b are the gym's c6 and c8: in instance 1 they are the one
   pair connected both ways (CONNECTED(c6,c8) and CONNECTED(c8,c6)), the

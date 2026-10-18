@@ -9,7 +9,7 @@ instance 1, through the catalog's RDDL world host (`tools/rddl_host.py`,
 which runs `tools/rddl_gym.py` under an interpreter with pyRDDLGym:
 `$METIS_RDDL_PY`, else the packages' shared `.venv`).
 
-- `sysadmin2.llp` is the 2-computer fixture (computers `a`, `b`, `adj(a,b)`,
+- `sysadmin.llp` (catalog `sysadmin2`, the file formerly `sysadmin2.llp`: the loop SDK serves a package's program as `<name>.llp`) is the 2-computer fixture (computers `a`, `b`, `adj(a,b)`,
   `adj(b,a)`), unchanged: one gym tick compiled into an interleaved
   mark / update / sweep cycle of nine program steps (snapshot `run`/`down`
   into `prev`/`pdown`, draw each computer's next state by the weight ports,
