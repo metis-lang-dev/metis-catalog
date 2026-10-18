@@ -121,7 +121,7 @@ class RddlHost:
 
     A world whose program does not act but OBSERVES (rddl_recorder's
     transitions: the state, the action taken and a tick in, the next state
-    out; wildfire, tamarisk, elevators) sets `policy`:
+    out; wildfire, tamarisk) sets `policy`:
     policy             "random" (pyRDDLGym's RandomAgent, seeded per episode, the
                        recorder's agent) | "noop": the host acts. Each tick: the
                        program brought to the gym's state, the action and tick
@@ -168,7 +168,7 @@ class RddlHost:
     def _reset(self, seed):
         self.seed = seed
         self.next_seed = seed + 1
-        self.actions = []                        # (step, action) of this episode: the snapshot
+        self.actions = []                        # (step, action, drawn by the policy) of this episode: the snapshot
         self.sets = []                           # (step, fluents) the driver set
         self.t, self.done, self.reward = 0, False, 0.0
         self.stalled = False                     # an observing program that stopped taking its steps
@@ -181,9 +181,9 @@ class RddlHost:
     def _step(self, action, policy=None):
         out = self.gym.call("step", action=action, policy=policy) if policy else self.gym.call("step", action=action)
         self._take(out)
-        action = out.get("action", action)       # the policy's draw, so a restore replays it
+        action = out.get("action", action)       # the policy's draw: a restore draws it again
         self.last_action = action
-        self.actions.append((self.t, action))
+        self.actions.append((self.t, action, bool(policy)))
         self.t += 1
         self.reward += out["reward"]
         self.done = out["done"]
@@ -323,12 +323,15 @@ class RddlHost:
         # the episode only, bounded by the horizon: the repl stores a snapshot after
         # every fired row, so nothing here may grow per fired event (`acted` did:
         # quadratic, a 23.7 GB xtraffic run — rddl-worlds step 3)
-        return {"seed": self.seed, "t": self.t, "beat": self.beat, "actions": [[t, a] for t, a in self.actions],
+        return {"seed": self.seed, "t": self.t, "beat": self.beat, "stalled": self.stalled,
+                "actions": [[t, a, drawn] for t, a, drawn in self.actions],
                 "sets": [[t, f] for t, f in self.sets]}
 
     def restore(self, snap):
         """The episode replayed on the gym: its seed, then the steps and the sets in order."""
-        acts = {t: a for t, a in snap["actions"]}
+        # a step the policy drew is drawn again (the agent, seeded at reset, then
+        # draws on from the same place: nina's step-3 review N1); a sent action is sent
+        acts = {t: (a, drawn) for t, a, drawn in snap["actions"]}
         sets = {}
         for t, f in snap["sets"]:
             sets.setdefault(t, []).append(f)
@@ -337,5 +340,6 @@ class RddlHost:
             for f in sets.get(t, []):
                 self._set(f)
             if t < snap["t"]:
-                self._step(acts.get(t, {}))
-        self.beat, self.stepped = snap["beat"], False
+                a, drawn = acts.get(t, ({}, False))
+                self._step({}, policy=self.policy) if drawn else self._step(a)
+        self.beat, self.stepped, self.stalled = snap["beat"], False, snap.get("stalled", False)

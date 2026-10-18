@@ -129,3 +129,27 @@ def test_an_observing_world_hands_the_step_in_and_reads_the_settled_cycle():
     a = wildfire().make({})
     a.tick({})
     assert a.last_action == h.actions[0][1]                      # the agent is seeded per episode
+
+
+@needs_gym
+def test_a_restored_observing_world_draws_on_as_the_original():
+    """nina's step-3 review N1: a restore draws the policy's steps again, so the
+    seeded agent goes on from the same place (a replay of the draws as fixed
+    actions left it at its start, and later draws differed), and `stalled` holds."""
+    m = wildfire()
+    h = m.make({})
+    h.reseed(5)
+    for _ in range(3):
+        h.tick({})
+    snap = h.snapshot()
+    g = m.make({})
+    g.restore(snap)
+    assert (g.t, g.obs) == (h.t, h.obs)
+    for _ in range(4):
+        h.tick({})
+        g.tick({})
+        assert g.last_action == h.last_action and g.obs == h.obs
+    h.stalled = True
+    k = m.make({})
+    k.restore(h.snapshot())
+    assert k.stalled
