@@ -54,7 +54,7 @@ runs under `metisc --run` and passes the roundtrip gate.
 
 | example | lines | stages | #interactive | bwd | status | port | notes |
 | --- | ---: | ---: | --- | --- | --- | --- | --- |
-| 3lp | 25 | 1 | yes |  | ported | fiction/3lp.llp | catalog `three-pigs` (no leading digit in idents); consume-and-reproduce blows written as $-reads — survival is WHICH premise is `$` (`$wolf * strawhouse` vs `wolf * $brickhouse`); exact: brick 1, straw/stick 0.5 each, wolf spent 1; `#interactive go` live |
+| 3lp | 25 | 1 | yes |  | ported | three_pigs/three_pigs.llp | catalog `three-pigs` (no leading digit in idents); consume-and-reproduce blows written as $-reads — survival is WHICH premise is `$` (`$wolf * strawhouse` vs `wolf * $brickhouse`); exact: brick 1, straw/stick 0.5 each, wolf spent 1; `#interactive go` live |
 | arith | 26 | 1 |  | yes |  |  |  |
 | barman | 121 | 1 | yes | yes |  |  |  |
 | blocks-world | 37 | 1 | yes |  | ported | planning/blocks_world.llp | 1:1, no frame axioms; win_condition commented in the original (kept) so the world never quiesces; exact: the 6-move plan c-table/b-on-c/a-on-b reached by a random walk at 6 steps with P[on(a,b)]=1/27; no $-overlap, no pumping |
@@ -91,7 +91,7 @@ runs under `metisc --run` and passes the roundtrip gate.
 | grammar-tinkering | 90 | 1 |  | yes |  |  |  |
 | hearthstone | 61 | 3 |  | yes |  |  |  |
 | hello-world | 10 | 1 | yes |  |  |  |  |
-| herstory | 112 | 4 |  |  | ported | fiction/herstory.llp | 4 acts = 4 stages, named state-carrying links; oddities kept (date_carl consumes alive carl, parents_die leaves no dead atoms); every life/death marginal is exactly 0 or 1 — the plot is determined, only the interleaving varies; no $-overlap, no pumping |
+| herstory | 112 | 4 |  |  | ported | herstory/herstory.llp | 4 acts = 4 stages, named state-carrying links; oddities kept (date_carl consumes alive carl, parents_die leaves no dead atoms); every life/death marginal is exactly 0 or 1 — the plot is determined, only the interleaving varies; no $-overlap, no pumping |
 | if-rpg | 1 | 0 |  |  |  |  |  |
 | if | 56 | 1 | yes | yes |  |  |  |
 | instant-runnoff-voting | 103 | 5 | yes | yes |  |  |  |
@@ -100,7 +100,7 @@ runs under `metisc --run` and passes the roundtrip gate.
 | leq | 14 | 0 |  | yes |  |  |  |
 | ll | 56 | 1 | yes |  | ported | logic/ll.llp | recursive `prop` enumerated as the subformulas of `context test` (bound stated); topR' -> topR-prime, `_` -> X; the original's open question "oneR requires quiescence/absence?" kept OPEN in the header (not solved); with rules commented as in the original; the test theorem is proved on every run (P=1, all goals/ctx consumed) |
 | lola | 392 | 2 | yes |  |  |  |  |
-| love-triangle | 35 | 1 | yes | yes | ported* | fiction/love_triangle.llp | tutorial-variant port (ceptre-tutorial sol); examples/ version differs slightly — re-diff when touched |
+| love-triangle | 35 | 1 | yes | yes | ported* | love_triangle/love_triangle.llp | tutorial-variant port (ceptre-tutorial sol); examples/ version differs slightly — re-diff when touched |
 | mario | 96 | 1 | yes | yes |  |  |  |
 | mazegen | 70 | 4 |  | yes |  |  |  |
 | mazegen2 | 78 | 5 |  | yes |  |  |  |
@@ -140,11 +140,11 @@ runs under `metisc --run` and passes the roundtrip gate.
 | string-grammars-direct | 81 | 1 |  | yes |  |  |  |
 | string-grammars | 81 | 1 |  | yes |  |  |  |
 | string-input | 48 | 1 | yes | yes |  |  |  |
-| talespin | 122 | 1 | yes | yes | ported | fiction/talespin.llp | character constructors via the graph row; the `information`/`question` SUM types split per constructor (knows_atf/_atc/_likes, asks_*; tell_info -> tell_info_wheref/_wherec/_does_like); `solves_problem Any …` ported literally (quantified fact); **$-overlap sites**: ask (Someone=C) and the tell_info knows pairs — consume-and-reproduce; **pumping**: ask (re-asks until fed; unanswered honey asks pile up) — noted, not fixed; P[fed @8]=0.43 |
+| talespin | 122 | 1 | yes | yes | ported | talespin/talespin.llp | character constructors via the graph row; the `information`/`question` SUM types split per constructor (knows_atf/_atc/_likes, asks_*; tell_info -> tell_info_wheref/_wherec/_does_like); `solves_problem Any …` ported literally (quantified fact); **$-overlap sites**: ask (Someone=C) and the tell_info knows pairs — consume-and-reproduce; **pumping**: ask (re-asks until fed; unanswered honey asks pile up) — noted, not fixed; P[fed @8]=0.43 |
 | thanksgiving | 52 | 1 |  |  |  |  |  |
 | tiny | 7 | 0 |  |  |  |  |  |
 | tower_of_hanoi | 56 | 1 | yes | yes | ported | planning/tower_of_hanoi.llp | `top_of R`/`bottom P` via the constructor-graph row (`topof`/`bottomof` bwd); `smaller` = the original's Horn closure over `succ` (first `:-` rules in the catalog); unused constant `post : place` dropped, noted; optimal solve = 7 moves = 14 steps; no $-overlap, no pumping |
-| tragedy | 220 | 1 | yes | yes | ported | fiction/tragedy.llp | v2: adds the `<>` guards the original lacked (self-murder/steal/witness/vengeance artifacts removed; suicide stays the one self-death); ⊕ head (formOpinion), $-read idiom, `#interactive all` live. v3: eroticize/divorce written as consume-and-reproduce — the original's `$a` beside `a` needs its own token (fidelity fix) |
+| tragedy | 220 | 1 | yes | yes | ported | tragedy/tragedy.llp | v2: adds the `<>` guards the original lacked (self-murder/steal/witness/vengeance artifacts removed; suicide stays the one self-death); ⊕ head (formOpinion), $-read idiom, `#interactive all` live. v3: eroticize/divorce written as consume-and-reproduce — the original's `$a` beside `a` needs its own token (fidelity fix) |
 | vampire | 34 | 1 |  |  |  |  |  |
 | werewolves-witches-slayers | 231 | 8 | yes | yes |  |  |  |
 | wilds | 12 | 1 |  |  |  |  |  |
@@ -202,9 +202,9 @@ temp copy (`#interactive` ensured; `--drop-line` for lines current
 Ceptre rejects). Verified 2026-10-04, seeds 1-3 unless noted:
 
     T=tools/ceptre_lockstep.py; E=../interactive-lp/examples
-    $T domains/fiction/3lp.llp $E/3lp.cep
-    $T domains/fiction/love_triangle.llp $E/love-triangle.cep
-    $T domains/fiction/tragedy.llp $E/tragedy.cep --steps 300 \
+    $T domains/three_pigs/three_pigs.llp $E/3lp.cep
+    $T domains/love_triangle/love_triangle.llp $E/love-triangle.cep
+    $T domains/tragedy/tragedy.llp $E/tragedy.cep --steps 300 \
       --strip-prefix do/ \
       --alias formOpinion-like=formOpinion-1 \
       --alias formOpinion-dislike=formOpinion-2 \

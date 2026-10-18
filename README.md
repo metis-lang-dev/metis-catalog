@@ -9,7 +9,7 @@ across benchmarks, each a full LLP world model.
 
 | dir | what |
 | --- | --- |
-| `domains/fiction/` | the Ceptre lineage: Martens' love triangle (A Midsummer Night's Dream) as a metis catalog, with the ORIGINAL `love-triangle.cep` beside it — samples become an exact measure, `#interactive` becomes a policy hook, the trace becomes a MAP plot summary. The wider origin corpus (79 `.cep`: vampire, civ, sokoban, cocktails…) lives in the `if` archive, ports welcome. |
+| `domains/love_triangle/`, `tragedy/`, `herstory/`, `talespin/`, `three_pigs/`, `three_pigs_connectives/` | the Ceptre lineage, each a catalog domain (domain.yaml, the program, a README of where it came from): Martens' love triangle (A Midsummer Night's Dream), with the ORIGINAL `love-triangle.cep` beside it, and the interactive-lp story worlds — samples become an exact measure, `#interactive` becomes a policy hook, the trace becomes a MAP plot summary. They take no commands: each intent.yaml knows only UNKNOWN. `domains/CEPTRE-PORTS.md` tracks the ports; the wider origin corpus (79 `.cep`: vampire, civ, sokoban, cocktails…) lives in the `if` archive, ports welcome. |
 | `domains/gol/` | Game of Life (IPPC) — exact live play via the factored one-step agent. |
 | `domains/kitchen/` | Overcooked-AI — partner-posterior overlay, intent choice on the measure. |
 | `domains/nav/` | IPPC Navigation — provably optimal. |
