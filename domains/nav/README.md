@@ -23,7 +23,10 @@ interpreter with pyRDDLGym: `$METIS_RDDL_PY`, else the packages' shared
   world with no verbs. `{"reset": {"seed": N}}` is episode N on both sides
   (the program's sampler and the gym), so an episode is deterministic per
   seed. World lines: `+at(C)`/`-at(C)` set the gym's state, `nonfluent KEY V`
-  a non-fluent (`P___x9__y12 0.75`), `seed N`, `reset [N]`.
+  a non-fluent (`P___x9__y12 0.75`), `seed N`, `reset [N]`. They change the
+  gym at once, and the program follows before its next move. A scenario moves
+  the robot with both lines (`-at(x21_y12)`, `+at(x6_y12)`): the host does not
+  stop a `+at` alone from putting it in two cells.
 
 Run the case without the gym: `metisc --run nav.llp` (its `#init`, `#steps`,
 `#query` lines). Through the domain agent: `python -m metis_agent.domain_agent
