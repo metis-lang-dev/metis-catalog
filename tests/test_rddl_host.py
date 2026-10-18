@@ -71,14 +71,12 @@ def test_nav_host_world_lines_seed_and_episode_end():
         h.world(["+at(nowhere)"])
     with pytest.raises(ValueError, match="world lines are"):
         h.world(["teleport"])
-    h.world(["-at(x21_y12)", "+at(x6_y12)"])
-    dos = h.tick({"at(x21_y12)": 1})
-    assert h.reading()["at(x6_y12)"] == 1 and sorted(dos) == ["+at(x6_y12) 1", "-at(x21_y12) 1"]
+    h.world(["-at(x21_y12)", "+at(x6_y12)"])                # the gym changes at once (nina's review R1) ...
+    assert h.reading()["at(x6_y12)"] == 1 and h.t == 0
+    assert sorted(h.sync({"at(x21_y12)": 1})) == ["+at(x6_y12) 1", "-at(x21_y12) 1"] and h.t == 0   # ... no step
     h.world(["nonfluent P___x9__y12 0.75"])
-    h.tick({"at(x6_y12)": 1})
     assert h.nonfluents["P___x9__y12"] == 0.75 and m.die(("x6_y12", "x9_y12"), {}, h) == 0.75
     h.world(["reset 7"])
-    h.tick({})
     assert h.seed == 7 and h.t == 0 and h.reading()["at(x21_y12)"] == 1
     for _ in range(40):
         if h.tick({}) is None:

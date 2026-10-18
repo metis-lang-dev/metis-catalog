@@ -25,7 +25,8 @@ The faces, as the domain agent drives a host:
 - observe(counts): the reading, {atom: 0|1} over every observed atom.
 - ports(): what the host reads and drives (the observed atoms, the actions,
   the gym's problem, instance, seed, step and horizon).
-- world(lines): driver lines, applied on the next tick:
+- world(lines): driver lines, applied to the gym at once; sync(counts) then
+  gives the do-lines the domain agent applies before the program moves:
     `+atom` / `-atom`    the state fluent the atom maps to, set in the gym
     `nonfluent KEY V`    a gym non-fluent (`P___x6__y12 0.9`), until the next open
     `seed N`             the next reset's seed
@@ -74,8 +75,10 @@ class GymClient:
     """tools/rddl_gym.py as a child: one request, one answer."""
 
     def __init__(self, problem, instance):
+        import tempfile
+        self.err = tempfile.TemporaryFile("w+")  # the gym's stderr: its last lines name a crash
         self.proc = subprocess.Popen([interpreter(), str(HERE / "rddl_gym.py")], stdin=subprocess.PIPE,
-                                     stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, text=True)
+                                     stdout=subprocess.PIPE, stderr=self.err, text=True)
         self.info = self.call("open", problem=problem, instance=str(instance))
 
     def call(self, op, **kw):
@@ -83,7 +86,9 @@ class GymClient:
         self.proc.stdin.flush()
         line = self.proc.stdout.readline()
         if not line:
-            raise RuntimeError("the gym process ended (%s)" % self.proc.poll())
+            self.err.seek(0)
+            tail = self.err.read().strip().splitlines()[-3:]
+            raise RuntimeError("the gym process ended (%s): %s" % (self.proc.poll(), " | ".join(tail)))
         out = json.loads(line)
         if not out.pop("ok"):
             raise RuntimeError("gym %s: %s" % (op, out["error"]))
@@ -132,7 +137,6 @@ class RddlHost:
         # the domain agent's AgentHost reads these of a hosted day
         self.beat, self.due, self.script, self.last = 0, (), {}, None
         self.acted = ()
-        self.pending = []                        # driver lines for the next tick
         self.next_seed = seed
         self._reset(seed)
 
@@ -187,19 +191,10 @@ class RddlHost:
         if self.done:
             return None
         self.beat += 1
-        dos = []
-        for line in self.pending:
-            dos += self._driver(line)
-        self.pending = []
         if not self.stepped and not self.done:
             self._step({})                       # the world moves on its own: one beat, one step
         self.stepped = False
-        for a, n in sorted(self.reading().items()):       # the program's state brought to the gym's
-            have = counts.get(a, 0)
-            if n > have:
-                dos.append("+%s %d" % (a, n - have))
-            elif n < have:
-                dos.append("-%s %d" % (a, have - n))
+        dos = self.sync(counts)                  # the program's state brought to the gym's
         if self.tick_token:
             dos.append("+tick")
         return dos
@@ -214,16 +209,30 @@ class RddlHost:
                 raise ValueError("%s: not an observed atom of %s (ports lists them)" % (l, self.problem))
             if l.startswith("nonfluent") and (len(l.split()) != 3 or l.split()[1] not in self.nonfluents):
                 raise ValueError("%s: `nonfluent KEY VALUE` with a non-fluent of %s" % (l, self.problem))
-        self.pending += list(lines)
+        for l in lines:                          # the gym changes now: the program's next move starts from it
+            self._driver(l)
+
+    def sync(self, counts):
+        """The do-lines that bring the program's state to the gym's, with no
+        gym step and no beat: the domain agent applies them right after
+        world lines (rddl-worlds review R1), so the scenario holds before
+        the program's next move."""
+        dos = []
+        for a, n in sorted(self.reading().items()):
+            have = counts.get(a, 0)
+            if n > have:
+                dos.append("+%s %d" % (a, n - have))
+            elif n < have:
+                dos.append("-%s %d" % (a, have - n))
+        return dos
 
     def _driver(self, line):
-        """A driver line, at the tick: the gym changes; the sync that follows brings the program along."""
+        """A driver line: the gym changes; sync() brings the program along."""
         w = line.split()
         if w[0] == "seed":
             self.next_seed = int(w[1])
         elif w[0] == "reset":
             self._reset(int(w[1]) if len(w) > 1 else self.next_seed)
-            self.stepped = True                  # the new episode's start is this beat's state
         elif w[0] == "nonfluent":
             v = json.loads(w[2]) if w[2] not in ("true", "false") else w[2] == "true"
             self._set({w[1]: v})
