@@ -1,0 +1,907 @@
+% Behavior Catalogs in Practice — draft 0.1
+% Build: tectonic catalog.tex   (as metis-lang/paper; references are inline)
+\documentclass[11pt]{article}
+
+\usepackage[a4paper,margin=1.1in]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage{microtype}
+\usepackage{booktabs}
+\usepackage{enumitem}
+\usepackage{tabularx}
+\usepackage{xcolor}
+\definecolor{linkblue}{rgb}{0.1,0.15,0.45}
+\usepackage[colorlinks=true,linkcolor=linkblue,citecolor=linkblue,urlcolor=linkblue]{hyperref}
+\usepackage{cmap}
+\usepackage{fancyvrb}
+
+% ---- notation -------------------------------------------------------------
+\newcommand{\llp}{\textsc{llp}}
+\newcommand{\metisc}{\texttt{metisc}}
+\newcommand{\metispy}{\texttt{metispy}}
+% a tool's name: breakable after an underscore
+\newcommand{\tool}[1]{{\ttfamily\begingroup\def\_{\textunderscore\allowbreak}#1\endgroup}}
+\emergencystretch=3em
+\newcommand{\repourl}{\url{https://github.com/metis-lang-dev}}
+% a source tag: the table in Appendix~A gives each tag's file and commit
+\newcommand{\src}[1]{\textsuperscript{[#1]}}
+
+\title{\textbf{Behavior Catalogs in Practice}\\[1ex]
+\large Domains as packages, and an agentic loop that formalizes and
+extends them under a human gate}
+\author{The metis project\thanks{Sources, catalog, goldens and the loop:
+\repourl\ (metis-catalog, metis-loop, metis-agentic-loop, metis-agent,
+metispy, metis-lang). Correspondence: \texttt{info@robofortis.com}.}}
+\date{Draft 0.1 --- 2026-10-19}
+
+\begin{document}
+\maketitle
+
+\begingroup\small\noindent
+\textbf{Reading the numbers.} Every number in this paper is one the
+repositories hold: a committed report, test, trace or CI run. A
+superscript tag such as \src{S2} names its source; Appendix~A gives each
+tag's file and commit. Nothing was run for this paper. A run reported here
+is one sample: where a table shows one run per program, it says so.
+\par\endgroup
+
+\begin{abstract}
+A behavior program is useful only when something can load it, run it and
+extend it. We describe the \emph{catalog}: one directory per domain, one
+manifest, one loader that every consumer shares, and a CI that compiles,
+runs and cross-checks every package in two toolchains. We show the
+catalog's domains as use cases: story worlds, puzzles, planning, voting,
+cellular automata, simulated RDDL worlds, and three device domains with
+hosts and intents. For each family we say what it taught the format. We
+then describe the \emph{agentic loop}: a model-driven loop that works
+through a small set of gated tools over the kernel's REPL. It turns a
+program into a package, exercises it against a simulated world, and
+proposes extensions; a person approves every write as a diff. We report the
+loop porting six story programs for 0.06~USD with the programs byte-equal
+to their seeds. We also report it exercising eight RDDL worlds against
+pyRDDLGym. The measure is a conditional per-action likelihood, priced on a
+declared exact or sampled tier, and it records the programs' disagreements
+with the worlds without tuning them. We close with what the loop could not
+do, and the rules that forced.
+\end{abstract}
+
+\section{Introduction}\label{sec:intro}
+
+A language for behavior programs gives a program a meaning: in metis, a
+catalog of typed, weighted linear-logic rules denotes a probability
+measure over its own runs \src{S13}. A meaning is not yet a domain someone
+can use. Between a program that compiles and a domain a device runs there
+are several more needs:
+\begin{itemize}[nosep]
+\item a place for the program's host, its intents and its extensions;
+\item a name the consumers agree on;
+\item a start state that both the CI and the live agent read the same way;
+\item a record of what the program does on a known case;
+\item a path by which the program changes without anyone editing it blind.
+\end{itemize}
+
+This paper is about that layer. A metis \emph{package} has two consumers:
+a \emph{loop} that develops it and an \emph{agent} that runs it. Both read
+it through the same manifest and the same loader (\S\ref{sec:package}).
+The catalog's CI is the contract between them: every package is run
+against a committed trace and built into a bundle, and both toolchains
+must agree on both (\S\ref{sec:ci}). The domains themselves, 29 packages
+today, are the use cases. They are what the format had to absorb
+(\S\ref{sec:cases}).
+
+The second half is the \emph{agentic loop} (\S\ref{sec:loop}): a language
+model working the kernel's REPL and the domain agent through generated
+tools. Its one capability that neither interface has is writing into the
+catalog, and every such write is a diff a person approves. That gate is
+the invariant this paper keeps returning to. Two case studies report what
+the loop did with it: porting six story programs (\S\ref{sec:fiction}),
+and exercising eight simulated worlds whose measure needed the watch
+itself to change (\S\ref{sec:rddl}). Section~\ref{sec:limits} lists what
+the loop could not do and the rules that forced.
+
+\paragraph{The stack.} metis has three layers and three papers. The
+\emph{language} paper, \emph{Behavior Programs as Measures over Proofs}
+(draft 0.3), gives the semantics, the compiler \metisc, the referee
+\metispy, and their parity \src{S13}. This paper is the second layer: the
+catalog and the loop. The third, \emph{Small Models, Certified Behavior}
+(in preparation), is the agent: a small local model made
+domain-competent by a certified runtime.
+
+\section{The package}\label{sec:package}
+
+A package is a directory, \texttt{domains/<name>/}, with a manifest,
+\texttt{domain.yaml}. The package's name is its directory's. Every
+manifest key is optional, and the loader refuses any key it does not know
+\src{S1}. The keys:
+\begin{itemize}[nosep]
+\item \tool{program}: the program file;
+\item \tool{extensions} and \tool{serves}: the served program;
+\item \tool{host}: a Python factory for the world;
+\item \tool{intent}: the spec of the person's verbs;
+\item \tool{clock}: env beats per tick, and the watch's settings (\S\ref{sec:rddl});
+\item \tool{records}: where surprise records go;
+\item \tool{display}, \tool{line}, \tool{voice}: the narrator's name, the console line, the voice;
+\item \tool{agent}: a domain-agent module, when the generic one does not fit;
+\item \tool{pair}, \tool{partner\_of}: two cooks stepped in one env;
+\item \tool{notch}: a fitted overlay of weights.
+\end{itemize}
+One loader, \texttt{metis\_catalog}, reads every manifest for every
+consumer: the domain agent (Python and Go), the loop's SDK, the two
+consoles and the CI.
+
+Figure~\ref{fig:dog} shows the dog, the reference device domain. Its
+program is 286 lines; its host is a Python file; its \texttt{intent.yaml}
+is written by people. Everything under \texttt{intent/} is generated from
+it \src{S1}:
+\begin{itemize}[nosep]
+\item the grammar the intent pass is held to (\texttt{dog.gbnf});
+\item the prompt;
+\item the spoken examples;
+\item the corpus.
+\end{itemize}
+
+\begin{figure}[t]
+\begin{Verbatim}[fontsize=\small,frame=single]
+domains/dog/
+  domain.yaml        display: the dog
+  dog.llp            line: "a robot dog: walks to places, finds things,
+  dog_host.py               sits and stands"
+  intent.yaml        voice: own
+  intent/            program: dog.llp
+    dog.gbnf         host: dog_host.py:make
+    dog-prompt.txt   intent: {spec: intent.yaml}
+    dog-spoken.txt   clock: {beats: 1}
+    dog-corpus.tsv   records: records/
+  README.md
+  dog-transcript.md
+\end{Verbatim}
+\caption{A package: the dog's tracked files and its manifest (metis-catalog
+\texttt{domains/dog/}, at 07d232b \src{S1}). \texttt{intent/} is generated
+from \texttt{intent.yaml}; \texttt{records/} is written by the agents.}
+\label{fig:dog}
+\end{figure}
+
+\paragraph{Extension, pack, bundle.} Three words, kept apart \src{S1}.
+\begin{itemize}[nosep]
+\item An \emph{extension} is a catalog in the package's
+  \texttt{extensions/} that \texttt{extends} the program. The served
+  program is the program plus its extensions in name order. The plant's
+  \texttt{extensions/visitor.llp} is one: a rule for a visitor who waters
+  the plant.
+\item In the REPL, a gated candidate is a \emph{pack} (the language's
+  word). Once accepted into a package it is written as an extension.
+\item A \emph{bundle} is what the emitter forms from a package for the C++
+  and Go runtimes: \texttt{ground.wire} and \texttt{sidecar.json}, with
+  \texttt{program.ir} and \texttt{tools.json}. The OCaml compiler writes
+  \texttt{ground.wire} (\texttt{metisc --wire <program> [--extension
+  e.llp]...}). metispy's emitter must produce the same bytes; the catalog's
+  CI checks this for every package (\S\ref{sec:ci}).
+\end{itemize}
+
+\paragraph{The start is the program's.} A program's \texttt{\#init} lines
+are its live start: the domain agent, the consoles and the watch all read
+them, and \texttt{\#steps} is the watch's horizon. So a line added for CI
+must not change the live behaviour. When a package's own start fires
+nothing, its CI case lives outside the package, in
+\texttt{goldens/cases/<name>.llp}: the program included unchanged, with a
+start that fires (\S\ref{sec:ci}) \src{S2}.
+
+\section{The catalog as use cases}\label{sec:cases}
+
+Table~\ref{tab:packages} lists the packages by family, with what each
+uses of the language. At metis-catalog f25c758 the catalog held 28
+packages. kitchen\_shared is counted there and listed under kitchen
+below, as the loader lists it. road became the 29th at 07d232b
+\src{S2,S16}.
+
+\begin{table}[t]
+\small
+\begin{tabularx}{\textwidth}{@{}l>{\raggedright}X>{\raggedright\arraybackslash}X@{}}
+\toprule
+family & packages & what they exercise \\
+\midrule
+story worlds & love\_triangle, tragedy, herstory, talespin, three\_pigs,
+  three\_pigs\_connectives & Ceptre ports; \texttt{\#interactive};
+  multiplicities; weights \\
+puzzles, planning & wgc, bridge, bridge\_decl, blocks\_world,
+  tower\_of\_hanoi & a host-side solver (wgc); stages and links;
+  \texttt{\#interactive} \\
+small formal worlds & primes, ll, cellular\_automata, gossip, fptp &
+  linear logic as computation; stages \\
+device domains & dog, plant, kitchen (+ kitchen\_shared) & hosts;
+  intents; an extension; ports \\
+simulated worlds & nav, hanoi, gol, sysadmin, xtraffic, elevators,
+  wildfire, tamarisk & a gym host; weight ports; two notches; stage
+  pipelines \\
+parked & road & the production road catalog on one scene \\
+\bottomrule
+\end{tabularx}
+\caption{The 29 packages at metis-catalog 07d232b, read through the
+loader's own index (kitchen\_shared is listed by its lead) \src{S1,S16}.
+Hosts: the device domains, wgc and the eight simulated worlds. Intents:
+dog and plant. An extension: plant. A notch: wildfire, tamarisk.}
+\label{tab:packages}
+\end{table}
+
+\subsection{Story worlds}
+The six story programs are ports of Ceptre examples and their follow-ups:
+love\_triangle, tragedy, herstory, talespin, three\_pigs and
+three\_pigs\_connectives. The loop brought them into the catalog
+(\S\ref{sec:fiction}). They are what the format had to absorb for
+programs with no device behind them:
+\begin{itemize}[nosep]
+\item a domain with no intents must still open (\S\ref{sec:limits});
+\item a case with an \texttt{\#interactive} choice must run under CI with
+  no terminal, the sampler choosing;
+\item a ground can be large: talespin's has 105{,}680 events, and \metisc{}
+  grounds it in about 130~s, nearly all of the packages job's time
+  \src{S2,S4}.
+\end{itemize}
+Figure~\ref{fig:case} shows the smallest: three\_pigs' case and its
+committed trace.
+
+\begin{figure}[t]
+\begin{minipage}[t]{0.40\textwidth}
+\begin{Verbatim}[fontsize=\small,frame=single]
+#init pig 3
+#init wolf 1
+#init straw 1
+#init sticks 1
+#init bricks 1
+#steps 8
+#seeds 1
+#query strawhouse
+#query stickhouse
+#query brickhouse
+\end{Verbatim}
+\end{minipage}\hfill
+\begin{minipage}[t]{0.57\textwidth}
+\begin{Verbatim}[fontsize=\small,frame=single]
+case three_pigs steps=8 seeds=1
+I pig 3
+I wolf 1
+I straw 1
+I sticks 1
+I bricks 1
+T 1 build_stick build_straw blow_straw
+    build_brick blow_stick blow_brick
+F 1 (done) brickhouse:1
+Q strawhouse 0/1
+Q stickhouse 0/1
+Q brickhouse 1/1
+Q wolf 0/1
+\end{Verbatim}
+\end{minipage}
+\caption{A case and its trace: \texttt{domains/three\_pigs/three\_pigs.llp}
+lines 49--58, and \texttt{goldens/traces/three\_pigs.txt}, which the CI
+replays byte for byte (the \texttt{T} line is wrapped here) \src{S15}. One
+seed: one sample of the program's measure, not its law.}
+\label{fig:case}
+\end{figure}
+
+\subsection{Puzzles and planning}
+wgc (wolf, goat, cabbage) is the one puzzle with a host. Its domain agent
+searches the program's moves with a host-side greedy solver, and the
+domain agent's step cap exists because of it: a program that never settles
+cannot hold the clock (\S\ref{sec:loop}). bridge and bridge\_decl are two
+formalizations of one statement, bridge and torch:
+\begin{itemize}[nosep]
+\item bridge is imperative;
+\item bridge\_decl holds minute-marks and pace as data.
+\end{itemize}
+They are two packages, not a program and its extension: bridge\_decl
+does not \texttt{extends} bridge, and a package serves one program
+\src{S2}. blocks\_world and tower\_of\_hanoi are Ceptre examples.
+tower\_of\_hanoi coexists with the RDDL \texttt{hanoi}, and both READMEs
+say which is which.
+
+\subsection{Small formal worlds}
+primes is a sieve: every number annihilates its multiples. ll is a toy
+linear-logic prover. gossip spreads posts in a small network. fptp counts
+ballots. cellular\_automata is an honest skeleton: the original has no
+rules, so its committed trace is empty \src{S2}. These are linear logic as
+computation. They taught the format that a package need not be a
+``domain'' in any device sense: a program with a case is enough.
+
+\subsection{Device domains}
+dog, plant and kitchen are the domains the agent speaks for. Each has a
+host (the world), and dog and plant have intents. kitchen has a
+domain-agent module of its own, and its pair, kitchen\_shared, is stepped
+in one env with it. plant carries the catalog's one extension,
+\texttt{extensions/visitor.llp}: a visitor waters the plant, which the
+program alone has no rule for. These three fixed the manifest's shape
+\src{S1}. Their own starts fire nothing (no command is held), so their CI
+cases are in \texttt{goldens/cases/} (\S\ref{sec:ci}) \src{S2}.
+
+\subsection{Simulated worlds}
+Eight packages are worlds from the IPPC/RDDL benchmarks, run against
+pyRDDLGym. In each, the gym is the world and the program is the
+formalization:
+\begin{itemize}[nosep]
+\item nav, hanoi, gol, sysadmin, xtraffic and elevators come from
+  metispy's models or the RDDL headers;
+\item wildfire and tamarisk were formalized from gym episodes in an
+  earlier metis loop, and keep the notch fitted then.
+\end{itemize}
+Each package's host is a thin configuration over one class,
+\texttt{tools/rddl\_host.py}, which owns:
+\begin{itemize}[nosep]
+\item the gym child process;
+\item the fluent-to-atom mapping (\tool{elevator-at-floor\_\_\_e0\_\_f2}
+  is the atom \tool{elevator\_at\_floor(e0,f2)}, unless the world maps
+  its own);
+\item the mapping from fired rules to gym actions;
+\item the snapshot and restore the REPL's forks need \src{S7}.
+\end{itemize}
+There are two kinds of world:
+\begin{itemize}[nosep]
+\item in an \emph{acting} world (nav, hanoi, xtraffic, elevators) the
+  program's rules choose the moves and the gym answers;
+\item in an \emph{observing} world (wildfire, tamarisk, and since
+  rddl-watch gol and sysadmin) the host acts, either a seeded random
+  agent or a no-op, and hands the step to the program, whose pipeline
+  computes the next state \src{S7,S8}.
+\end{itemize}
+Section~\ref{sec:rddl} is about measuring them.
+
+\subsection{What stays outside packages}
+Some programs are not packages:
+\begin{itemize}[nosep]
+\item the RDDL experiments' records (\texttt{domains/rddl/}: born,
+  candidate and iteration worlds);
+\item the port-plugin conformance fixtures;
+\item the C++ runtime's acceptance demo;
+\item the CI cases.
+\end{itemize}
+They keep their roundtrip and diagnose gates. The road catalog
+(chariot's production road-behavior catalog, its scenes and its packs) was
+outside until road-collapse made it one parked package. Its program is
+the production catalog included unchanged on one scene, one tick, so that
+it runs and builds nominally. Its real port, with SUMO as the runtime, is
+the next release's subject \src{S16}.
+
+\section{CI as the catalog's contract}\label{sec:ci}
+
+The catalog's CI has two jobs (Table~\ref{tab:ci}).
+\begin{itemize}[nosep]
+\item \texttt{catalogs} compiles every \texttt{.llp} file, packages or
+  not:
+  \begin{itemize}[nosep]
+  \item a roundtrip;
+  \item \metisc's diagnostics, with each exemption listed with its reason;
+  \item the canonical-key gate: scene instances ground to committed keys;
+  \item a crosscheck that metispy compiles every file \metisc{} does.
+  \end{itemize}
+\item \texttt{packages} gives each package three gates \src{S2}:
+  \begin{itemize}[nosep]
+  \item \emph{run}: \texttt{metisc --run} of the program's
+    \texttt{\#}~case, stdin closed, equals the committed
+    \texttt{goldens/traces/<name>.txt} byte for byte;
+  \item \emph{twin}: metispy's replay of the same case gives the same
+    start, fired and final lines;
+  \item \emph{wire}: \texttt{metisc --wire} of the served program equals
+    metispy's bundle \texttt{ground.wire} byte for byte.
+  \end{itemize}
+  The cases in \texttt{goldens/cases/} get the run and twin gates.
+  Every tracked package needs a trace, and every trace a package or a
+  case.
+\end{itemize}
+
+\begin{table}[t]
+\small\centering
+\begin{tabular}{@{}lll@{}}
+\toprule
+gate & what it checks & time \\
+\midrule
+\texttt{check.sh} & roundtrip; canonical keys (scenes $\to$ \texttt{KEYS.txt}) & 0.3 s locally \\
+\texttt{diagnose.sh} & \metisc{} diagnostics, 72 catalogs, exemptions by reason & 0.6 s locally \\
+\texttt{crosscheck.py} & metispy compiles what \metisc{} compiles & 0.2 s locally \\
+\texttt{packages.py} & run, twin, wire: 92 gates over 32 units & 141 s locally, 2 workers \\
+job \texttt{packages} & the above on the public runner, toolchains built & 3 min 53 s \\
+\bottomrule
+\end{tabular}
+\caption{The catalog's CI at metis-catalog f25c758 \src{S2,S3}. The
+\texttt{packages} job's runner time is its CI run at f25c758. At 07d232b
+(road included) \texttt{packages.py} ran 33 units in 256 s on the
+runner, in a 4 min 46 s job \src{S3}.}
+\label{tab:ci}
+\end{table}
+
+Before the CI pinned anything, both toolchains had to be shown
+deterministic. \metisc's \texttt{--run} seeds the reference sampler with
+the seed index; run twice, it was byte-equal on all 28 packages, and
+metispy's replay gave the same start, fired and final lines \src{S2}. The
+query lines are hit counts over the seeds, and metispy annotates them
+with exact probabilities that \metisc{} does not print. So the twin
+compares the other lines only, and nothing pins noise.
+
+\paragraph{Live-neutral lines, and cases.} A program's \texttt{\#init} is
+its live start (\S\ref{sec:package}). So only lines that leave the live
+behaviour alone may be added for CI: \texttt{\#steps 6} (the watch's
+default horizon) and \texttt{\#seeds}. \texttt{\#query} is not
+live-neutral: the console's mirror projects every query on each call
+\src{S2}. Where a package's own start fires nothing (dog, plant, kitchen,
+sysadmin), its CI case is a separate file. That file includes the program
+unchanged, gives a start that fires, and has a trace of its own. The cost
+is honest and stated: dog's case repeats its program's 32
+\texttt{\#init} lines, because directives are read from the file that is
+run, not from its includes \src{S2}.
+
+\paragraph{A bug the CI script had.} The first \texttt{packages.py} ran
+its gates in threads, and read \metisc's output through a pipe. While a
+thread computed talespin's Python twin, it held the interpreter lock and
+starved the pipe's reader. \texttt{metisc --wire}, 56~MB of output,
+stalled for over 13 minutes, against 119~s alone. Each gate now runs in
+its own process, writing to a temporary file \src{S2}.
+
+\section{The agentic loop}\label{sec:loop}
+
+The agentic loop is a language model, hosted in pi, working two processes
+through generated tools \src{S9}:
+\begin{itemize}[nosep]
+\item the kernel's REPL (metispy, over its JSON-lines wire);
+\item the domain agent (metis-agent's lower half, which runs a package
+  with its host and intents).
+\end{itemize}
+The loop's tools are generated from those two interfaces' own
+declarations. Nothing is written for pi that the interfaces do not
+declare, and nothing they declare is left out. pi's built-in tools,
+context files, skills, prompt templates and MCP are all off.
+
+\begin{table}[t]
+\small
+\begin{tabularx}{\textwidth}{@{}lXl@{}}
+\toprule
+state & what happens & tools \\
+\midrule
+seed & a seeded start: the REPL serves an existing program, which becomes
+  the domain's program as it is, gated & \tool{catalog\_apply} served \\
+formalize & prose into the REPL; the kernel's formalize drafts the
+  program, checked whole & \tool{repl\_text}, \tool{repl\_formalize},
+  \tool{repl\_revise} \\
+apply & the candidate written into the catalog through the SDK's one
+  validated write, gated & \tool{catalog\_apply} program \\
+intents & the person's verbs drafted from the program's \texttt{cmd\_*}
+  atoms, gated & \tool{catalog\_apply} intents \\
+exercise & the domain agent runs the package, the loop owning the clock &
+  \tool{domain\_open}, \tool{domain\_clock}, \tool{intent\_<verb>} \\
+exercise (world) & a world with no intents, measured through its ports
+  and seeded episodes; recorded, not fixed & \tool{domain\_ports},
+  \tool{domain\_episodes} \\
+surprise & the world reads differently from the program; a message
+  enters the loop & (a signal) \\
+revise & the missing behaviour drafted as an extension and gated &
+  \tool{repl\_mine}, \tool{repl\_gate} \\
+edit & one exact edit of a domain's file, every other byte kept; never
+  formalize & \tool{catalog\_edit} \\
+take & the finished domain taken into the person's catalog, gated, never
+  a commit & \tool{catalog\_take} \\
+\bottomrule
+\end{tabularx}
+\caption{The loop as a state machine (abridged from
+\texttt{docs/LOOP-AGENT.md} \src{S9}). The person decides every write into
+the catalog: \tool{catalog\_apply}, \tool{catalog\_edit} and
+\tool{catalog\_take} each wait at a gate that shows the SDK's dry-run
+diff.}
+\label{tab:loop}
+\end{table}
+
+Table~\ref{tab:loop} is the loop as a state machine. Three kinds of tool
+matter:
+\begin{itemize}[nosep]
+\item \textbf{the REPL's verbs} (\tool{repl\_state}, \tool{repl\_show},
+  \tool{repl\_text}, \tool{repl\_formalize}, \tool{repl\_revise},
+  \tool{repl\_gate}, \ldots), one per verb the wire lists;
+\item \textbf{the domain agent's faces} (\tool{domain\_open},
+  \tool{domain\_clock}, \tool{domain\_state}, \tool{domain\_events},
+  \tool{domain\_ports}, \tool{domain\_world}, \tool{domain\_episodes}),
+  and one \tool{intent\_<verb>} per verb of the domain's
+  \texttt{intent.yaml};
+\item \textbf{the three writes} into the catalog, which neither interface
+  has:
+  \begin{itemize}[nosep]
+  \item \tool{catalog\_apply} writes a program, an extension, a served
+    seed, a README or the intents;
+  \item \tool{catalog\_edit} makes one exact edit of a file, old text to
+    new;
+  \item \tool{catalog\_take} brings a finished domain into the person's
+    catalog.
+  \end{itemize}
+  All three go through metis-loop's SDK, which has one Python face and one
+  TypeScript face at one tag.
+\end{itemize}
+
+\paragraph{The gate.} Every write waits at pi's \texttt{tool\_call} gate.
+The gate shows the SDK's dry-run diff, and the person answers yes, or no
+with a steer. Two details make the gate readable rather than decorative
+\src{S9,S10}:
+\begin{itemize}[nosep]
+\item a file the person refused shows, at its next proposal, the diff
+  from the refused text first, then the diff against the disk;
+\item a README the person refused is never written: it comes back through
+  the same gate.
+\end{itemize}
+The extensions' code decides nothing about the domain. It spawns the
+processes, generates the tools, passes calls through, turns unasked lines
+(events, quiescence, surprises) into messages, and refuses an apply whose
+candidate has not passed its gate. The model decides the order of calls
+and what a surprise means. The person decides every write, and steers and
+stops.
+
+Figure~\ref{fig:gate} is the shape of a gate: the SDK's dry run of the
+plant's visitor extension, applied to a copy of the plant without it.
+
+\begin{figure}[t]
+\begin{Verbatim}[fontsize=\small,frame=single]
+--- a/domains/plant/extensions/visitor.llp
++++ b/domains/plant/extensions/visitor.llp
+@@ -0,0 +1,6 @@
++catalog visitor 1.
++extends plant.
++stage main {
++  %% A visitor has watered me; my soil is moist again.
++  visitor_waters [dyn] : dry * visitor -o moist.
++}
+\ No newline at end of file
+approve? [y/n]
+\end{Verbatim}
+\caption{A gate: the loop SDK's dry-run diff
+(\texttt{python -m metis\_loop\_sdk.catalog apply plant --extension
+visitor=... --dry-run}) of the committed
+\texttt{domains/plant/extensions/visitor.llp} \src{S1,S10}. The
+\texttt{\%\%} line is what the device says when the rule fires. The last
+line is the gate's question; the person answers it.}
+\label{fig:gate}
+\end{figure}
+
+\paragraph{The seed task.} A seeded run makes an existing program a
+package. The seed task has six steps \src{S9}:
+\begin{enumerate}[nosep]
+\item read the program;
+\item apply it as served;
+\item the intents, or none;
+\item exercise it;
+\item a README;
+\item a take, when the person asks.
+\end{enumerate}
+It states the rules that the case studies below forced:
+\begin{itemize}[nosep]
+\item no formalize or revise of a seed, ever: they reprint the program and
+  drop its comments;
+\item a change the person asks for is a \tool{catalog\_edit} with the
+  exact old and new text;
+\item every claim in a README needs a source the model can name;
+\item one run is one sample, never ``always'' or ``only'';
+\item a world without intents is measured with the person's $n$, set
+  before the task begins, and recorded, never fixed.
+\end{itemize}
+
+\section{Case study A: porting six story programs}\label{sec:fiction}
+
+The six Ceptre-derived story programs were ported by the loop, one run
+each (\texttt{loop.sh --seed}, deepseek-v4-pro on OpenRouter), and taken
+into metis-catalog with \tool{catalog\_take} \src{S4}. Before every
+approval, the person checked mechanically that the gate's program equals
+the seed byte for byte. At each take gate, the person checked that the
+README and intents equal the versions already approved. Table~\ref{tab:fiction}
+gives each run.
+
+\begin{table}[t]
+\small\centering
+\begin{tabular}{@{}lrrrrll@{}}
+\toprule
+program $\to$ domain & time & req. & key USD & gates ok/refused & program diff & events \\
+\midrule
+love\_triangle & 107 s & 13 & 0.0054 & 5 / 1 & none & 27 \\
+tragedy & 123 s & 19 & 0.0103 & 5 / 1 & none & 14{,}800 \\
+herstory & 86 s & 16 & 0.0130 & 4 / 0 & none & 23 \\
+talespin & 89 s & 14 & 0.0075 & 4 / 0 & none & 105{,}680 \\
+three\_pigs & 129 s & 17 & 0.0114 & 4 / 3 & none & 6 \\
+three\_pigs\_connectives & 225 s & 21 & 0.0120 & 4 / 2 & 1 comment line$^{\dagger}$ & 7 \\
+\bottomrule
+\end{tabular}
+\caption{The six ports, one run each (fiction-port step 2 \src{S4}). Cost
+is by the API key's usage, which lags about a minute, so the per-run
+deltas do not sum exactly. The whole subject was 0.0624~USD by the key,
+against a budget of 1.5. Refused gates were READMEs, except one program
+gate (finding~1). Every program is the seed byte for byte. $^{\dagger}$One
+comment line in three\_pigs\_connectives was edited by hand, because the
+loop then could not. ``Events'': the bundle's ground.}
+\label{tab:fiction}
+\end{table}
+
+The order of calls held every time: served, intents, open, clock, state,
+events, README, take, with no wrong tool \src{S4}. No take was refused,
+and every take carried exactly what had been approved. The findings, ranked
+as reported, are where the gate earned its place \src{S4}:
+\begin{enumerate}[nosep]
+\item \textbf{The loop could not edit a program's comments, and the
+  model's try stripped all of them.} Asked to change one path in a header
+  comment, the model ran \tool{repl\_text} with the whole program, then
+  formalize, revise and apply. The candidate was the kernel's canonical
+  print: every rule line identical, every \texttt{\%} comment gone (a
+  44-line header with origin and lessons). The full-diff gate caught it,
+  and the person refused. The fix was \tool{catalog\_edit}, an exact
+  old-to-new edit through the SDK that never passes through formalize
+  \src{S10}.
+\item \textbf{A README resent for a one-sentence fix came back with new
+  errors elsewhere:} typos, a misspelt file name, and a broken run command.
+  Because the README was never applied, the gate showed it as new each
+  time, and the person caught the damage only by diffing against the
+  refused version. The fix was the gate's diff from the refused proposal
+  \src{S10}.
+\item \textbf{Invented facts in READMEs.} Four of six READMEs needed a
+  refusal despite the instruction ``copy those, invent none''. One
+  misquoted the author. One claimed ``only the brick house survives'',
+  which is false when the wolf reaches the brick house first, and
+  generalizes from one sampled run. One misquoted the program's own
+  catalog name. The fixes: the SDK writes a README's mechanical parts from
+  the files (origin, header, how to run, intents), and the model writes one
+  paragraph in which every claim needs a source \src{S9,S10}.
+\item \textbf{Gaps in the seed task}, which cost every run extra reads.
+\end{enumerate}
+The plain summary is the report's own: the gate held every time, and a
+README a model writes must be read like code \src{S4}.
+
+\section{Case study B: exercising simulated worlds}\label{sec:rddl}
+
+A world without intents is exercised through its world. Its ports name
+the gym, the instance, the observed atoms and the actions.
+\tool{domain\_episodes} runs $n$ seeded episodes. Each is a reset with its
+seed, on both the program's sampler and the gym, with every beat scored to
+the episode's end \src{S9}.
+
+\paragraph{The measure.} Score a beat by the program's probability of
+the world's reading, and it prices the program's own choice of action. A
+wrong rate can then look better. On nav, seeds 1--20, the per-beat
+likelihood ranked a die rate five times the instance's best (Table~\ref{tab:nav})
+\src{S5}. The measure the loop uses is conditional instead: per action
+the program sent, $P(\text{the world's answer} \mid \text{that action})$.
+That is the weight of the same-action alternatives in the drawn tier
+whose effect is the world's reading, over the weight of them all. It is
+RDDL's own transition model, scored only when the program's state agreed
+with the world's before the action. It ranks the true rate best. Each
+variant is still scored on its own trajectories, so the scored-action
+count is reported beside every mean.
+
+\begin{table}[t]
+\small\centering
+\begin{tabular}{@{}lrrr@{}}
+\toprule
+die weight & per-beat log-likelihood & mean log $P(\text{answer}\mid\text{action})$ & actions scored \\
+\midrule
+$\times 1$ (the instance) & $-1.104$ & $\mathbf{-0.199}$ & 52 \\
+$\times 0.2$ & $-0.738$ & $-0.219$ & 138 \\
+$\times 5$ & $\mathbf{-0.168}$ & $-0.493$ & 27 \\
+\bottomrule
+\end{tabular}
+\caption{nav, seeds 1--20: the per-beat measure ranks the wrong rate
+best; the conditional measure ranks the instance's rate best
+(rddl-worlds step~1 \src{S5}). The $\times 0.2$ gap is small enough that
+other seeds could close it.}
+\label{tab:nav}
+\end{table}
+
+\paragraph{A planted wrong rule is caught.} The surprise test is the
+kernel's, unchanged: a reading the served program gives zero probability
+opens a record. With nav's die rules deleted, 18 of 20 episodes surprise:
+the robot vanishes and the program cannot say so \src{S5}. On gol, with
+the rule for a dead cell coming alive deleted, the test requires surprises
+in at least 3 of 5 episodes, each naming a birth \src{S14}.
+
+\paragraph{The lockstep problem.} The first pass over the seven new
+worlds (rddl-worlds step~3) measured nav and hanoi fully, but none of the
+other six \src{S7}. Six of the seven compute one gym step as a cycle of
+many rows, and the watch read the world after every row. That went wrong
+in four ways:
+\begin{itemize}[nosep]
+\item \textbf{a mid-cycle read surprised.} gol's mark pass consumes a cell
+  the gym still shows; xtraffic's gym answers a move with the obstacles
+  already shifted, which the program reaches 13 rows later.
+\item \textbf{a pipeline was not restarted at a tick.} wildfire and
+  tamarisk stalled at their second step.
+\item \textbf{exact pricing of a 78-row cycle was too slow.}
+\item \textbf{after a mismatch the program could still explain, the watch
+  never re-checkpointed.} elevators went from 0.1~s to 22~s a row by
+  step 12.
+\end{itemize}
+Two worlds also never really started. sysadmin had no start token, and
+elevators' \texttt{\#init} was not the gym's reset state. And one
+engineering failure belongs in the record. A host snapshot that grew with
+every fired event, stored once per row, took a diagnostic to 23.7~GB in two
+minutes. The snapshot now holds the episode only, bounded by the horizon
+\src{S7}.
+
+\paragraph{The fix, behind the manifest's clock (rddl-watch).} Every
+change is a setting a package declares. Without it the watch is unchanged,
+and the Python and Go agents stay byte-equal on their recorded days
+\src{S8}.
+\begin{itemize}[nosep]
+\item \texttt{clock: \{lockstep: true\}} (gol, xtraffic, sysadmin,
+  wildfire, tamarisk) reads the world once per pass of the stage
+  pipeline. The pass is done when it wraps (a link back into the first
+  stage) or when nothing is left to fire; both are read off the program's
+  own stages, with no per-world constant. A wrapped pass waits for the
+  beat, and the beat's input restarts a quiet pipeline at its first
+  stage. Every beat is the window's boundary.
+\item \texttt{clock: \{follow: true\}} (elevators, a one-stage program
+  that never rests) adopts a reading the program explains as one exo row,
+  and moves the checkpoint there. With its host reading only after a row
+  that stepped the gym, a window runs from one gym step to the next.
+\item sysadmin's host hands its start token when the program lacks it,
+  and every RDDL world now starts at the gym's reset state, through the
+  same exo row the world lines use.
+\item The Go agent refuses both settings by name.
+\end{itemize}
+
+\paragraph{The tier.} The exact filter is the default. A window whose
+exact filter outgrows 10{,}000 cumulative retained states goes to a
+sampled tier: 500 reference-sampler runs, seeded from the episode's seed
+and the session's position, with a 95\% Wilson half-width \src{S8}.
+Every record and score declares its tier, and the sampled tier's runs are
+the reference sampler's own draws, indexed once per window. gol's pass
+needs 6{,}665 states and stays exact. wildfire's and tamarisk's need more
+than 300{,}000, so they are sampled. A sampled zero is no proof: it means
+no run of 500 reached the reading, below the tier's resolution ($p <
+0.0076$ at 95\%). So it is kind \emph{rare}, never a surprise, and the
+loop counts it apart \src{S8,S9}. Tamarisk shows why: four of its zeros
+at $n=500$, re-drawn at $n=20{,}000$, were $p \approx 0.0065$, $0.0015$,
+$0.0001$ and below $10^{-4}$ \src{S8}.
+
+\begin{table}[t]
+\small\centering
+\begin{tabular}{@{}lllll@{}}
+\toprule
+world & surprise episodes, step 3 & after rddl-watch & mean log / beat & time (20 ep.) \\
+\midrule
+nav & 0 & 0 (= step 3) & $-0.022$ & 9 s \\
+hanoi & 0 & 0 (= step 3) & $0.000$ & 8 s \\
+sysadmin & 0 (never fired) & 0 & $-0.491$ & 9 s \\
+gol & 20, row 1 & 0 & $-0.974$ & 55 s \\
+xtraffic & 20, first move & 0 & $-0.584$ & 10 s \\
+elevators & 20, row 0 & 20, gym steps 1--33 & $-0.898$ & 13 s \\
+wildfire & 20, beat 1 (stalled) & 0 & $-0.477$ & 302 s (957 s) \\
+tamarisk & 20, beat 1 (stalled) & 0 & $-2.036$ & 592 s \\
+\bottomrule
+\end{tabular}
+\caption{Eight worlds, 20 seeded episodes each, deterministic: rddl-worlds
+step~3 against rddl-watch \src{S7,S8}. ``Mean log / beat'' is
+the per-beat log-probability of the gym's reading, averaged over beats
+with a nonzero estimate. nav and hanoi reproduce step~3's numbers key for
+key. wildfire's and tamarisk's passes are sampled; gol, sysadmin, xtraffic
+and elevators are exact. xtraffic's 800 actions are scored, none at
+$p=0$; its reward went from $-40$ to $-15.3$, because its robot now moves
+through the episode. Every run was under a 6~GB memory cap; peak RSS
+80--104~MB.}
+\label{tab:rddl}
+\end{table}
+
+Table~\ref{tab:rddl} is the result. The surprises the watch itself
+produced are gone. What remains is the programs' honest disagreement,
+recorded for a tuning subject and not fixed \src{S8}. Elevators surprises
+in every episode, at gym steps 1--33, in two ways:
+\begin{itemize}[nosep]
+\item in 18 episodes, an arrival falls in a gym step whose window held only
+  the action row: the program draws arrivals as rows of their own between
+  actions, while the gym draws them inside its step;
+\item in 2 episodes, the gym boards a passenger at \texttt{close}, where
+  the program boards only while the door is open.
+\end{itemize}
+The most mismatched atoms are expected sampling elsewhere, except
+xtraffic's obstacle arrivals at the road's edge.
+
+\paragraph{Through the loop, and the cost.} A real loop run read the
+same measure: one pi run on gol through \tool{domain\_open},
+\tool{domain\_ports} and \tool{domain\_episodes}. Its 20 episodes gave the
+domain agent's numbers (820 beats scored, mean log $-0.974$, no surprise),
+both gates were byte-equal, and the take was identical \src{S8}.
+\begin{itemize}[nosep]
+\item That run cost 0.017~USD by pi's count, 0.051 by the key's usage over
+  its window \src{S8}.
+\item nav's loop run (rddl-worlds step~2: the package taken byte-equal,
+  its measure the domain agent's) cost about 0.006~USD by the key \src{S6}.
+\item The nine loop runs of rddl-worlds step~3 came to 0.221~USD by pi's
+  count and 0.125 to 0.154 by the key \src{S7}.
+\end{itemize}
+No run tuned anything: no weight, no notch, no extension.
+
+\section{What the loop could not do, and the rules it forced}\label{sec:limits}
+
+Each finding below changed a component, and each is a commit.
+\begin{itemize}[nosep]
+\item \textbf{A program-only domain must open.} The story worlds have no
+  intents and no host. The domain agent now builds them as bare domains
+  (an empty card, no plugin) in Python and Go. Every intent then gets the
+  same refusal in both, ``this domain takes no intents''. A new recorded
+  day holds them at parity: 27 output lines equal \src{S11}.
+\item \textbf{\texttt{metisc --run} on an \texttt{\#interactive} case with
+  stdin that is not a terminal} spun at full CPU and printed nothing.
+  After end of input, every later choice is now the sampler's, and the
+  case header is flushed before the ground \src{S4,S11}.
+\item \textbf{A take must be byte-preserving.} Elevators' header, kept
+  verbatim from the RDDL file, came back with LF line ends instead of CRLF.
+  Take, plan, apply and edit now keep a file's bytes \src{S12}.
+\item \textbf{A notch is carried, never edited.} Take did not carry a
+  manifest's notch, so wildfire and tamarisk could be neither served nor
+  taken. It does now, and an edit of a notch is refused: no loop tool
+  writes weights \src{S12}. Porting and exercising have one budget;
+  tuning has another, and a separate subject.
+\item \textbf{The model ran $n=20$ before the person's cap arrived}, twice:
+  in rddl-worlds step~3 and again in the gol run. The person's $n$ is now
+  set before the task begins (\texttt{loop.sh --episodes}), and the seed
+  task carries it \src{S9}.
+\item \textbf{The SDK serves a program only as \texttt{<name>.llp},} and
+  the model misread the refusal for a whole settle. The refusal now says
+  what to do \src{S7}.
+\end{itemize}
+And the person's own rule, which no component enforces: approve only the
+diffs you have read. Twice, the person's check (a byte comparison, or a
+diff against the refused version) found what the model's account of its
+change did not say \src{S4}.
+
+\section{Related work}\label{sec:related}
+
+The story worlds are ports of Ceptre, Martens' linear-logic language for
+interactive narrative, and its examples. metis keeps Ceptre's
+multiset-rewriting reading and adds a measure \src{S13}. The simulated
+worlds are IPPC benchmarks, written in RDDL and run in pyRDDLGym; here the
+gym is the world a formalization is measured against, not a planner's
+environment. The agentic loop sits among coding agents that edit code with
+tool calls under human approval, and among program synthesis with
+execution feedback. What it adds is narrower: every write goes through one
+validated SDK and a person's diff; the loop's tools are generated from the
+interfaces it drives; and it measures a program against a world rather
+than against tests. We make no comparative claim. This paper reports one
+system's runs, each one sample.
+
+\section{Conclusion and next}\label{sec:conclusion}
+
+A program becomes useful as a package: one manifest, one loader, a
+committed case and trace, a bundle both toolchains agree on, and a CI that
+says so for every package on every push. The agentic loop grows packages
+under a gate a person reads. In the two case studies it ported six
+programs byte for byte for 0.06~USD, and it exercised eight worlds to a
+measure that records disagreement instead of hiding it.
+
+Three subjects come next.
+\begin{itemize}[nosep]
+\item \textbf{Tuning.} A tuning subject, budgeted apart, starts from
+  Table~\ref{tab:rddl}. The open question is scoring models on one fixed
+  set of recorded transitions, rather than on each model's own
+  trajectories \src{S5}.
+\item \textbf{SUMO for road.} The road domain gets SUMO as its runtime,
+  and a real port \src{S16}.
+\item \textbf{Intents for worlds.} Worlds that take commands get intents.
+\end{itemize}
+
+\appendix
+\section{Sources}\label{app:sources}
+
+Reports are subject files (\tool{subj cat <sid> <path>}) that name the
+commits they report on; commits are in the metis-lang-dev repositories.
+
+\begin{small}\noindent
+\begin{tabularx}{\textwidth}{@{}lX@{}}
+\toprule
+tag & source \\
+\midrule
+S1 & metis-catalog \tool{CATALOG.md}, \tool{README.md}, \tool{domains/dog/}, \tool{domains/plant/}, the loader \tool{metis\_catalog}; at 07d232b \\
+S2 & catalog-packages s-a2c529d6 \tool{steps/step1-A-report.md}; metis-catalog f25c758 (\tool{ci/packages.py}, \tool{goldens/traces/}, \tool{goldens/cases/}) \\
+S3 & metis-catalog CI: run 39234382318 at f25c758, job \tool{packages} 10:01:15--10:05:08~UTC; run 39265998445 at 07d232b, ``33 units in 256s'', job 14:06:47--14:11:33~UTC \\
+S4 & fiction-port s-e3d0942d \tool{steps/step2-report.md}; metis-catalog 335e637 \\
+S5 & rddl-worlds s-242c7c3f \tool{steps/step1-report.md} and \tool{steps/step1-opus-review-B.md}; metis-agent 292d6ef (the scored beat), metis-agentic-loop 1795517 \\
+S6 & rddl-worlds s-242c7c3f \tool{steps/step2-report.md} (nav through the loop) \\
+S7 & rddl-worlds s-242c7c3f \tool{steps/step3-report.md}; metis-catalog d821b9c, 28a3900; metis-agent be00c35 \\
+S8 & rddl-watch s-cfe94dca \tool{steps/step1-report.md}; metispy d33b779, metis-agent 41c5ed7, metis-catalog 4f0d3ec, metis-agentic-loop 1718e0d \\
+S9 & metis-agentic-loop \tool{docs/LOOP-AGENT.md}, \tool{prompts/seed-task.md}, \tool{extensions/}; at e6026c1 (the sampled tier counted apart, \tool{--episodes}) \\
+S10 & loop-fixes s-855d8067: metis-loop 5fe077c (the SDK's edit, the since-diff, the README's mechanical parts), metis-agentic-loop 73d770e, e31fe33, 04506d2 \\
+S11 & agent-no-intent s-7fd29000 \tool{steps/step1-report.md}; metis-agent a0a19e6, metis-catalog e1f7607, metis-lang 2651103 \\
+S12 & metis-loop f562644 (bytes kept), e1bfcc7 (the notch carried), 0ba8d84 (a notch never edited) \\
+S13 & metis-lang \tool{paper/metis.tex}, draft 0.3 \\
+S14 & metis-agent \tool{py/tests/test\_rddl\_world.py}, \tool{py/tests/test\_rddl\_watch.py}; at 41c5ed7 \\
+S15 & metis-catalog \tool{domains/three\_pigs/three\_pigs.llp}, \tool{goldens/traces/three\_pigs.txt}; at 07d232b \\
+S16 & road-collapse s-2a2cbea3 \tool{steps/step1-report.md}; metis-catalog 115a8b8, 07d232b \\
+\bottomrule
+\end{tabularx}
+\end{small}
+
+\end{document}
