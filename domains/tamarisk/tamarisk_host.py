@@ -11,10 +11,11 @@ The twelve weight ports are bound prior-flat (0.5), as the experiment's
 tamarisk_plugin.py binds them; the fitted notch (tamarisk.notch.json, the
 program's #notch) rides on top unchanged.
 
-Baseline (rddl-worlds step 3, ruling A): the program's #init step runs; at the
-next tick its stage pipeline is not restarted at `snap` (the domain agent does
-not do that yet), so the program stays in its last stage and the gym's next
-state is a surprise. That is the furthest stage, recorded as such."""
+The manifest's clock {lockstep: true} (rddl-watch s-cfe94dca): the watch
+reads once per pass, when it ends quiet, and the beat's input restarts the
+pipeline at `snap` (step 3 stopped there: the second step stalled). A pass
+is past the exact filter's state budget, so it is priced on the declared
+sampled tier."""
 import sys
 from pathlib import Path
 

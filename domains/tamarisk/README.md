@@ -18,12 +18,18 @@ program; the watch reads the gym once the program's cycle has settled. The
 weight ports are bound prior-flat (0.5), as the experiment's plugin binds them,
 and the notch rides on top.
 
-**Baseline (rddl-worlds step 3, ruling A): the furthest stage.** The program's
-`#init` step runs. At the next tick its stage pipeline is not restarted at its
-first stage (the domain agent does not do that yet), so the program does not
-take the step: the host says so by reading at once, and the gym's next state is
-a surprise (one per episode; the beats after it have likelihood 0). Measured
-over 20 seeded episodes in the step-3 report.
+**The pass (rddl-watch s-cfe94dca).** The manifest's clock {lockstep: true}:
+the watch reads once per pass, when it ends quiet, and the beat's input
+restarts the stage pipeline at its first stage (step 3 stalled at the second
+step: the pipeline sat in its last stage). A pass is past the exact filter's
+state budget (10000; more than 300k states), so it is priced on the declared
+sampled tier: 500 reference-sampler runs seeded per episode and position,
+with a 95% half-width; a sampled zero is "rare", below that resolution,
+never a surprise. Measured (20 seeded episodes, 592 s): no surprise; 780
+passes sampled; mean log P(the gym's next reaches) per beat −2.036 over the
+beats with a nonzero estimate; 83 beats' estimates are 0 at n=500 — the
+reading is below that resolution (four of them re-drawn at n=20000: p ≈
+0.0065, 0.0015, 0.0001 and < 1e-4), the prior-flat ports' honest spread.
 
 Run the case without the gym: `metisc --run tamarisk.llp`. Through the domain agent:
 `python -m metis_agent.domain_agent --domain tamarisk --case replay`

@@ -13,7 +13,10 @@ CrossingTraffic gym, instance 1, through the catalog's RDDL world host
   other rules (str the stay, dier the death, atgoal, deadtick) are the step
   with no action. The program's tick never quiesces (its `sm` link opens the
   next epoch), so the host's tick would never come to step the gym: the
-  epoch's rule steps it.
+  epoch's rule steps it. The manifest's clock {lockstep: true} (rddl-watch
+  s-cfe94dca) reads the gym once per epoch, when `sm` wraps back to the
+  move stage, and holds the next epoch for the beat (step 3 read right
+  after the move row, before the program shifted the obstacles).
 - The weight ports obs, go, stayw, fgo, fstayw are metispy's binding of
   this program (metis.domains.xtraffic.model.XTrafficModel.bindings) as it
   is, over the instance's topology read from the gym's own non-fluents

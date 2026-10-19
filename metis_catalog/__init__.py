@@ -10,7 +10,8 @@ loader refuses any other (check_manifest; CATALOG.md lists each key's reader):
                                       #   absent: [program] + extensions — Domain.serves()
     host: dog_host.py:make            # file.py:factory (relative) or pkg.mod:factory
     intent: {spec: intent.yaml}       # J only; the generated files at fixed names in intent/
-    clock: {beats: 1}                 # env beats per orchestrator tick
+    clock: {beats: 1}                 # env beats per orchestrator tick (+ steps, and py's watch:
+                                      #   lockstep / follow, exact_states, samples: CATALOG.md)
     reload: propose                   # propose | auto
     records: records/                 # the agents' surprise records (records/<session>.jsonl)
     display: the dog                  # the narrator's name

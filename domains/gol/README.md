@@ -29,11 +29,15 @@ the packages' shared `.venv`).
   `+a(C)`/`-a(C)` set the gym's cell, `nonfluent KEY V` (`NOISE-PROB___x1__y1 0.2`),
   `seed N`, `reset [N]`.
 
-Known fit (see the step-3 NOTES): the program's a/d are consumed by its own
-mark pass, so the watch's reading after the first fired row differs from the
-program, and the episode turns observe-only at row 1 (a surprise every
-episode); and the program's tick cycle has no rest point (sweep links back to
-mark), so it never quiesces on its own.
+The program's tick is a 30-row pass (mark, update, sweep) that links back
+to mark, so it never rests: the manifest's clock {lockstep: true} has the
+watch read once per pass, at the wrap, and the next pass waits for the beat
+(the host takes the gym's noop step as an observing world does: the program
+is brought to the gym's state, the gym steps, the pass computes the step).
+Measured (rddl-watch s-cfe94dca, 20 seeded episodes): no surprise; every
+pass priced exactly (6665 states); mean log P(the gym's next grid) per beat
+−0.974; step 3, read after every row, surprised at the mark pass's first row
+in every episode.
 
 Run the case without the gym: `metisc --run gol.llp` (one tick from the
 instance's init-state). Through the domain agent: `python -m

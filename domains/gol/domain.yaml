@@ -6,5 +6,5 @@ line: "Game of Life: a 3x3 grid of cells lives, dies and is born by Conway's rul
 voice: third
 program: gol.llp
 host: gol_host.py:make
-clock: {beats: 1}
+clock: {beats: 1, lockstep: true}
 records: records/

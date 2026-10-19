@@ -28,12 +28,14 @@ else the packages' shared `.venv`).
   the instance's INPUT-RATE (0.3), read live. The policy table is empty: the
   base policy (uniform over the goal-ward moves). Not fitted.
 - The program's epoch is 14 rows (a move, then the shift over the three road
-  cells), and its last link (`sm`) opens the next epoch: it never quiesces,
-  so the host's tick comes only when the watch stops the program. The gym
-  answers a move at once with the obstacles already shifted, which the
-  program reaches 13 rows later: the first move of an episode is an
-  unmodeled surprise whenever the shift changes a road cell (every seed of
-  1..20), and the world plays on with no action while it is open.
+  cells), and its last link (`sm`) opens the next epoch: it never quiesces.
+  The gym answers a move at once with the obstacles already shifted, which
+  the program reaches 13 rows later, so the manifest's clock {lockstep: true}
+  has the watch read once per epoch, when `sm` wraps back to the move stage,
+  and the next epoch waits for the beat. Measured (rddl-watch s-cfe94dca, 20
+  seeded episodes): no surprise; 800 moves scored, each answered as the
+  program sent it; mean log P(the gym's road) per beat −0.584; reward −15.3
+  (step 3, surprised at its first move in every episode: −40).
 - No intents: the program chooses the moves, and the domain agent opens the
   world with no verbs. `{"reset": {"seed": N}}` is episode N on both sides.
   World lines: `+rob(C)`/`-rob(C)`, `+o(C)`/`-o(C)` set the gym's state,

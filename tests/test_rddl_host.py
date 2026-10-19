@@ -153,3 +153,27 @@ def test_a_restored_observing_world_draws_on_as_the_original():
     k = m.make({})
     k.restore(h.snapshot())
     assert k.stalled
+
+
+def world(name):
+    spec = importlib.util.spec_from_file_location("%s_host_t" % name, ROOT / "domains" / name / ("%s_host.py" % name))
+    m = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(m)
+    return m
+
+
+@needs_gym
+def test_a_noop_observer_hands_its_start_token_when_the_program_lacks_it():
+    """rddl-watch s-cfe94dca, N3: sysadmin's host steps the gym with no action
+    before the program's pass (a noop observer, as gol's), and hands `m(i0)`,
+    the start of the program's mark/update/sweep pipeline, with the step — only
+    when the program does not hold it: the pipeline wraps and carries its own."""
+    h = world("sysadmin").make({})
+    assert h.policy == "noop" and h.tokens == ("m(i0)",) and world("gol").make({}).policy == "noop"
+    first = h.tick({})
+    assert h.t == 1 and "+m(i0)" in first
+    assert {d.split()[0][1:] for d in first if d != "+m(i0)"} <= set(h.reading())   # the rest is the sync
+    held = {a: n for a, n in h.reading().items() if n}
+    held["m(i0)"] = 1
+    again = h.tick(held)
+    assert h.t == 2 and "+m(i0)" not in again

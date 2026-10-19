@@ -7,4 +7,5 @@ voice: third
 program: wildfire.llp
 notch: wildfire.notch.json
 host: wildfire_host.py:make
+clock: {beats: 1, lockstep: true}
 records: records/

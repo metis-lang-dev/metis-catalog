@@ -7,4 +7,5 @@ voice: third
 program: tamarisk.llp
 notch: tamarisk.notch.json
 host: tamarisk_host.py:make
+clock: {beats: 1, lockstep: true}
 records: records/

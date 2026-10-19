@@ -6,5 +6,5 @@ line: "Elevators: two elevators carry passengers to the top or bottom floor (the
 voice: third
 program: elevators.llp
 host: elevators_host.py:make
-clock: {beats: 1}
+clock: {beats: 1, follow: true}
 records: records/

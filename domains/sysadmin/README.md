@@ -34,13 +34,13 @@ which runs `tools/rddl_gym.py` under an interpreter with pyRDDLGym:
   lines: `+run(a)`/`-run(a)` set `running___c6` in the gym, `nonfluent KEY V`
   a non-fluent (`REBOOT-PROB 0.1`), `seed N`, `reset [N]`.
 
-What it does today: the program file carries no `#init`, so its chain token
-`m(i0)` is never present and no rule fires; the host keeps `run`/`down` in
-step with the gym every beat, and the program says nothing about it (every
-beat scores 1.0, vacuously). With an `#init m(i0) 1` added, the first
-snapshot rule consumes `run(a)` while the gym still reads it, and the watch
-opens an unmodeled surprise on the first row of every episode. See the
-work notes for why.
+The program file carries no `#init`: the host hands its chain token `m(i0)`
+with the first gym step (an observing world's `tokens`; its pipeline wraps
+and carries the token from then on), and the manifest's clock
+{lockstep: true} reads it once per mark/update/sweep pass (step 3: no rule
+ever fired, every beat scored 1.0 vacuously). Measured (rddl-watch
+s-cfe94dca, 20 seeded episodes): no surprise; mean log P(run/down of a, b)
+per beat −0.491, exact.
 
 Through the domain agent: `python -m metis_agent.domain_agent --domain
 sysadmin --case replay`.

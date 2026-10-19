@@ -18,7 +18,15 @@ in nav mode: the program's rules choose the moves.
   by the heading they leave, close is close-door(e). noop, the arrivals,
   board and alight are not actions: the gym does them in its own step.
 - No weight ports: the program declares none (its weights are literals), so
-  none is bound."""
+  none is bound.
+- The episode starts at the gym's reset state (rddl-watch s-cfe94dca, N4):
+  the program's #init (the experiment's own instance: e1 at f4 heading
+  down) is brought to it by one exo row before it moves, as world lines are
+  (the domain agent's sync at the start).
+- The program draws arrivals row by row, the gym inside its step: the
+  reading is news only after a row that stepped the gym (`read_steps`), so
+  a window runs from one gym step to the next; the manifest's clock
+  {follow: true} adopts a reading the program explains there."""
 import sys
 from pathlib import Path
 
@@ -101,4 +109,4 @@ def action_of(name, args):
 
 def make(case):
     return RddlHost(case, problem=PROBLEM, instance=INSTANCE, seed=SEED, atom=atom, action_of=action_of,
-                    extra=derived)
+                    extra=derived, read_steps=True)

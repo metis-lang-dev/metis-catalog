@@ -5,7 +5,12 @@ gym, instance 1, through the catalog's RDDL world host (tools/rddl_host.py).
   derived: the cell is not alive (the program holds one of a/d per cell).
 - No rule of the program is a gym action: its `force(C)` (the gym's
   `set___x1__y2`) is an input atom no rule produces; metispy chose it code-side
-  (rddl_adapter.agent_metis, greedy_set). So every gym step is the noop.
+  (rddl_adapter.agent_metis, greedy_set). So every gym step is the noop, and
+  the host takes it as an observing world does (`policy="noop"`, rddl-watch
+  s-cfe94dca): each beat the program is brought to the gym's state, the gym
+  steps, and the program's mark/update/sweep pass computes the step; the
+  manifest's clock {lockstep: true} has the watch read once per pass, at
+  its wrap (step 3 read every row, and the mark pass's first row surprised).
 - The weight port life(C) is metispy's own binding, model.life_bindings, as it
   is, over the instance's own non-fluents (as rddl_adapter.load reads them):
   the neighbors from NEIGHBOR, the noise from NOISE-PROB. Not fitted (no notch)."""
@@ -80,4 +85,4 @@ def life(args, counts, host):
 
 def make(case):
     return RddlHost(case, problem=PROBLEM, instance=INSTANCE, seed=SEED, atom=atom, action_of=action_of,
-                    extra=dead, weights={"life": life})
+                    extra=dead, weights={"life": life}, policy="noop")

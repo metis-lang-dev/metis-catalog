@@ -10,7 +10,12 @@ instance 1, through the catalog's RDDL world host (tools/rddl_host.py).
   Their other in-neighbours (c9 into c6, c2 into c8) are outside the
   program: the mismatch the baseline records.
 - No rule is an action: rb(C) (the reboot) is read by the weight ports,
-  never produced by a rule, so the gym always steps with no action.
+  never produced by a rule, so the gym always steps with no action: the
+  host takes the step as an observing world does (`policy="noop"`), and
+  hands the program's chain token `m(i0)` with the first step (`tokens`;
+  rddl-watch s-cfe94dca, N3) — the program has no #init, and its pipeline
+  wraps and carries the token from then on. The manifest's clock
+  {lockstep: true} reads it once per mark/update/sweep pass.
 - The weight ports are the binding metispy already has for this program
   (tests' sys_registry, the recode of model.py's sysadmin_p_on): cpt(C) = 1
   under rb(C), else .45 + .5 (1 + r)/(1 + |adj C|), r the snapshot's
@@ -81,4 +86,4 @@ def rp(args, counts, host):
 
 def make(case):
     return RddlHost(case, problem=PROBLEM, instance=INSTANCE, seed=SEED, atom=atom, action_of=action_of,
-                    extra=down, weights={"cpt": cpt, "rp": rp})
+                    extra=down, weights={"cpt": cpt, "rp": rp}, policy="noop", tokens=("m(i0)",))

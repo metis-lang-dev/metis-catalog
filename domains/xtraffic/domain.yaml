@@ -6,5 +6,5 @@ line: "CrossingTraffic: a robot crosses a road of westbound obstacles to its goa
 voice: third
 program: xtraffic.llp
 host: xtraffic_host.py:make
-clock: {beats: 1}
+clock: {beats: 1, lockstep: true}
 records: records/

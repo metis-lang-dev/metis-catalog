@@ -8,5 +8,5 @@ line: "SysAdmin: computers on a network fail and recover, watched two at a time 
 voice: third
 program: sysadmin.llp
 host: sysadmin_host.py:make
-clock: {beats: 1}
+clock: {beats: 1, lockstep: true}
 records: records/

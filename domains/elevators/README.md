@@ -38,9 +38,18 @@ interpreter with pyRDDLGym: `$METIS_RDDL_PY`, else the packages' shared
   `+atom`/`-atom` on an observed atom (`-at(e1,f0)`, `+at(e1,f4)`,
   `-heading(e1,up)`), `nonfluent KEY V` (`ARRIVE-PARAM___f1 0.1`),
   `seed N` and `reset [N]`.
-- **The baseline surprises at the first fired row of every episode.** The
-  program's `#init` puts e1 at f4 heading down. The gym starts both
-  elevators at f0 heading up. See the step's NOTES.
+- The program's `#init` puts e1 at f4 heading down; the gym starts both at f0
+  heading up. The episode starts at the gym's reset state: the domain agent
+  brings the program there with one exo row before it moves (rddl-watch
+  s-cfe94dca, N4; step 3 surprised at the first row).
+- The program draws arrivals as rows of their own; the gym draws them inside
+  its step. The host reads only after a gym step (`read_steps`), and the
+  manifest's clock {follow: true} adopts a reading the program explains, so
+  a window runs from one gym step to the next. Measured (20 seeded
+  episodes): a surprise in each, at gym steps 1–33: an arrival in a step
+  whose window held the action row only (18), or a passenger boarding at
+  `close` where the program boards only while open (2). The program's
+  disagreement with the gym, recorded, not fixed.
 
 Run the case without the gym: `metisc --run elevators.llp` (its `#init` and
 `#steps`). Through the domain agent: `python -m metis_agent.domain_agent

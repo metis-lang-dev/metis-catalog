@@ -7,10 +7,11 @@ not_ negatives), the gym stepped by pyRDDLGym's random agent seeded per episode
 a tick handed to the program, whose open/count/act/screen/ignite cycle then
 computes the next state; the watch reads it once the cycle has settled.
 
-Baseline (rddl-worlds step 3, ruling A): the program's #init step runs; at the
-next tick its stage pipeline is not restarted at `open` (the domain agent does
-not do that yet), so the program stays in its last stage and the gym's next
-state is a surprise. That is the furthest stage, recorded as such.
+The manifest's clock {lockstep: true} (rddl-watch s-cfe94dca): the watch
+reads once per pass, when it ends quiet in `ignite`, and the beat's input
+restarts the pipeline at `open` (step 3 stopped there: the second step
+stalled in `ignite`). A pass is past the exact filter's state budget, so it
+is priced on the declared sampled tier.
 
 The weight port pign is bound prior-flat (0.5 for every neighbor count), as
 the experiment's wildfire_plugin.py binds it; the fitted notch

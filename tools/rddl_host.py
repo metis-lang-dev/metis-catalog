@@ -123,7 +123,8 @@ class RddlHost:
     transitions: the state, the action taken and a tick in, the next state
     out; wildfire, tamarisk) sets `policy`:
     policy             "random" (pyRDDLGym's RandomAgent, seeded per episode, the
-                       recorder's agent) | "noop": the host acts. Each tick: the
+                       recorder's agent: wildfire, tamarisk) | "noop" (gol and
+                       sysadmin, whose programs never act): the host acts. Each tick: the
                        program brought to the gym's state, the action and tick
                        atoms of the last step taken off, the gym stepped by the
                        policy, its action's true fluents and `+tick` given to the
@@ -134,14 +135,23 @@ class RddlHost:
                        the settled cycle (the recorder's frame readout); taken off
                        at each tick, as the step's action atoms are
     tokens             atoms handed to the program with each step's input besides
-                       `tick` (a cycle's start token: sysadmin's `m(i0)`)
+                       `tick`, when it does not hold them (a cycle's start token:
+                       sysadmin's `m(i0)`, which its wrapping pipeline then carries)
     action_atom(key)   a true action fluent -> the program's atom, or None
                        (default rddl_recorder's mapping)
+
+    read_steps         the reading is news only after a row that stepped the gym
+                       (or a beat's step): between gym steps the world has not
+                       moved, and the program's rows are its own step in progress
+                       (elevators' arrivals, drawn row by row where the gym draws
+                       them inside its step), so observe gives nothing and the
+                       watch's window runs from one gym step to the next
+                       (rddl-watch s-cfe94dca)
     """
 
     def __init__(self, case=None, *, problem, instance="1", seed=1, atom=atom_of, action_of=None,
                  extra=None, weights=None, tick_token=False, policy=None, negatives=False, transient=(),
-                 tokens=(), action_atom=atom_of):
+                 tokens=(), action_atom=atom_of, read_steps=False):
         self.problem, self.instance = problem, str(instance)
         self.atom, self.action_of = atom, action_of or (lambda name, args: None)
         self.extra, self.weights, self.tick_token = extra, dict(weights or {}), tick_token
@@ -149,6 +159,7 @@ class RddlHost:
             raise ValueError("policy: random | noop | None, not %r" % policy)
         self.policy, self.negatives, self.transient = policy, negatives, set(transient)
         self.tokens, self.action_atom = tuple(tokens), action_atom
+        self.read_steps = read_steps
         self.gym = GymClient(problem, instance)
         info = self.gym.info
         self.horizon, self.nonfluents = info["horizon"], info["nonfluents"]
@@ -172,6 +183,7 @@ class RddlHost:
         self.sets = []                           # (step, fluents) the driver set
         self.t, self.done, self.reward = 0, False, 0.0
         self.stalled = False                     # an observing program that stopped taking its steps
+        self.fresh = False                       # read_steps: the last row (or beat) stepped the gym
         self._take(self.gym.call("reset", seed=seed))
         self.stepped = False
 
@@ -212,8 +224,10 @@ class RddlHost:
 
     def on_event(self, name, args):
         action = self.action_of(name, args)
+        self.fresh = False
         if action is not None and not self.done:
             self._step(action)
+            self.fresh = True
 
     def observe(self, counts):
         if self.done:
@@ -223,6 +237,8 @@ class RddlHost:
                                                  # (a program whose #init holds a step's input runs it uncompared)
         if self.transient and not self.settled(counts) and not self.stalled:
             return {}                            # the program's cycle is in flight: nothing to read yet
+        if self.read_steps and not self.fresh:
+            return {}                            # the gym has not moved since its last step's reading
         return self.reading()
 
     def tick(self, counts):
@@ -233,6 +249,7 @@ class RddlHost:
             return self._observer_tick(counts)
         if not self.stepped and not self.done:
             self._step({})                       # the world moves on its own: one beat, one step
+            self.fresh = True
         self.stepped = False
         dos = self.sync(counts)                  # the program's state brought to the gym's
         if self.tick_token:
@@ -262,7 +279,7 @@ class RddlHost:
         self.stepped = False
         acts = [self.action_atom(k) for k, v in sorted(self.last_action.items()) if v is True or v == 1]
         dos += ["+" + a for a in acts if a]
-        dos += ["+" + a for a in self.tokens]
+        dos += ["+" + a for a in self.tokens if not counts.get(a)]   # a pipeline that wraps carries its own
         if self.tick_token:
             dos.append("+tick")
         return dos
@@ -323,9 +340,12 @@ class RddlHost:
         # the episode only, bounded by the horizon: the repl stores a snapshot after
         # every fired row, so nothing here may grow per fired event (`acted` did:
         # quadratic, a 23.7 GB xtraffic run — rddl-worlds step 3)
-        return {"seed": self.seed, "t": self.t, "beat": self.beat, "stalled": self.stalled,
+        snap = {"seed": self.seed, "t": self.t, "beat": self.beat, "stalled": self.stalled,
                 "actions": [[t, a, drawn] for t, a, drawn in self.actions],
                 "sets": [[t, f] for t, f in self.sets]}
+        if self.read_steps:
+            snap["fresh"] = self.fresh
+        return snap
 
     def restore(self, snap):
         """The episode replayed on the gym: its seed, then the steps and the sets in order."""
@@ -343,3 +363,4 @@ class RddlHost:
                 a, drawn = acts.get(t, ({}, False))
                 self._step({}, policy=self.policy) if drawn else self._step(a)
         self.beat, self.stepped, self.stalled = snap["beat"], False, snap.get("stalled", False)
+        self.fresh = snap.get("fresh", False)
