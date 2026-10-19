@@ -1,5 +1,7 @@
 # herstory — a four-act family tragedy
 
+**License:** derived from interactive-lp's Ceptre examples (Chris Martens) and offered under the Anti-Capitalist Software License v1.4, not under this repository's Apache-2.0 grant: see [`../README.md`](../README.md) and [`../LICENSE`](../LICENSE).
+
 Hannah and Eve, twins; Simon; a wig and a mirror. One stage per act — beginning, courtship, tragedy, betrayal — each run to quiescence, then a link sets up the next act with new props. Rule names kept; the original's anonymous `qui * stage X -o stage Y * …` links are named (act2, act3, act4) and keep their products. The readout is life and death: alive/dead marginals per character.
 
 ## Origin

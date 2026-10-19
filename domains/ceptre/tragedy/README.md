@@ -1,5 +1,7 @@
 # tragedy — a Shakespearean romantic-tragedy story world
 
+**License:** derived from interactive-lp's Ceptre examples (Chris Martens) and offered under the Anti-Capitalist Software License v1.4, not under this repository's Apache-2.0 grant: see [`../README.md`](../README.md) and [`../LICENSE`](../LICENSE).
+
 A port of `interactive-lp/examples/tragedy.cep` (Martens et al., "Generative Story Worlds as Linear Logic Programs", INT 7 2014). The program tells stories of love, rivalry, insult, and violence among characters from *Romeo and Juliet* — Capulets, Montagues, and townsfolk — driven by opinion formation, flirtation, marriage, and murder.
 
 Every Ceptre rule is here under its original name, with the Ceptre idiom `consume-and-reproduce` written as the `$`-read it denotes, and Ceptre's neutral-opinion rule pair written as one rule with the `⊕` alternative-head sugar. Three versions:

@@ -2,11 +2,13 @@
 
 Source: `~/repo/perotheia-packages/interactive-lp/examples/*.cep`
 (github.com/chrisamaphone/interactive-lp, checkout pinned locally).
-Ports land beside this file under `domains/<area>/<name>.llp`, one
-`.cep` → one `.llp`, original rule names kept (with the spelling map
-below). Every port is automatically roundtrip-gated by `make check`
-(ci/check.sh walks `domains/*/*.llp`). Run a port with
-`../metis-lang/src/metisc --run domains/<area>/<name>.llp`.
+Ports land beside this file as packages, `domains/ceptre/<name>/<name>.llp`,
+one `.cep` → one `.llp`, original rule names kept (with the spelling map
+below). They are under interactive-lp's license, not the repository's
+Apache-2.0 grant (`README.md` and `LICENSE` here). Every port is
+automatically roundtrip-gated by `make check` (ci/check.sh walks every
+tracked `.llp`). Run a port with
+`../metis-lang/src/metisc --run domains/ceptre/<name>/<name>.llp`.
 
 ## The porting recipe (hands-on cheat sheet)
 
@@ -202,9 +204,9 @@ temp copy (`#interactive` ensured; `--drop-line` for lines current
 Ceptre rejects). Verified 2026-10-04, seeds 1-3 unless noted:
 
     T=tools/ceptre_lockstep.py; E=../interactive-lp/examples
-    $T domains/three_pigs/three_pigs.llp $E/3lp.cep
-    $T domains/love_triangle/love_triangle.llp $E/love-triangle.cep
-    $T domains/tragedy/tragedy.llp $E/tragedy.cep --steps 300 \
+    $T domains/ceptre/three_pigs/three_pigs.llp $E/3lp.cep
+    $T domains/ceptre/love_triangle/love_triangle.llp $E/love-triangle.cep
+    $T domains/ceptre/tragedy/tragedy.llp $E/tragedy.cep --steps 300 \
       --strip-prefix do/ \
       --alias formOpinion-like=formOpinion-1 \
       --alias formOpinion-dislike=formOpinion-2 \
@@ -212,13 +214,13 @@ Ceptre rejects). Verified 2026-10-04, seeds 1-3 unless noted:
       --alias ending_1=ending-marriage-and-death \
       --alias ending_2=ending-love-triangle \
       --alias ending_3=ending-vengeance
-    $T domains/blocks_world/blocks_world.llp $E/blocks-world.cep --steps 30
-    $T domains/tower_of_hanoi/tower_of_hanoi.llp $E/tower_of_hanoi.cep \
+    $T domains/ceptre/blocks_world/blocks_world.llp $E/blocks-world.cep --steps 30
+    $T domains/ceptre/tower_of_hanoi/tower_of_hanoi.llp $E/tower_of_hanoi.cep \
       --steps 80 --drop-line '^post : place\.' \
       --ctor topof=top_of@2 --ctor bottomof=bottom@2 \
       --proj pickup=2,3 --proj putdown_on_ring=1,3 \
       --proj putdown_on_post=1,3
-    $T domains/ll/ll.llp $E/ll.cep \
+    $T domains/ceptre/ll/ll.llp $E/ll.cep \
       --ctor at=at --ctor tensor=tensor --ctor lolli=lolli \
       --proj lolliR=2,3 --proj lolliL=2,3 --proj tensorL=2,3 \
       --proj tensorR=2,3 --proj init=2

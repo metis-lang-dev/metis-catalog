@@ -9,8 +9,7 @@ across benchmarks, each a full LLP world model.
 
 | dir | what |
 | --- | --- |
-| `domains/love_triangle/`, `tragedy/`, `herstory/`, `talespin/`, `three_pigs/`, `three_pigs_connectives/` | the Ceptre lineage, each a catalog domain (domain.yaml, the program, a README of where it came from): Martens' love triangle (A Midsummer Night's Dream), with the ORIGINAL `love-triangle.cep` beside it, and the interactive-lp story worlds — samples become an exact measure, `#interactive` becomes a policy hook, the trace becomes a MAP plot summary. They take no commands: no intent.yaml, so the domain agent opens each with no verbs. `domains/CEPTRE-PORTS.md` tracks the ports; the wider origin corpus (79 `.cep`: vampire, civ, sokoban, cocktails…) lives in the `if` archive, ports welcome. |
-| `domains/primes/`, `cellular_automata/`, `ll/`, `blocks_world/`, `tower_of_hanoi/`, `gossip/`, `fptp/` | the interactive-lp example ports (`domains/CEPTRE-PORTS.md`), each a package with no host and no intents; `tower_of_hanoi` is the Ceptre example, not the RDDL `hanoi`. |
+| `domains/ceptre/` | the Ceptre lineage, under interactive-lp's license: one-to-one ports of interactive-lp's examples (Chris Martens), each a package (domain.yaml, the program, a README of where it came from), offered under the Anti-Capitalist Software License v1.4 and NOT under this repository's Apache-2.0 grant (`domains/ceptre/README.md`, `domains/ceptre/LICENSE`). The story worlds `love_triangle/`, `tragedy/`, `herstory/`, `talespin/`, `three_pigs/`, `three_pigs_connectives/`: Martens' love triangle (A Midsummer Night's Dream), with the ORIGINAL `love-triangle.cep` beside it, and the interactive-lp story worlds — samples become an exact measure, `#interactive` becomes a policy hook, the trace becomes a MAP plot summary. They take no commands: no intent.yaml, so the domain agent opens each with no verbs. The formal worlds `primes/`, `cellular_automata/`, `ll/`, `blocks_world/`, `tower_of_hanoi/`, `gossip/`, `fptp/`: packages with no host and no intents; `tower_of_hanoi` is the Ceptre example, not the RDDL `hanoi`. `CEPTRE-PORTS.md` (Robofortis's own text, Apache-2.0) tracks the ports: the recipe and the per-port log. The wider origin corpus (79 `.cep`: vampire, civ, sokoban, cocktails…) lives in the `if` archive. |
 | `domains/bridge/`, `bridge_decl/`, `wgc/` | puzzles formalized from their statements in the metis loop (bridge and torch twice, wolf-goat-cabbage); wgc is the specialist's domain. |
 | `domains/gol/` | Game of Life (IPPC) — exact live play via the factored one-step agent; an RDDL world package (the program written out by metispy's generator, a gym host). |
 | `domains/kitchen/` | Overcooked-AI — partner-posterior overlay, intent choice on the measure. |
@@ -20,7 +19,6 @@ across benchmarks, each a full LLP world model.
 | `domains/wildfire/`, `tamarisk/`, `elevators/`, `hanoi/` | the RDDL gym domains formalized through the metis loop, as RDDL world packages (a gym host each; wildfire and tamarisk with their fitted notch). |
 | `domains/rddl/` | the records of those formalization experiments: structure in LL, rates as runtime weight ports fitted from gym episodes. |
 | `domains/ports/` | the port-plugin conformance fixtures (sensor, reservoir, clock): rates and exogenous input from a live environment. |
-| `domains/CEPTRE-PORTS.md` | the Ceptre → metis porting track: the recipe and the per-port log. |
 | --- | --- |
 | `domains/road/` | the road domain, PARKED until the SUMO subject (next release): its program `road.llp` (the production road catalog `road_catalog.llp` on the production scene, one tick: it runs and builds nominally) + the catalog's increment history and referee catalog, its admission-gated packs (`packs/`), the scene instances and the case manifest the canonical-key gate grounds (`scenes/`). Moved from road/, scenes/, packs/, not fixed. |
 | `demo/` | tutorial catalogs. |
@@ -81,4 +79,18 @@ is sources + certified data only.
 
 ## License
 
-Apache License 2.0 (see `LICENSE`, `NOTICE`).
+Apache License 2.0 (see `LICENSE`, `NOTICE`) — the loader, the packages
+under `domains/` except `domains/ceptre/`, the tools, CI, goldens and
+docs. Copyright 2026 Robofortis.
+
+Exceptions:
+
+- `domains/ceptre/` holds ports of Ceptre programs from
+  [interactive-lp](https://github.com/chrisamaphone/interactive-lp)
+  (Copyright © 2023 Chris Martens). They are offered under its
+  Anti-Capitalist Software License v1.4 (`domains/ceptre/LICENSE`), not
+  under the Apache-2.0 grant. A User must meet that license's conditions;
+  see `domains/ceptre/README.md`. Its `CEPTRE-PORTS.md` is Robofortis's own
+  text, under Apache-2.0.
+- The paper under `paper/` is copyright its authors, all rights reserved
+  (it is licensed by its publication venue, not by this repository).

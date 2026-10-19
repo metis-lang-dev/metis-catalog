@@ -108,8 +108,9 @@ domain-competent by a certified runtime.
 
 \section{The package}\label{sec:package}
 
-A package is a directory, \texttt{domains/<name>/}, with a manifest,
-\texttt{domain.yaml}. The package's name is its directory's. Every
+A package is a directory with a manifest, \texttt{domain.yaml}:
+\texttt{domains/<name>/}, or \texttt{domains/ceptre/<name>/} for the
+Ceptre ports. The package's name is its directory's. Every
 manifest key is optional, and the loader refuses any key it does not know
 \src{S1}. The keys:
 \begin{itemize}[nosep]
@@ -219,7 +220,8 @@ parked & road & the production road catalog on one scene \\
 \caption{The 29 packages at metis-catalog 07d232b, read through the
 loader's own index (kitchen\_shared is listed by its lead) \src{S1,S16}.
 Hosts: the device domains, wgc and the eight simulated worlds. Intents:
-dog and plant. An extension: plant. A notch: wildfire, tamarisk.}
+dog and plant. An extension: plant. A notch: wildfire, tamarisk. The
+thirteen Ceptre ports sit under \texttt{domains/ceptre/}.}
 \label{tab:packages}
 \end{table}
 
@@ -227,7 +229,10 @@ dog and plant. An extension: plant. A notch: wildfire, tamarisk.}
 The six story programs are ports of Ceptre examples and their follow-ups:
 love\_triangle, tragedy, herstory, talespin, three\_pigs and
 three\_pigs\_connectives. The loop brought them into the catalog
-(\S\ref{sec:fiction}). They are what the format had to absorb for
+(\S\ref{sec:fiction}). With the other Ceptre ports they live under
+\texttt{domains/ceptre/}: they derive from interactive-lp's examples, so
+they are offered under its Anti-Capitalist Software License v1.4 (Chris
+Martens), not the repository's Apache-2.0 grant. They are what the format had to absorb for
 programs with no device behind them:
 \begin{itemize}[nosep]
 \item a domain with no intents must still open (\S\ref{sec:limits});
@@ -272,7 +277,7 @@ Q brickhouse 1/1
 Q wolf 0/1
 \end{Verbatim}
 \end{minipage}
-\caption{A case and its trace: \texttt{domains/three\_pigs/three\_pigs.llp}
+\caption{A case and its trace: \texttt{domains/ceptre/three\_pigs/three\_pigs.llp}
 lines 49--58, and \texttt{goldens/traces/three\_pigs.txt}, which the CI
 replays byte for byte (the \texttt{T} line is wrapped here) \src{S15}. One
 seed: one sample of the program's measure, not its law.}
@@ -900,7 +905,7 @@ S11 & agent-no-intent s-7fd29000 \tool{steps/step1-report.md}; metis-agent a0a19
 S12 & metis-loop f562644 (bytes kept), e1bfcc7 (the notch carried), 0ba8d84 (a notch never edited) \\
 S13 & metis-lang \tool{paper/metis.tex}, draft 0.3 \\
 S14 & metis-agent \tool{py/tests/test\_rddl\_world.py}, \tool{py/tests/test\_rddl\_watch.py}; at 41c5ed7 \\
-S15 & metis-catalog \tool{domains/three\_pigs/three\_pigs.llp}, \tool{goldens/traces/three\_pigs.txt}; at 07d232b \\
+S15 & metis-catalog \tool{domains/ceptre/three\_pigs/three\_pigs.llp} (\tool{domains/three\_pigs/} at 07d232b), \tool{goldens/traces/three\_pigs.txt}; at 07d232b \\
 S16 & road-collapse s-2a2cbea3 \tool{steps/step1-report.md}; metis-catalog 115a8b8, 07d232b \\
 \bottomrule
 \end{tabularx}

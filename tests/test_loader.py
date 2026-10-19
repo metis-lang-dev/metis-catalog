@@ -62,11 +62,11 @@ def test_the_index_lists_every_catalog_the_domains_first():
     assert "kitchen_shared" not in [e["name"] for e in es]                           # a partner is listed by its lead
     by = {e["path"]: e for e in es}
     assert by["domains/wildfire/wildfire"]["notch"] == "wildfire.notch.json"
-    assert by["domains/three_pigs/three_pigs"]["kind"] == "domain"
+    assert by["domains/ceptre/three_pigs/three_pigs"]["kind"] == "domain"
     for n in ("herstory", "love_triangle", "talespin", "three_pigs", "three_pigs_connectives", "tragedy"):
         h = mc.get(n, ROOT).has()                                            # no intents: the domain agent opens
         assert h["program"] and not h["intent"] and not h["agent"], n        # them with no verbs (agent-no-intent)
-    assert by["domains/ll/ll"]["kind"] == "domain"                                    # a package now (catalog-packages)
+    assert by["domains/ceptre/ll/ll"]["kind"] == "domain"                             # a package now (catalog-packages)
     assert by["domains/road/scenes/nav4_instance"]["kind"] == "catalog"                           # program only, no manifest
 
 

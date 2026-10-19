@@ -1,5 +1,7 @@
 # talespin — a TALE-SPIN-style story generator
 
+**License:** derived from interactive-lp's Ceptre examples (Chris Martens) and offered under the Anti-Capitalist Software License v1.4, not under this repository's Apache-2.0 grant: see [`../README.md`](../README.md) and [`../LICENSE`](../LICENSE).
+
 Port of `interactive-lp/examples/talespin.cep` (Meehan 1976): a hungry bear asks a bird where the food is, is told, walks there, eats. Rule names kept; the original's `#interactive main` live.
 
 Encodings (recipe rows "finite constructor terms" and "predicates over a constructor SUM type"):

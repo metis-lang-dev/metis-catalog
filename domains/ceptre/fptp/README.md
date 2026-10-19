@@ -1,5 +1,7 @@
 # fptp — first-past-the-post voting
 
+**License:** derived from interactive-lp's Ceptre examples (Chris Martens) and offered under the Anti-Capitalist Software License v1.4, not under this repository's Apache-2.0 grant: see [`../README.md`](../README.md) and [`../LICENSE`](../LICENSE).
+
 A port of interactive-lp's `fptp.cep`. It has three stages:
 - `count` tallies the ballots;
 - `pick` finds the maximum, eliminating every lower candidate;
@@ -14,5 +16,5 @@ Run `metisc --run fptp.llp` to replay its case. Its expected trace is `goldens/t
 ## Origin
 
 - **Port of**: `interactive-lp/examples/fptp.cep`, 2026-10-03.
-- **Row**: `domains/CEPTRE-PORTS.md`, fptp.
+- **Row**: `domains/ceptre/CEPTRE-PORTS.md`, fptp.
 - Moved from `domains/votes/fptp.llp` (catalog-packages s-a2c529d6), with the program unchanged.

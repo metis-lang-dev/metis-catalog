@@ -1,5 +1,7 @@
 # love_triangle — A Midsummer Night's Dream love triangle
 
+**License:** derived from interactive-lp's Ceptre examples (Chris Martens) and offered under the Anti-Capitalist Software License v1.4, not under this repository's Apache-2.0 grant: see [`../README.md`](../README.md) and [`../LICENSE`](../LICENSE).
+
 A port of Ceptre's `love-triangle.cep` tutorial: jealousy and moving on among three characters — Helena, Hermia, and Lysander.
 
 When A loves B and C loves A (C ≠ A), C grows angry at both A and B. Three angers at the beloved and the love dies (the `move_on` rule). The world runs to quiescence in one beat; some loves burn out, others survive.

@@ -2,3 +2,14 @@ metis-catalog
 Copyright 2026 Robofortis
 
 Licensed under the Apache License, Version 2.0 (see LICENSE).
+
+The packages under domains/ceptre/ are ports of Ceptre programs from
+interactive-lp (https://github.com/chrisamaphone/interactive-lp),
+Copyright (c) 2023 Chris Martens, and are offered under its
+Anti-Capitalist Software License v1.4 (domains/ceptre/LICENSE), not
+under the Apache-2.0 grant (see domains/ceptre/README.md). The porting
+track domains/ceptre/CEPTRE-PORTS.md is Robofortis's and is covered by
+the Apache-2.0 grant.
+
+The paper under paper/ is copyright its authors, all rights reserved,
+and is not covered by the Apache-2.0 grant (see README).

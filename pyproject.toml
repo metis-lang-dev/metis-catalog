@@ -9,7 +9,7 @@ build-backend = "setuptools.build_meta"
 name = "metis-catalog"
 version = "0.1.0"
 license = "Apache-2.0"
-license-files = ["LICENSE", "NOTICE"]
+license-files = ["LICENSE", "NOTICE"]    # the root grant only: domains/ceptre/LICENSE (ACSL) is not the wheel's, nor shipped in it
 description = "The metis catalog's loader: one directory and one domain.yaml per domain, read by the loop console, the agent console and both agent backends"
 requires-python = ">=3.10"
 dependencies = ["pyyaml>=6"]

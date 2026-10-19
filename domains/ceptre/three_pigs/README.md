@@ -1,5 +1,7 @@
 # three_pigs — the Three Little Pigs
 
+**License:** derived from interactive-lp's Ceptre examples (Chris Martens) and offered under the Anti-Capitalist Software License v1.4, not under this repository's Apache-2.0 grant: see [`../README.md`](../README.md) and [`../LICENSE`](../LICENSE).
+
 A port of `interactive-lp/examples/3lp.cep` — the tale of three pigs who each
 build a house (straw, sticks, bricks) and a wolf who blows them down. The wolf
 blows down the straw and stick houses and is spent at the brick house, so which

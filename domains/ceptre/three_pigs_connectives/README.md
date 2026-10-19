@@ -1,8 +1,10 @@
 # three_pigs_connectives — The Three Little Pigs as a tour of linear logic's connectives
 
+**License:** derived from interactive-lp's Ceptre examples (Chris Martens) and offered under the Anti-Capitalist Software License v1.4, not under this repository's Apache-2.0 grant: see [`../README.md`](../README.md) and [`../LICENSE`](../LICENSE).
+
 The Three Little Pigs as a tour of linear logic's connectives — simultaneity (A ⊗ B), alternatives (A & B), the unit (1) and, as a contrast, internal choice (A ⊕ B). A variant of the three_pigs domain; only `blow_stick` differs.
 
-The program is `three_pigs_connectives.llp` (the file was `3lp_connectives.llp`), a variant of the `three_pigs` domain (`domains/three_pigs/`). Its catalog line is `catalog three-pigs-connectives 1.`
+The program is `three_pigs_connectives.llp` (the file was `3lp_connectives.llp`), a variant of the `three_pigs` domain (`domains/ceptre/three_pigs/`). Its catalog line is `catalog three-pigs-connectives 1.`
 
 **Provenance**: `hand "tutorial: 3lp with ⊗ / & / ⊕" "2026-10-05"`.
 

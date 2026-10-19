@@ -62,13 +62,13 @@ directory): the arcade/enum class is metis material. Eight
 20-face type with a ⊕ notch target) were analysed on paper only. The
 genuine limits are real-valued state fluents and heavy cpf arithmetic.
 
-## 4. How this differs from `../../tower_of_hanoi/tower_of_hanoi.llp`
+## 4. How this differs from `../../ceptre/tower_of_hanoi/tower_of_hanoi.llp`
 
 That file is an older hand port (2026-10-03) of the Ceptre example
 `interactive-lp/examples/tower_of_hanoi.cep`. The two files are a
 born-vs-ported pair:
 
-| | `rddl/hanoi/hanoi.llp` (this) | `tower_of_hanoi/tower_of_hanoi.llp` |
+| | `rddl/hanoi/hanoi.llp` (this) | `ceptre/tower_of_hanoi/tower_of_hanoi.llp` |
 |---|---|---|
 | source | RDDL header prose, formalized blind | Ceptre program, ported rule for rule |
 | provenance | `text` | `hand "port:…tower_of_hanoi.cep"` |
