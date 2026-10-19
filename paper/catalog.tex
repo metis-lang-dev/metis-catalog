@@ -119,6 +119,7 @@ manifest key is optional, and the loader refuses any key it does not know
 \item \tool{intent}: the spec of the person's verbs;
 \item \tool{clock}: env beats per tick, and the watch's settings (\S\ref{sec:rddl});
 \item \tool{records}: where surprise records go;
+\item \tool{reload}: the agent's reload policy when the package's files change (propose, or auto);
 \item \tool{display}, \tool{line}, \tool{voice}: the narrator's name, the console line, the voice;
 \item \tool{agent}: a domain-agent module, when the generic one does not fit;
 \item \tool{pair}, \tool{partner\_of}: two cooks stepped in one env;
@@ -769,7 +770,8 @@ the per-beat log-probability of the gym's reading, averaged over beats
 with a nonzero estimate. nav and hanoi reproduce step~3's numbers key for
 key. wildfire's and tamarisk's passes are sampled; gol, sysadmin, xtraffic
 and elevators are exact. xtraffic's 800 actions are scored, none at
-$p=0$; its reward went from $-40$ to $-15.3$, because its robot now moves
+$p=0$; its mean log per scored action is $0.000$ (every answer had $p=1$),
+so there the measure counts agreement rather than ranking rates; its reward went from $-40$ to $-15.3$, because its robot now moves
 through the episode. Every run was under a 6~GB memory cap; peak RSS
 80--104~MB.}
 \label{tab:rddl}
