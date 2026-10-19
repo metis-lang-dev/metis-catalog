@@ -1,0 +1,11 @@
+case ll steps=10 seeds=3
+I goal(main) 1
+T 1 lolliR[P=main,A=ta_latab,B=tb_a] tensorR[P=tb_a,A=pb,B=pa] tensorL[P=ta_latab,A=pa,B=la_tab] lolliL[P=la_tab,A=pa,B=ta_b] init[P=pa,X=a] tensorL[P=ta_b,A=pa,B=pb] init[P=pb,X=b] init[P=pa,X=a]
+F 1 (done)
+T 2 lolliR[P=main,A=ta_latab,B=tb_a] tensorR[P=tb_a,A=pb,B=pa] tensorL[P=ta_latab,A=pa,B=la_tab] init[P=pa,X=a] lolliL[P=la_tab,A=pa,B=ta_b] tensorL[P=ta_b,A=pa,B=pb] init[P=pb,X=b] init[P=pa,X=a]
+F 2 (done)
+T 3 lolliR[P=main,A=ta_latab,B=tb_a] tensorR[P=tb_a,A=pb,B=pa] tensorL[P=ta_latab,A=pa,B=la_tab] lolliL[P=la_tab,A=pa,B=ta_b] init[P=pa,X=a] tensorL[P=ta_b,A=pa,B=pb] init[P=pa,X=a] init[P=pb,X=b]
+F 3 (done)
+Q goal(pa) 0/3
+Q ctx(pa) 0/3
+Q goal(pb) 0/3

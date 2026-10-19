@@ -1,0 +1,26 @@
+case gossip steps=40 seeds=3
+I posted(p1,m1) 1
+I posted(p2,m2) 1
+I posted(p3,m3) 1
+I knows(p4,m1) 1
+I not_posted(p4,m1) 1
+I unheard(p1,m2) 1
+I unheard(p1,m3) 1
+I unheard(p2,m1) 1
+I unheard(p2,m3) 1
+I unheard(p3,m1) 1
+I unheard(p3,m2) 1
+I unheard(p4,m2) 1
+I unheard(p4,m3) 1
+I unheard(p5,m1) 1
+I unheard(p5,m2) 1
+I unheard(p5,m3) 1
+T 1 say[P=p4,M=m1] sr read[S=p4,M=m1,F=p5] read[S=p3,M=m3,F=p1] read[S=p1,M=m1,F=p2] read[S=p1,M=m1,F=p3] read[S=p2,M=m2,F=p1] rs[P=p2,M=m1] say[P=p1,M=m3] say[P=p5,M=m1] say[P=p2,M=m1] say[P=p3,M=m1] say[P=p1,M=m2] sr read[S=p1,M=m2,F=p3] read[S=p1,M=m3,F=p2] read[S=p1,M=m3,F=p4] read[S=p1,M=m2,F=p4] rs[P=p4,M=m2] say[P=p4,M=m3] say[P=p2,M=m3] say[P=p3,M=m2] say[P=p4,M=m2] sr read[S=p4,M=m2,F=p5] read[S=p4,M=m3,F=p5] rs[P=p5,M=m3] say[P=p5,M=m3] say[P=p5,M=m2] sr
+F 1 (done) knows(p1,m2):1 knows(p1,m3):1 knows(p2,m1):1 knows(p2,m3):1 knows(p3,m1):1 knows(p3,m2):1 knows(p4,m1):1 knows(p4,m2):1 knows(p4,m3):1 knows(p5,m1):1 knows(p5,m2):1 knows(p5,m3):1 posted(p1,m1):1 posted(p1,m2):1 posted(p1,m3):1 posted(p2,m1):1 posted(p2,m2):1 posted(p2,m3):1 posted(p3,m1):1 posted(p3,m2):1 posted(p3,m3):1 posted(p4,m1):1 posted(p4,m2):1 posted(p4,m3):1 posted(p5,m1):1 posted(p5,m2):1 posted(p5,m3):1
+T 2 say[P=p4,M=m1] sr read[S=p1,M=m1,F=p2] read[S=p4,M=m1,F=p5] read[S=p2,M=m2,F=p1] read[S=p3,M=m3,F=p1] read[S=p1,M=m1,F=p3] rs[P=p3,M=m1] say[P=p1,M=m3] say[P=p3,M=m1] say[P=p2,M=m1] say[P=p1,M=m2] say[P=p5,M=m1] sr read[S=p1,M=m3,F=p4] read[S=p1,M=m3,F=p2] read[S=p1,M=m2,F=p3] read[S=p1,M=m2,F=p4] rs[P=p3,M=m2] say[P=p2,M=m3] say[P=p3,M=m2] say[P=p4,M=m3] say[P=p4,M=m2] sr read[S=p4,M=m3,F=p5] read[S=p4,M=m2,F=p5] rs[P=p5,M=m3] say[P=p5,M=m3] say[P=p5,M=m2] sr
+F 2 (done) knows(p1,m2):1 knows(p1,m3):1 knows(p2,m1):1 knows(p2,m3):1 knows(p3,m1):1 knows(p3,m2):1 knows(p4,m1):1 knows(p4,m2):1 knows(p4,m3):1 knows(p5,m1):1 knows(p5,m2):1 knows(p5,m3):1 posted(p1,m1):1 posted(p1,m2):1 posted(p1,m3):1 posted(p2,m1):1 posted(p2,m2):1 posted(p2,m3):1 posted(p3,m1):1 posted(p3,m2):1 posted(p3,m3):1 posted(p4,m1):1 posted(p4,m2):1 posted(p4,m3):1 posted(p5,m1):1 posted(p5,m2):1 posted(p5,m3):1
+T 3 say[P=p4,M=m1] sr read[S=p1,M=m1,F=p3] read[S=p2,M=m2,F=p1] read[S=p3,M=m3,F=p1] read[S=p4,M=m1,F=p5] read[S=p1,M=m1,F=p2] rs[P=p5,M=m1] say[P=p2,M=m1] say[P=p5,M=m1] say[P=p3,M=m1] say[P=p1,M=m3] say[P=p1,M=m2] sr read[S=p1,M=m2,F=p4] read[S=p1,M=m3,F=p4] read[S=p1,M=m3,F=p2] read[S=p1,M=m2,F=p3] rs[P=p2,M=m3] say[P=p4,M=m2] say[P=p4,M=m3] say[P=p3,M=m2] say[P=p2,M=m3] sr read[S=p4,M=m3,F=p5] read[S=p4,M=m2,F=p5] rs[P=p5,M=m2] say[P=p5,M=m2] say[P=p5,M=m3] sr
+F 3 (done) knows(p1,m2):1 knows(p1,m3):1 knows(p2,m1):1 knows(p2,m3):1 knows(p3,m1):1 knows(p3,m2):1 knows(p4,m1):1 knows(p4,m2):1 knows(p4,m3):1 knows(p5,m1):1 knows(p5,m2):1 knows(p5,m3):1 posted(p1,m1):1 posted(p1,m2):1 posted(p1,m3):1 posted(p2,m1):1 posted(p2,m2):1 posted(p2,m3):1 posted(p3,m1):1 posted(p3,m2):1 posted(p3,m3):1 posted(p4,m1):1 posted(p4,m2):1 posted(p4,m3):1 posted(p5,m1):1 posted(p5,m2):1 posted(p5,m3):1
+Q knows(p5,m2) 3/3
+Q knows(p5,m3) 3/3
+Q knows(p1,m1) 0/3

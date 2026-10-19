@@ -42,3 +42,6 @@ stage task {
   %% deliver.
   serve [task] : held_soup -o hand_free * served  @w w_serve.
 }
+
+#steps 6
+#seeds 3

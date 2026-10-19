@@ -1,0 +1,12 @@
+case three_pigs steps=8 seeds=1
+I pig 3
+I wolf 1
+I straw 1
+I sticks 1
+I bricks 1
+T 1 build_stick build_straw blow_straw build_brick blow_stick blow_brick
+F 1 (done) brickhouse:1
+Q strawhouse 0/1
+Q stickhouse 0/1
+Q brickhouse 1/1
+Q wolf 0/1

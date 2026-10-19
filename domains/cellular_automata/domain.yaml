@@ -1,0 +1,3 @@
+display: the grid
+line: a 3x3 cellular automaton's grid and neighbours, no rules yet (the original is a skeleton)
+program: cellular_automata.llp

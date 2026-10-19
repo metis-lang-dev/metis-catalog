@@ -1,0 +1,14 @@
+case plant steps=6 seeds=3
+I moist 1
+I sun 1
+I cmd_water 1
+I cmd_check 1
+T 1 dry_out water check_moist
+F 1 (done) checked(moist):1 done(water):1 moist:1
+T 2 dry_out water check_moist
+F 2 (done) checked(moist):1 done(water):1 moist:1
+T 3 check_moist dry_out water
+F 3 (done) checked(moist):1 done(water):1 moist:1
+Q done(water) 3/3
+Q checked(moist) 3/3
+Q checked(dry) 0/3

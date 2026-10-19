@@ -59,3 +59,40 @@ jobs:
         run: |
           pip install -e ./metispy
           cd metis-catalog && python ci/crosscheck.py
+
+  # catalog-packages s-a2c529d6: every package run and built by both toolchains
+  # (ci/packages.py) — `metisc --run` of its # case against goldens/traces/,
+  # metispy's twin of the same run (I/T/F lines), and `metisc --wire` of the
+  # served program against metispy's bundle ground.wire; the CI cases in
+  # goldens/cases/ against their traces. A job of its own: talespin grounds
+  # 105k events in metisc for its run and again for its wire (~2 min each,
+  # run side by side with --jobs 2).
+  packages:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          path: metis-catalog
+      - name: Checkout metis-lang@master (public toolchain)
+        uses: actions/checkout@v4
+        with:
+          repository: metis-lang-dev/metis-lang
+          ref: master
+          path: metis-lang
+      - name: Checkout metispy (public sibling)
+        uses: actions/checkout@v4
+        with:
+          repository: metis-lang-dev/metispy
+          path: metispy
+      - name: Install OCaml + build metisc
+        run: |
+          sudo apt-get update -qq && sudo apt-get install -y -qq ocaml-nox
+          make -C metis-lang metisc
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: packages.py (every package's trace, its metispy twin, its wire)
+        run: |
+          pip install --quiet pyyaml -e ./metispy
+          cd metis-catalog && python ci/packages.py --jobs 2

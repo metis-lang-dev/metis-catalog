@@ -1,0 +1,7 @@
+case kitchen steps=6 seeds=3
+T 1 -
+F 1 (done)
+T 2 -
+F 2 (done)
+T 3 -
+F 3 (done)

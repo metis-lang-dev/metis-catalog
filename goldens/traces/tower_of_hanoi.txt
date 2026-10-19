@@ -1,0 +1,16 @@
+case tower_of_hanoi steps=14 seeds=3
+I clear(bottom_p2) 1
+I clear(bottom_p3) 1
+I on(r3,bottom_p1) 1
+I on(r2,top_r3) 1
+I on(r1,top_r2) 1
+I clear(top_r1) 1
+I arm_free 1
+T 1 pickup[T=top_r1,R=r1,P=top_r2] putdown_on_ring[R=r1,T=top_r2,S=r2,V=top_r1] pickup[T=top_r1,R=r1,P=top_r2] putdown_on_post[R=r1,B=bottom_p3,P=p3,V=top_r1] pickup[T=top_r1,R=r1,P=bottom_p3] putdown_on_ring[R=r1,T=top_r2,S=r2,V=top_r1] pickup[T=top_r1,R=r1,P=top_r2] putdown_on_post[R=r1,B=bottom_p3,P=p3,V=top_r1] pickup[T=top_r1,R=r1,P=bottom_p3] putdown_on_ring[R=r1,T=top_r2,S=r2,V=top_r1] pickup[T=top_r1,R=r1,P=top_r2] putdown_on_post[R=r1,B=bottom_p3,P=p3,V=top_r1] pickup[T=top_r1,R=r1,P=bottom_p3] putdown_on_post[R=r1,B=bottom_p3,P=p3,V=top_r1]
+F 1 do arm_free:1 clear(bottom_p2):1 clear(top_r1):1 clear(top_r2):1 on(r1,bottom_p3):1 on(r2,top_r3):1 on(r3,bottom_p1):1
+T 2 pickup[T=top_r1,R=r1,P=top_r2] putdown_on_ring[R=r1,T=top_r2,S=r2,V=top_r1] pickup[T=top_r1,R=r1,P=top_r2] putdown_on_ring[R=r1,T=top_r2,S=r2,V=top_r1] pickup[T=top_r1,R=r1,P=top_r2] putdown_on_post[R=r1,B=bottom_p3,P=p3,V=top_r1] pickup[T=top_r2,R=r2,P=top_r3] putdown_on_ring[R=r2,T=top_r3,S=r3,V=top_r2] pickup[T=top_r1,R=r1,P=bottom_p3] putdown_on_ring[R=r1,T=top_r2,S=r2,V=top_r1] pickup[T=top_r1,R=r1,P=top_r2] putdown_on_post[R=r1,B=bottom_p3,P=p3,V=top_r1] pickup[T=top_r2,R=r2,P=top_r3] putdown_on_post[R=r2,B=bottom_p2,P=p2,V=top_r2]
+F 2 do arm_free:1 clear(top_r1):1 clear(top_r2):1 clear(top_r3):1 on(r1,bottom_p3):1 on(r2,bottom_p2):1 on(r3,bottom_p1):1
+T 3 pickup[T=top_r1,R=r1,P=top_r2] putdown_on_ring[R=r1,T=top_r2,S=r2,V=top_r1] pickup[T=top_r1,R=r1,P=top_r2] putdown_on_post[R=r1,B=bottom_p2,P=p2,V=top_r1] pickup[T=top_r1,R=r1,P=bottom_p2] putdown_on_post[R=r1,B=bottom_p3,P=p3,V=top_r1] pickup[T=top_r1,R=r1,P=bottom_p3] putdown_on_ring[R=r1,T=top_r2,S=r2,V=top_r1] pickup[T=top_r1,R=r1,P=top_r2] putdown_on_ring[R=r1,T=top_r2,S=r2,V=top_r1] pickup[T=top_r1,R=r1,P=top_r2] putdown_on_ring[R=r1,T=top_r2,S=r2,V=top_r1] pickup[T=top_r1,R=r1,P=top_r2] putdown_on_post[R=r1,B=bottom_p3,P=p3,V=top_r1]
+F 3 do arm_free:1 clear(bottom_p2):1 clear(top_r1):1 clear(top_r2):1 on(r1,bottom_p3):1 on(r2,top_r3):1 on(r3,bottom_p1):1
+Q on(r3,bottom_p3) 0/3
+Q on(r1,top_r2) 0/3

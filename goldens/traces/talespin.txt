@@ -1,0 +1,22 @@
+case talespin steps=8 seeds=3
+I knows_atf(world,berries,elm_tree) 1
+I knows_atf(world,water,river) 1
+I knows_atf(world,worm,ground) 1
+I knows_atc(world,joe_bear,oak_tree) 1
+I knows_atc(world,wilma_bird,oak_tree) 1
+I knows_likes(world,wilma_bird,joe_bear,yes) 1
+I knows_likes(world,joe_bear,wilma_bird,yes) 1
+I knows_atc(joe_bear,joe_bear,oak_tree) 1
+I knows_atc(joe_bear,wilma_bird,oak_tree) 1
+I knows_atc(wilma_bird,joe_bear,oak_tree) 2
+I knows_atf(wilma_bird,berries,elm_tree) 1
+I has_problem(joe_bear,hunger) 1
+T 1 ask[C=joe_bear,Pr=hunger,F=honey,Loc=oak_tree,S=wilma_bird] ask[C=joe_bear,Pr=hunger,F=honey,Loc=oak_tree,S=wilma_bird] ask[C=joe_bear,Pr=hunger,F=honey,Loc=oak_tree,S=wilma_bird] ask[C=joe_bear,Pr=hunger,F=berries,Loc=oak_tree,S=wilma_bird] ask[C=joe_bear,Pr=hunger,F=berries,Loc=oak_tree,S=wilma_bird] ask[C=joe_bear,Pr=hunger,F=honey,Loc=oak_tree,S=wilma_bird] ask[C=joe_bear,Pr=hunger,F=honey,Loc=oak_tree,S=wilma_bird] ask[C=joe_bear,Pr=hunger,F=berries,Loc=oak_tree,S=wilma_bird]
+F 1 main asks_wheref(joe_bear,berries,wilma_bird):3 asks_wheref(joe_bear,honey,wilma_bird):5 has_problem(joe_bear,hunger):1 knows_atc(joe_bear,joe_bear,oak_tree):1 knows_atc(joe_bear,wilma_bird,oak_tree):1 knows_atc(wilma_bird,joe_bear,oak_tree):2 knows_atc(world,joe_bear,oak_tree):1 knows_atc(world,wilma_bird,oak_tree):1 knows_atf(wilma_bird,berries,elm_tree):1 knows_atf(world,berries,elm_tree):1 knows_atf(world,water,river):1 knows_atf(world,worm,ground):1 knows_likes(world,joe_bear,wilma_bird,yes):1 knows_likes(world,wilma_bird,joe_bear,yes):1
+T 2 ask[C=joe_bear,Pr=hunger,F=honey,Loc=oak_tree,S=wilma_bird] ask[C=joe_bear,Pr=hunger,F=honey,Loc=oak_tree,S=wilma_bird] ask[C=joe_bear,Pr=hunger,F=honey,Loc=oak_tree,S=wilma_bird] ask[C=joe_bear,Pr=hunger,F=honey,Loc=oak_tree,S=wilma_bird] ask[C=joe_bear,Pr=hunger,F=berries,Loc=oak_tree,S=wilma_bird] ask[C=joe_bear,Pr=hunger,F=berries,Loc=oak_tree,S=wilma_bird] ask[C=joe_bear,Pr=hunger,F=berries,Loc=oak_tree,S=wilma_bird] ask[C=joe_bear,Pr=hunger,F=berries,Loc=oak_tree,S=wilma_bird]
+F 2 main asks_wheref(joe_bear,berries,wilma_bird):4 asks_wheref(joe_bear,honey,wilma_bird):4 has_problem(joe_bear,hunger):1 knows_atc(joe_bear,joe_bear,oak_tree):1 knows_atc(joe_bear,wilma_bird,oak_tree):1 knows_atc(wilma_bird,joe_bear,oak_tree):2 knows_atc(world,joe_bear,oak_tree):1 knows_atc(world,wilma_bird,oak_tree):1 knows_atf(wilma_bird,berries,elm_tree):1 knows_atf(world,berries,elm_tree):1 knows_atf(world,water,river):1 knows_atf(world,worm,ground):1 knows_likes(world,joe_bear,wilma_bird,yes):1 knows_likes(world,wilma_bird,joe_bear,yes):1
+T 3 ask[C=joe_bear,Pr=hunger,F=berries,Loc=oak_tree,S=wilma_bird] ask[C=joe_bear,Pr=hunger,F=honey,Loc=oak_tree,S=wilma_bird] ask[C=joe_bear,Pr=hunger,F=berries,Loc=oak_tree,S=wilma_bird] tell_info_wheref[A=joe_bear,F=berries,T=wilma_bird,L=elm_tree,Loc=oak_tree] tell_info_wheref[A=joe_bear,F=berries,T=wilma_bird,L=elm_tree,Loc=oak_tree] move[C=joe_bear,P=hunger,F=berries,L=oak_tree,M=elm_tree] ingest[C=joe_bear,P=hunger,F=berries,L=elm_tree]
+F 3 (done) asks_wheref(joe_bear,honey,wilma_bird):1 knows_atc(joe_bear,joe_bear,elm_tree):1 knows_atc(joe_bear,wilma_bird,oak_tree):1 knows_atc(wilma_bird,joe_bear,oak_tree):2 knows_atc(world,joe_bear,elm_tree):1 knows_atc(world,wilma_bird,oak_tree):1 knows_atf(joe_bear,berries,elm_tree):1 knows_atf(wilma_bird,berries,elm_tree):1 knows_atf(world,water,river):1 knows_atf(world,worm,ground):1 knows_likes(world,joe_bear,wilma_bird,yes):1 knows_likes(world,wilma_bird,joe_bear,yes):1
+Q has_problem(joe_bear,hunger) 2/3
+Q knows_atf(joe_bear,berries,elm_tree) 1/3
+Q knows_atc(world,joe_bear,elm_tree) 1/3

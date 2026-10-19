@@ -1,0 +1,16 @@
+case blocks_world steps=6 seeds=3
+I on_table(a) 1
+I on_table(b) 1
+I on(c,a) 1
+I clear(c) 1
+I clear(b) 1
+I arm_free 1
+T 1 pickup_from_block[X=c,Y=a] put_on_block[X=c,Y=b] pickup_from_block[X=c,Y=b] put_on_block[X=c,Y=a] pickup_from_table[X=b] put_on_block[X=b,Y=c]
+F 1 blocks arm_free:1 clear(b):1 on(b,c):1 on(c,a):1 on_table(a):1
+T 2 pickup_from_block[X=c,Y=a] put_on_block[X=c,Y=b] pickup_from_block[X=c,Y=b] put_on_block[X=c,Y=b] pickup_from_table[X=a] put_on_table[X=a]
+F 2 blocks arm_free:1 clear(a):1 clear(c):1 on(c,b):1 on_table(a):1 on_table(b):1
+T 3 pickup_from_table[X=b] put_on_block[X=b,Y=c] pickup_from_block[X=b,Y=c] put_on_table[X=b] pickup_from_table[X=b] put_on_block[X=b,Y=c]
+F 3 blocks arm_free:1 clear(b):1 on(b,c):1 on(c,a):1 on_table(a):1
+Q on_table(c) 0/3
+Q on(b,c) 2/3
+Q on(a,b) 0/3

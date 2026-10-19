@@ -1,0 +1,3 @@
+display: the arm
+line: 'three blocks and an arm: stack c, b, a with no frame axioms'
+program: blocks_world.llp

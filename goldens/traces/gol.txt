@@ -1,0 +1,13 @@
+case gol steps=30 seeds=1
+I m(i0) 1
+I a(x1__y1) 1
+I d(x1__y2) 1
+I a(x1__y3) 1
+I a(x2__y1) 1
+I a(x2__y2) 1
+I d(x2__y3) 1
+I d(x3__y1) 1
+I d(x3__y2) 1
+I d(x3__y3) 1
+T 1 mr[I=i0,C=x1__y1,I2=i1] md[I=i1,C=x1__y2,I2=i2] mr[I=i2,C=x1__y3,I2=i3] mr[I=i3,C=x2__y1,I2=i4] mr[I=i4,C=x2__y2,I2=i5] md[I=i5,C=x2__y3,I2=i6] md[I=i6,C=x3__y1,I2=i7] md[I=i7,C=x3__y2,I2=i8] md[I=i8,C=x3__y3,I2=i9] mu up[I=i0,C=x1__y1,I2=i1] st[I=i1,C=x1__y2,I2=i2] up[I=i2,C=x1__y3,I2=i3] dn[I=i3,C=x2__y1,I2=i4] up[I=i4,C=x2__y2,I2=i5] rv[I=i5,C=x2__y3,I2=i6] st[I=i6,C=x3__y1,I2=i7] st[I=i7,C=x3__y2,I2=i8] st[I=i8,C=x3__y3,I2=i9] us swaa[I=i0,C=x1__y1,I2=i1] swdd[I=i1,C=x1__y2,I2=i2] swaa[I=i2,C=x1__y3,I2=i3] swad[I=i3,C=x2__y1,I2=i4] swaa[I=i4,C=x2__y2,I2=i5] swda[I=i5,C=x2__y3,I2=i6] swdd[I=i6,C=x3__y1,I2=i7] swdd[I=i7,C=x3__y2,I2=i8] swdd[I=i8,C=x3__y3,I2=i9] sm
+F 1 mark a(x1__y1):1 a(x1__y3):1 a(x2__y2):1 a(x2__y3):1 d(x1__y2):1 d(x2__y1):1 d(x3__y1):1 d(x3__y2):1 d(x3__y3):1 m(i0):1

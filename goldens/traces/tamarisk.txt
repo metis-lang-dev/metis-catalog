@@ -1,0 +1,20 @@
+case tamarisk steps=200 seeds=1
+I tamarisk_at(s1s1) 1
+I native_at(s1s1) 1
+I native_at(s2s2) 1
+I native_at(s3s1) 1
+I not_tamarisk_at(s1s2) 1
+I not_tamarisk_at(s2s1) 1
+I not_tamarisk_at(s2s2) 1
+I not_tamarisk_at(s3s1) 1
+I not_tamarisk_at(s3s2) 1
+I not_tamarisk_at(s4s1) 1
+I not_tamarisk_at(s4s2) 1
+I not_native_at(s1s2) 1
+I not_native_at(s2s1) 1
+I not_native_at(s3s2) 1
+I not_native_at(s4s1) 1
+I not_native_at(s4s2) 1
+I tick 1
+T 1 snap_nt[S=s2s1] snap_nt[S=s3s2] snap_t[S=s1s1] snap_nn[S=s3s2] snap_nn[S=s4s1] snap_nt[S=s3s1] snap_nt[S=s4s1] snap_nn[S=s2s1] snap_n[S=s3s1] snap_nt[S=s2s2] snap_nn[S=s1s2] snap_nt[S=s1s2] snap_n[S=s2s2] snap_nn[S=s4s2] snap_n[S=s1s1] snap_nt[S=s4s2] snapped rouse_reach[S=s4s1,R=r4] rouse_reach[S=s3s1,R=r3] rouse_reach[S=s2s1,R=r2] rouse_reach[S=s1s1,R=r1] roused take_tick acted n_wither-2[S=s3s1,R=r3] n_compete-2[S=s1s1] t_compete-1[S=s1s1] t_under_native[S=s3s1] n_born-2[S=s1s2,R=r1] t_born-1[S=s4s2,R=r4] t_born-1[S=s1s2,R=r1] n_born-2[S=s4s2,R=r4] n_born-2[S=s3s2,R=r3] n_born-2[S=s4s1,R=r4] n_wither-2[S=s2s2,R=r2] t_under_native[S=s2s2] t_born-2[S=s3s2,R=r3] t_born-2[S=s4s1,R=r4] t_born-2[S=s2s1,R=r2] pass_far[S=s3s2,P=p1,X=s1s1,R=r3,U=r1,Q=p2] pass_far[S=s4s1,P=p1,X=s1s1,R=r4,U=r1,Q=p2] pass_bare[S=s3s2,P=p2,X=s1s2,Q=p3] n_born-2[S=s2s1,R=r2] pass_bare[S=s3s2,P=p3,X=s2s1,Q=p4] pass_bare[S=s4s1,P=p2,X=s1s2,Q=p3] pass_bare[S=s4s1,P=p3,X=s2s1,Q=p4] seed_down-1[S=s2s1,P=p1,X=s1s1,R=r2,U=r1,Q=p2] pass_bare[S=s3s2,P=p4,X=s2s2,Q=p5] pass_bare[S=s4s1,P=p4,X=s2s2,Q=p5] pass_bare[S=s4s1,P=p5,X=s3s1,Q=p6] pass_bare[S=s3s2,P=p5,X=s3s1,Q=p6] pass_bare[S=s3s2,P=p6,X=s3s2,Q=p7] pass_bare[S=s3s2,P=p7,X=s4s1,Q=p8] pass_bare[S=s4s1,P=p6,X=s3s2,Q=p7] pass_bare[S=s3s2,P=p8,X=s4s2,Q=p9] seed_none[S=s3s2,P=p9] pass_bare[S=s4s1,P=p7,X=s4s1,Q=p8] pass_bare[S=s4s1,P=p8,X=s4s2,Q=p9] seed_none[S=s4s1,P=p9] settled drop_t[S=s1s1] drop_noerad[R=r3] write_nn[S=s3s2] drop_nt[S=s4s2] write_nn[S=s1s2] drop_nn[S=s1s2] drop_noerad[R=r2] drop_noerad[R=r1] drop_open[S=s3s2] drop_norest[R=r4] drop_n[S=s2s2] write_nt[S=s3s2] write_t[S=s4s2] write_nn[S=s1s1] drop_open[S=s1s2] drop_nt[S=s3s1] write_n[S=s2s2] write_nt[S=s4s1] write_nn[S=s4s2] drop_norest[R=r2] drop_open[S=s4s2] drop_nn[S=s2s1] drop_nt[S=s2s1] write_t[S=s1s1] write_n[S=s3s1] write_t[S=s1s2] write_nn[S=s2s1] drop_norest[R=r3] drop_n[S=s1s1] write_nn[S=s4s1] drop_open[S=s2s2] drop_nn[S=s4s2] drop_norest[R=r1] write_t[S=s2s1] drop_nt[S=s2s2] drop_noerad[R=r4] write_nt[S=s2s2] drop_nt[S=s4s1] drop_n[S=s3s1] drop_nn[S=s4s1] drop_nt[S=s3s2] drop_nt[S=s1s2] write_nt[S=s3s1] drop_nn[S=s3s2]
+F 1 (done) native_at(s2s2):1 native_at(s3s1):1 not_native_at(s1s1):1 not_native_at(s1s2):1 not_native_at(s2s1):1 not_native_at(s3s2):1 not_native_at(s4s1):1 not_native_at(s4s2):1 not_tamarisk_at(s2s2):1 not_tamarisk_at(s3s1):1 not_tamarisk_at(s3s2):1 not_tamarisk_at(s4s1):1 tamarisk_at(s1s1):1 tamarisk_at(s1s2):1 tamarisk_at(s2s1):1 tamarisk_at(s4s2):1

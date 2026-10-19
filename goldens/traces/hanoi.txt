@@ -1,0 +1,10 @@
+case hanoi steps=25 seeds=1
+I on(d1,d2) 1
+I on(d2,d3) 1
+I on(d3,r1) 1
+I clear(d1) 1
+I clear(r2) 1
+I clear(r3) 1
+I tally 1
+T 1 mv[D=d1,P=d2,E=r3] mv[D=d2,P=d3,E=r2] mv[D=d2,P=r2,E=d3] mv[D=d1,P=r3,E=r2] mv[D=d1,P=r2,E=r3] mv[D=d2,P=d3,E=r2] mv[D=d2,P=r2,E=d3] mv[D=d1,P=r3,E=r2] mv[D=d1,P=r2,E=d2] mv[D=d1,P=d2,E=r3] mv[D=d1,P=r3,E=r2] mv[D=d1,P=r2,E=r3] mv[D=d1,P=r3,E=r2] mv[D=d1,P=r2,E=r3] mv[D=d1,P=r3,E=r2] mv[D=d1,P=r2,E=d2] mv[D=d1,P=d2,E=r3] mv[D=d2,P=d3,E=r2] mv[D=d2,P=r2,E=d3] mv[D=d2,P=d3,E=r2] mv[D=d1,P=r3,E=d2] mv[D=d1,P=d2,E=d3] mv[D=d1,P=d3,E=r3] mv[D=d1,P=r3,E=d2] mv[D=d1,P=d2,E=d3]
+F 1 play clear(d1):1 clear(d2):1 clear(r3):1 on(d1,d3):1 on(d2,r2):1 on(d3,r1):1 tally:1

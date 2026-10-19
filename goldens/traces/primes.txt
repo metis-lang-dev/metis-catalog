@@ -1,0 +1,12 @@
+case primes steps=24 seeds=3
+I limit(n12) 1
+T 1 go[SSN=n12,SN=n11,N=n10] go[SSN=n11,SN=n10,N=n9] go[SSN=n10,SN=n9,N=n8] go[SSN=n9,SN=n8,N=n7] go[SSN=n8,SN=n7,N=n6] go[SSN=n7,SN=n6,N=n5] go[SSN=n6,SN=n5,N=n4] go[SSN=n5,SN=n4,N=n3] go[SSN=n4,SN=n3,N=n2] go[SSN=n3,SN=n2,N=n1] go[SSN=n2,SN=n1,N=n0] stop sieve collide[N=n2,M=n4,X=n2] collide[N=n3,M=n12,X=n4] collide[N=n5,M=n10,X=n2] collide[N=n3,M=n6,X=n2] collide[N=n3,M=n9,X=n3] collide[N=n2,M=n8,X=n4]
+F 1 (done) here(n11):1 here(n2):1 here(n3):1 here(n5):1 here(n7):1
+T 2 go[SSN=n12,SN=n11,N=n10] go[SSN=n11,SN=n10,N=n9] go[SSN=n10,SN=n9,N=n8] go[SSN=n9,SN=n8,N=n7] go[SSN=n8,SN=n7,N=n6] go[SSN=n7,SN=n6,N=n5] go[SSN=n6,SN=n5,N=n4] go[SSN=n5,SN=n4,N=n3] go[SSN=n4,SN=n3,N=n2] go[SSN=n3,SN=n2,N=n1] go[SSN=n2,SN=n1,N=n0] stop sieve collide[N=n4,M=n12,X=n3] collide[N=n4,M=n8,X=n2] collide[N=n5,M=n10,X=n2] collide[N=n2,M=n4,X=n2] collide[N=n3,M=n6,X=n2] collide[N=n3,M=n9,X=n3]
+F 2 (done) here(n11):1 here(n2):1 here(n3):1 here(n5):1 here(n7):1
+T 3 go[SSN=n12,SN=n11,N=n10] go[SSN=n11,SN=n10,N=n9] go[SSN=n10,SN=n9,N=n8] go[SSN=n9,SN=n8,N=n7] go[SSN=n8,SN=n7,N=n6] go[SSN=n7,SN=n6,N=n5] go[SSN=n6,SN=n5,N=n4] go[SSN=n5,SN=n4,N=n3] go[SSN=n4,SN=n3,N=n2] go[SSN=n3,SN=n2,N=n1] go[SSN=n2,SN=n1,N=n0] stop sieve collide[N=n4,M=n12,X=n3] collide[N=n3,M=n6,X=n2] collide[N=n3,M=n9,X=n3] collide[N=n5,M=n10,X=n2] collide[N=n2,M=n4,X=n2] collide[N=n2,M=n8,X=n4]
+F 3 (done) here(n11):1 here(n2):1 here(n3):1 here(n5):1 here(n7):1
+Q here(n7) 3/3
+Q here(n11) 3/3
+Q here(n9) 0/3
+Q here(n12) 0/3

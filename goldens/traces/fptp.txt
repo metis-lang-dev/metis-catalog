@@ -1,0 +1,16 @@
+case fptp steps=16 seeds=3
+I ballot(alice) 3
+I ballot(bob) 2
+I ballot(charlie) 1
+I hopeful(alice,n0) 1
+I hopeful(bob,n0) 1
+I hopeful(charlie,n0) 1
+T 1 count_ballot[C=bob,N=n0,SN=n1] count_ballot[C=bob,N=n1,SN=n2] count_ballot[C=charlie,N=n0,SN=n1] count_ballot[C=alice,N=n0,SN=n1] count_ballot[C=alice,N=n1,SN=n2] count_ballot[C=alice,N=n2,SN=n3] tally increase[N=n0,C=bob,M=n2] eliminate[N=n2,C=charlie,M=n1] increase[N=n2,C=alice,M=n3] eliminate[N=n3,C=bob,M=n2] elect[C=alice,N=n3] cleanup[X=n3]
+F 1 (done) defeated(bob):1 defeated(charlie):1 elected(alice):1
+T 2 count_ballot[C=bob,N=n0,SN=n1] count_ballot[C=bob,N=n1,SN=n2] count_ballot[C=alice,N=n0,SN=n1] count_ballot[C=charlie,N=n0,SN=n1] count_ballot[C=alice,N=n1,SN=n2] count_ballot[C=alice,N=n2,SN=n3] tally increase[N=n0,C=alice,M=n3] eliminate[N=n3,C=bob,M=n2] eliminate[N=n3,C=charlie,M=n1] elect[C=alice,N=n3] cleanup[X=n3]
+F 2 (done) defeated(bob):1 defeated(charlie):1 elected(alice):1
+T 3 count_ballot[C=alice,N=n0,SN=n1] count_ballot[C=bob,N=n0,SN=n1] count_ballot[C=bob,N=n1,SN=n2] count_ballot[C=alice,N=n1,SN=n2] count_ballot[C=alice,N=n2,SN=n3] count_ballot[C=charlie,N=n0,SN=n1] tally increase[N=n0,C=alice,M=n3] eliminate[N=n3,C=bob,M=n2] eliminate[N=n3,C=charlie,M=n1] elect[C=alice,N=n3] cleanup[X=n3]
+F 3 (done) defeated(bob):1 defeated(charlie):1 elected(alice):1
+Q elected(alice) 3/3
+Q elected(bob) 0/3
+Q defeated(charlie) 3/3

@@ -1,8 +1,9 @@
-# bridge-torch — bridge and torch, imperative vs declarative
+# bridge — bridge and torch, imperative (with its declarative counterpart, bridge_decl)
 
 Concluded metis-loop experiment (2026-10-09), copied from
 `metis-loop/experiments/bridge-torch/`. Two catalogs formalize the same
-statement. Read them side by side: this is the worked example behind
+statement: this package's `bridge.llp`, and `../bridge_decl/bridge_decl.llp`
+(the `bridge_decl` package). Read them side by side: this is the worked example behind
 the metis-loop skill's Formalize rule, "declarative over imperative,
 model the mechanism, not the ledger".
 
@@ -21,7 +22,7 @@ question is `P[solved] > 0`.
   cost class (`solo1/2/5/8`, `pair2/5/8`). Each rule consumes 1, 2, 5
   or 8 wick tokens, and enumerated `max2/max5/max8` pair facts say
   which pair burns at which rate.
-- `bridge-declarative.llp` (catalog `bridge_decl`, 3 stages, 7 rules
+- `bridge_decl.llp` (catalog `bridge_decl`, 3 stages, 7 rules
   plus 3 `qui` links). Time is dynamics and pace is data. The bridge is
   a chain of minute-marks `m0..m8` (`bwd step`). The party advances one
   mark per minute and burns one wick per minute. A walker steps off at
@@ -68,7 +69,7 @@ The puzzle's answer for 1/2/5/8 is yes, in 15 minutes
 (2+1+8+2+2). The instruments reproduce that answer, and the
 14-minute check shows it is the minimum:
 
-| quantity | bridge.llp | bridge-declarative.llp |
+| quantity | bridge.llp | bridge_decl.llp |
 |---|---|---|
 | `query solved`, wick 15 | 1.162e-08 (@20, exact) | 8.573e-05 (@150, exact) |
 | `query solved`, wick 14 | 0 (exact) | 0 (exact) |
@@ -85,7 +86,7 @@ The puzzle's answer for 1/2/5/8 is yes, in 15 minutes
   slowest cross together" emerged as the only positive-mass choice.
   #3: `solo2[b]` back. #4: `pair2[a,b]` gives 1. Final `state` shows
   everyone far, with the wick fully spent.
-- **Goal-record replay (declarative file).** `runs/goal-decl.jsonl`
+- **Goal-record replay (declarative file).** `../bridge_decl/runs/goal-decl.jsonl`
   (observed `solved: 1`, likelihood 8.573e-05) was replayed with
   `explains: true`. The schedule it derived: A+B over (2), B back (2),
   C+D over (C alights at m5 while the torch burns on to m8 with D),
@@ -112,17 +113,17 @@ The puzzle's answer for 1/2/5/8 is yes, in 15 minutes
   harmless at the observed choice points and was not measured further.
 - The 1/2/5/10 variant (17 minutes) was not modeled.
 
-## 5. Evidence in this directory
+## 5. Evidence (this package and `../bridge_decl/`)
 
 - `bridge.llp`: imperative catalog (wick-token durations).
-- `bridge-declarative.llp`: declarative catalog (minute-mark path,
+- `../bridge_decl/bridge_decl.llp`: declarative catalog (minute-mark path,
   pace data).
 - `bridge-transcript.md`: imperative session. Opening `events`
   weights, the wick 15/14/13 sweep, the all-zero greedy run under the
   footgun, the greedy rerun to `done`.
-- `bridge-declarative-transcript.md`: `run 40` smoke run, wick 15/14
+- `../bridge_decl/bridge-declarative-transcript.md`: `run 40` smoke run, wick 15/14
   queries, goal record and `replay`.
-- `runs/goal-decl.jsonl`: goal-evidence record for the declarative
+- `../bridge_decl/runs/goal-decl.jsonl`: goal-evidence record for the declarative
   catalog.
 
 Both transcripts start with roughly 90 lines of LLM-seat system-prompt
@@ -131,13 +132,25 @@ boilerplate; the REPL work follows.
 Run, from this directory:
 
 ```sh
-metis bridge-declarative.llp        # REPL; then: query solved @150
+metis ../bridge_decl/bridge_decl.llp  # REPL; then: query solved @150
                                     #   #init wick 14 / reset / query ...
-                                    #   sink runs/goal-decl.jsonl / record 0 / replay
+                                    #   sink ../bridge_decl/runs/goal-decl.jsonl / record 0 / replay
 metis bridge.llp                    # REPL; then: events / query solved @20
-../../../../metis-lang/src/metisc --run bridge-declarative.llp
-../../../../metis-lang/src/metisc --run bridge.llp
+../../../metis-lang/src/metisc --run ../bridge_decl/bridge_decl.llp
+../../../metis-lang/src/metisc --run bridge.llp
 ```
 
 `metisc --run` prints the seed-1 case only. For both files that is a
 failing random episode, not the solution.
+
+The transcripts name the declarative program by its earlier file name,
+`bridge-declarative.llp`.
+
+## Package
+
+Neither world takes commands: no `intent.yaml`, no host. The expected
+traces of the two cases are `goldens/traces/bridge.txt` and
+`goldens/traces/bridge_decl.txt` (catalog CI). Both moved from
+`domains/planning/bridge-torch/` (catalog-packages s-a2c529d6); the
+declarative file was renamed `bridge_decl.llp` after its catalog, and
+both programs are unchanged.

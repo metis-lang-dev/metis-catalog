@@ -1,0 +1,14 @@
+case sysadmin steps=9 seeds=3
+I m(i0) 1
+I run(a) 1
+I run(b) 1
+T 1 mr[I=i0,C=a,I2=i1] mr[I=i1,C=b,I2=i2] mu dn[I=i0,C=a,I2=i1] dn[I=i1,C=b,I2=i2] us swb[I=i0,C=a,I2=i1] swb[I=i1,C=b,I2=i2] sm
+F 1 mark down(a):1 down(b):1 m(i0):1
+T 2 mr[I=i0,C=a,I2=i1] mr[I=i1,C=b,I2=i2] mu up[I=i0,C=a,I2=i1] dn[I=i1,C=b,I2=i2] us swa[I=i0,C=a,I2=i1] swb[I=i1,C=b,I2=i2] sm
+F 2 mark down(b):1 m(i0):1 run(a):1
+T 3 mr[I=i0,C=a,I2=i1] mr[I=i1,C=b,I2=i2] mu dn[I=i0,C=a,I2=i1] dn[I=i1,C=b,I2=i2] us swb[I=i0,C=a,I2=i1] swb[I=i1,C=b,I2=i2] sm
+F 3 mark down(a):1 down(b):1 m(i0):1
+Q run(a) 1/3
+Q down(a) 2/3
+Q run(b) 0/3
+Q down(b) 3/3

@@ -193,7 +193,7 @@ needs the 2400-transition scale that wildfire and tamarisk used.
   Delivery and alighting need a non-random agent or longer episodes.
 - **Not reached here,** because no world priced a step: token-multiplicity
   weight skew, the `#init`-persists-on-reset footgun, and exact-filter
-  blowups (see `../../planning/bridge-torch/` and `../wildfire/`).
+  blowups (see `../../bridge/` and `../wildfire/`).
 
 ## Evidence in this directory
 

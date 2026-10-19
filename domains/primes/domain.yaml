@@ -1,0 +1,3 @@
+display: the sieve
+line: 'a sieve up to 12: every number annihilates its multiples, the primes are left'
+program: primes.llp

@@ -39,7 +39,7 @@ verbs to a `metis` subprocess (`_drive.py`) and rewrite `transcripts/<name>.md`.
    - only `None` ends the episode;
    - a tick at DONE revives the stage the world rested in.
    This is the same area as the bridge-torch post-terminal qui-spin
-   (`../../planning/bridge-torch/`).
+   (`../../bridge/`, `../../bridge_decl/`).
 2. **Exogenous input is a fired row, not a hand `do`.** A hand `do`
    rebases the graph, so fork/whatif could not reach back past the last
    tick. As `exo` rows (`[env]` in log/graph/why/narrate), input is

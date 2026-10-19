@@ -1,0 +1,10 @@
+case nav steps=40 seeds=3
+I at(x21_y12) 1
+T 1 die_north[C=x21_y12,C2=x21_y15]
+F 1 (done) dead:1
+T 2 die_north[C=x21_y12,C2=x21_y15]
+F 2 (done) dead:1
+T 3 mv_west[C=x21_y12,C2=x14_y12] die_east[C=x14_y12,C2=x21_y12]
+F 3 (done) dead:1
+Q at(x21_y20) 0/3
+Q dead 3/3

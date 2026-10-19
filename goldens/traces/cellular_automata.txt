@@ -1,0 +1,3 @@
+case cellular_automata steps=1 seeds=1
+T 1 -
+F 1 (done)

@@ -10,6 +10,8 @@ across benchmarks, each a full LLP world model.
 | dir | what |
 | --- | --- |
 | `domains/love_triangle/`, `tragedy/`, `herstory/`, `talespin/`, `three_pigs/`, `three_pigs_connectives/` | the Ceptre lineage, each a catalog domain (domain.yaml, the program, a README of where it came from): Martens' love triangle (A Midsummer Night's Dream), with the ORIGINAL `love-triangle.cep` beside it, and the interactive-lp story worlds — samples become an exact measure, `#interactive` becomes a policy hook, the trace becomes a MAP plot summary. They take no commands: no intent.yaml, so the domain agent opens each with no verbs. `domains/CEPTRE-PORTS.md` tracks the ports; the wider origin corpus (79 `.cep`: vampire, civ, sokoban, cocktails…) lives in the `if` archive, ports welcome. |
+| `domains/primes/`, `cellular_automata/`, `ll/`, `blocks_world/`, `tower_of_hanoi/`, `gossip/`, `fptp/` | the interactive-lp example ports (`domains/CEPTRE-PORTS.md`), each a package with no host and no intents; `tower_of_hanoi` is the Ceptre example, not the RDDL `hanoi`. |
+| `domains/bridge/`, `bridge_decl/`, `wgc/` | puzzles formalized from their statements in the metis loop (bridge and torch twice, wolf-goat-cabbage); wgc is the specialist's domain. |
 | `domains/gol/` | Game of Life (IPPC) — exact live play via the factored one-step agent; an RDDL world package (the program written out by metispy's generator, a gym host). |
 | `domains/kitchen/` | Overcooked-AI — partner-posterior overlay, intent choice on the measure. |
 | `domains/nav/` | IPPC Navigation — provably optimal; the reference RDDL world: a package whose host steps the IPPC 2011 gym (`tools/rddl_host.py`, `tools/rddl_gym.py`), no intents. |
@@ -24,7 +26,7 @@ across benchmarks, each a full LLP world model.
 | `packs/` | the road catalog's admission-gated packs (metispy's scene/loop vocabulary; containment-typed: they constrain, never enable). A domain package's are its `extensions/` (CATALOG.md). |
 | `demo/` | tutorial catalogs. |
 | `scenes/` | generated scene instances (the include-adopts-catalog pattern) + the case manifest — how a domain-generic catalog meets a concrete situation. |
-| `goldens/` | committed artifacts + expectations: the product IR artifact the runtime loads (`*_ir_artifact.txt`), per-scene decision/marginal expectations (`*_ir_expect.txt`), canonical keys (`KEYS.txt`). Expectation floats come from the metispy exact referee; keys are cross-toolchain (metisc == metispy, byte-equal). |
+| `goldens/` | committed artifacts + expectations: the product IR artifact the runtime loads (`*_ir_artifact.txt`), per-scene decision/marginal expectations (`*_ir_expect.txt`), canonical keys (`KEYS.txt`). Expectation floats come from the metispy exact referee; keys are cross-toolchain (metisc == metispy, byte-equal). `traces/<name>.txt`: each package's `metisc --run` trace, and `cases/<name>.llp` + `traces/<name>.case.txt`: CI cases, not domains — the program included unchanged with a start that fires, where the program's own `#init` is its live start (dog, plant, kitchen, sysadmin). |
 
 ## Experiments: the formalization record
 
@@ -40,8 +42,8 @@ cites. metis-loop keeps only the loop machinery.
 | `domains/rddl/tamarisk/` | IPPC2014 Tamarisk; 11 one-law ports, the per-slot EM notch |
 | `domains/rddl/elevators/` | IPPC elevators — the first RDDL run; the recipe, cards and interface the shelf reused |
 | `domains/rddl/hanoi/` | rddlrepository arcade Tower of Hanoi (Tier-2 probe) |
-| `domains/planning/bridge-torch/` | bridge and torch — imperative vs declarative; the "mechanism, not ledger" doctrine |
-| `domains/planning/wgc/` | wolf, goat and cabbage — the ferry/shore settle tick |
+| `domains/bridge/`, `domains/bridge_decl/` | bridge and torch — imperative vs declarative; the "mechanism, not ledger" doctrine (the account in bridge's README) |
+| `domains/wgc/` | wolf, goat and cabbage — the ferry/shore settle tick |
 | `domains/ports/port-proto/` | the PortPlugin conformance fixtures |
 | `demo/surprise-demo/` | the pantry world: a planted gap, the surprise walkthrough |
 | `demo/synthetic-meadow/` | the first end-to-end surprise cycle in the REPL |
@@ -49,8 +51,25 @@ cites. metis-loop keeps only the loop machinery.
 ## Check
 
 ```sh
-sh ci/check.sh    # METISC=<path> to override the sibling metis-lang build
+sh ci/check.sh         # METISC=<path> to override the sibling metis-lang build
+sh ci/diagnose.sh      # no error diagnostics (reasoned exemptions in ci/diag-exempt.txt)
+python ci/packages.py  # every package: --run against its trace, metispy's twin, --wire against metispy's bundle
+python ci/packages.py --update --only NAME   # rewrite a package's trace after a deliberate change
 ```
+
+**Every live program is a package** (`domains/<name>/`: domain.yaml,
+`<name>.llp`, a README). What stays outside packages, and why:
+
+| where | why it is not a package |
+| --- | --- |
+| `domains/rddl/` | the record of the RDDL formalization experiments (born, candidate, iteration worlds): evidence for their READMEs, not served worlds. The worlds they produced are packages. |
+| `domains/ports/port-proto/` | the PortPlugin conformance fixtures (clock, reservoir, sensor): protocol tests with their own drivers and transcripts, not worlds a person opens. |
+| `road/`, `packs/` | the road catalog (parked by the user): a production catalog, its templates and increment history, and its admission-gated packs. |
+| `scenes/` | generated scene instances: the canonical-key gate's inputs (check.sh gate 2). |
+| `demo/` | the C++ runtime's acceptance demo (`patrol.llp`, `patrol_v2.llp`: pinned by `goldens/demo_patrol_v*_goldens.txt`, wires regenerated by roadcat) and two concluded REPL walkthroughs (`surprise-demo/`, `synthetic-meadow/`, kept as their READMEs and transcripts cite them): fixtures and teaching records. |
+| `goldens/cases/` | CI cases (see goldens/), not domains. |
+
+These keep their roundtrip (check.sh) and diagnose gates only.
 
 Gate 1 roundtrips every `.llp` (`parse (pretty a) = a`); gate 2
 grounds the committed scene through metisc and pins the canonical

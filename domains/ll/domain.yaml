@@ -1,0 +1,3 @@
+display: the prover
+line: 'a toy linear-logic theorem prover: each rule decomposes a connective until no goal is left'
+program: ll.llp

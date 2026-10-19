@@ -1,0 +1,12 @@
+case kitchen steps=12 seeds=3
+I hand_free 1
+I pot_space 3
+T 1 fetch_onion load fetch_onion load fetch_dish
+F 1 (done) held_dish:1 pot_onion:2 pot_space:1
+T 2 fetch_onion load fetch_onion load fetch_dish
+F 2 (done) held_dish:1 pot_onion:2 pot_space:1
+T 3 fetch_dish
+F 3 (done) held_dish:1 pot_space:3
+Q served 0/3
+Q cooking 0/3
+Q held_soup 0/3

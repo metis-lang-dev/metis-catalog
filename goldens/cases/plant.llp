@@ -1,0 +1,15 @@
+% CI case for the plant package (catalog-packages s-a2c529d6): the program
+% included unchanged, with a start that fires. Not a domain: the
+% program's own #init is its live start and stays as it is; this case
+% is only metisc --run's, against goldens/traces/plant.case.txt.
+catalog plant_case 1.
+include "../../domains/plant/plant.llp".
+#init moist 1
+#init sun 1
+#init cmd_water 1
+#init cmd_check 1
+#steps 6
+#seeds 3
+#query done(water)
+#query checked(moist)
+#query checked(dry)

@@ -1,0 +1,16 @@
+case herstory steps=30 seeds=3
+I pregnant(mother) 1
+I alive(father) 1
+I alive(florence) 1
+T 1 eve_hannah_birth hannah_eve_meet florence_dies act2 date_carl breakup_carl meet_simon hannah_marries_simon act3 hannah_gets_pregnant eve_ventures_out hannah_miscarries parents_die act4 hannah_birthday eve_performs eve_simon_affair eve_to_glasgow hannah_discover_affair hannah_poses_as_eve simon_regifts hannah_break_mirror hannah_kill_simon
+F 1 (done) alive(eve):1 alive(hannah):1 dead(florence):1 dead(simon):1 eve_in_glasgow:1 miscarried(hannah):1
+T 2 eve_hannah_birth hannah_eve_meet florence_dies act2 date_carl breakup_carl meet_simon hannah_marries_simon act3 hannah_gets_pregnant eve_ventures_out parents_die hannah_miscarries act4 eve_performs eve_simon_affair hannah_birthday hannah_discover_affair hannah_poses_as_eve simon_regifts hannah_break_mirror eve_to_glasgow hannah_kill_simon
+F 2 (done) alive(eve):1 alive(hannah):1 dead(florence):1 dead(simon):1 eve_in_glasgow:1 miscarried(hannah):1
+T 3 eve_hannah_birth hannah_eve_meet florence_dies act2 date_carl breakup_carl meet_simon hannah_marries_simon act3 hannah_gets_pregnant hannah_miscarries eve_ventures_out parents_die act4 eve_performs hannah_birthday eve_simon_affair hannah_discover_affair hannah_poses_as_eve eve_to_glasgow simon_regifts hannah_break_mirror hannah_kill_simon
+F 3 (done) alive(eve):1 alive(hannah):1 dead(florence):1 dead(simon):1 eve_in_glasgow:1 miscarried(hannah):1
+Q dead(simon) 3/3
+Q alive(simon) 0/3
+Q dead(florence) 3/3
+Q alive(carl) 0/3
+Q alive(mother) 0/3
+Q eve_in_glasgow 3/3

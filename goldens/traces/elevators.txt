@@ -1,0 +1,17 @@
+case elevators steps=60 seeds=1
+I at(e0,f0) 1
+I closed(e0) 1
+I heading(e0,up) 1
+I at(e1,f4) 1
+I closed(e1) 1
+I heading(e1,down) 1
+I free(f0,top) 1
+I free(f1,top) 1
+I free(f1,bottom) 1
+I free(f2,top) 1
+I free(f2,bottom) 1
+I free(f3,top) 1
+I free(f3,bottom) 1
+I free(f4,bottom) 1
+T 1 arrive_busy-1[F=f0,X=top] arrive_busy-2[F=f2,X=top] arrive_quiet-2[F=f4,X=bottom] open_same[E=e1,D=down] arrive_quiet-2[F=f1,X=top] arrive_quiet-2[F=f3,X=top] arrive_quiet-2[F=f4,X=bottom] arrive_busy-2[F=f2,X=bottom] open_turn[E=e0,D=up,R=down] close[E=e0] arrive_quiet-2[F=f1,X=top] arrive_busy-1[F=f2,X=top] arrive_quiet-2[F=f1,X=top] arrive_busy-2[F=f2,X=bottom] arrive_quiet-2[F=f1,X=top] open_turn[E=e0,D=down,R=up] close[E=e0] arrive_quiet-2[F=f3,X=top] arrive_quiet-2[F=f3,X=bottom] arrive_quiet-2[F=f4,X=bottom] move[E=e0,D=up,F=f0,G=f1] move[E=e0,D=up,F=f1,G=f2] arrive_quiet-2[F=f1,X=top] move[E=e0,D=up,F=f2,G=f3] open_same[E=e0,D=up] arrive_quiet-2[F=f1,X=bottom] arrive_quiet-1[F=f3,X=bottom] arrive_quiet-2[F=f4,X=bottom] noop[E=e1,F=f4] close[E=e1] arrive_quiet-2[F=f1,X=top] arrive_quiet-2[F=f1,X=top] open_turn[E=e1,D=down,R=up] arrive_busy-1[F=f2,X=bottom] arrive_quiet-2[F=f1,X=top] arrive_quiet-1[F=f3,X=top] close[E=e1] board[E=e0,F=f3,D=up,X=top] arrive_quiet-2[F=f4,X=bottom] arrive_quiet-2[F=f3,X=top] arrive_quiet-1[F=f4,X=bottom] arrive_quiet-2[F=f3,X=top] open_turn[E=e1,D=up,R=down] board[E=e1,F=f4,D=down,X=bottom] close[E=e1] arrive_quiet-2[F=f4,X=bottom] open_same[E=e1,D=down] arrive_quiet-2[F=f1,X=bottom] close[E=e1] close[E=e0] move[E=e1,D=down,F=f4,G=f3] move[E=e0,D=up,F=f3,G=f4] open_same[E=e0,D=up] alight[E=e0,F=f4,X=top] open_turn[E=e1,D=down,R=up] arrive_quiet-2[F=f1,X=bottom] arrive_quiet-2[F=f4,X=bottom] arrive_quiet-2[F=f1,X=bottom] close[E=e1] arrive_quiet-2[F=f4,X=bottom]
+F 1 run at(e0,f4):1 at(e1,f3):1 closed(e1):1 delivered:1 free(f1,bottom):1 free(f1,top):1 free(f3,top):1 free(f4,bottom):1 heading(e0,up):1 heading(e1,up):1 open(e0):1 riding(e1,bottom):1 waiting(f0,top):1 waiting(f2,bottom):1 waiting(f2,top):1 waiting(f3,bottom):1

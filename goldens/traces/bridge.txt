@@ -1,0 +1,10 @@
+case bridge steps=20 seeds=1
+I pos(a,near) 1
+I pos(b,near) 1
+I pos(c,near) 1
+I pos(d,near) 1
+I torch(near) 1
+I wick 15
+I tally 1
+T 1 pair8[S=near,X=c,Y=d,T=far] solo5[S=far,X=c,T=near] solo2[S=near,X=b,T=far]
+F 1 (done) pos(a,near):1 pos(b,far):1 pos(c,near):1 pos(d,far):1 tally:1 torch(far):1

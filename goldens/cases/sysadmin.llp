@@ -1,0 +1,15 @@
+% CI case for the sysadmin package (catalog-packages s-a2c529d6): the program
+% included unchanged, with a start that fires. Not a domain: the
+% program's own #init is its live start and stays as it is; this case
+% is only metisc --run's, against goldens/traces/sysadmin.case.txt.
+catalog sysadmin_case 1.
+include "../../domains/sysadmin/sysadmin.llp".
+#init m(i0) 1
+#init run(a) 1
+#init run(b) 1
+#steps 9
+#seeds 3
+#query run(a)
+#query down(a)
+#query run(b)
+#query down(b)

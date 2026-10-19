@@ -56,7 +56,9 @@ def test_the_index_lists_every_catalog_the_domains_first():
     assert named == sorted(named)                                                    # the manifests first, by name
     assert {"dog", "kitchen", "plant", "tamarisk", "wgc", "wildfire",                # the fiction ports: domains
             "herstory", "love_triangle", "talespin", "three_pigs", "three_pigs_connectives", "tragedy",
-            "nav", "xtraffic", "gol", "sysadmin", "hanoi", "elevators"} <= set(named)   # the RDDL worlds too
+            "nav", "xtraffic", "gol", "sysadmin", "hanoi", "elevators",               # the RDDL worlds too
+            "primes", "cellular_automata", "ll", "blocks_world", "tower_of_hanoi",    # the Ceptre example ports and
+            "gossip", "fptp", "bridge", "bridge_decl"} <= set(named)                  # the puzzles (catalog-packages)
     assert "kitchen_shared" not in [e["name"] for e in es]                           # a partner is listed by its lead
     by = {e["path"]: e for e in es}
     assert by["domains/wildfire/wildfire"]["notch"] == "wildfire.notch.json"
@@ -64,13 +66,16 @@ def test_the_index_lists_every_catalog_the_domains_first():
     for n in ("herstory", "love_triangle", "talespin", "three_pigs", "three_pigs_connectives", "tragedy"):
         h = mc.get(n, ROOT).has()                                            # no intents: the domain agent opens
         assert h["program"] and not h["intent"] and not h["agent"], n        # them with no verbs (agent-no-intent)
-    assert by["domains/logic/ll"]["kind"] == "catalog"                               # program only, no manifest
+    assert by["domains/ll/ll"]["kind"] == "domain"                                    # a package now (catalog-packages)
+    assert by["scenes/nav4_instance"]["kind"] == "catalog"                           # program only, no manifest
 
 
 def test_list_cli():
     out = subprocess.run([sys.executable, "-m", "metis_catalog", "list", "--domains"], cwd=ROOT,
                          capture_output=True, text=True, check=True).stdout
-    assert "a robot dog" in out and out.splitlines()[1].split()[:2] == ["domain", "dog"]
+    rows = [l.split()[:2] for l in out.splitlines()[1:]]
+    assert "a robot dog" in out and ["domain", "dog"] in rows                 # by name: blocks_world sorts first now
+    assert {r[0] for r in rows} == {"domain"}
 
 
 def test_the_extensions_are_the_programs_in_name_order(tmp_path):

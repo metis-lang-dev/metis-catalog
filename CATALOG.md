@@ -88,12 +88,20 @@ domain module never names its program.
 **The packages:** dog (generic agent, intent.yaml), plant (generic agent,
 an extension), kitchen and kitchen_shared (`agent.py:<variant>`, the pair's
 scenes), wildfire and tamarisk (rddl: program and notch beside the
-directory, the port plugin in it), wgc (`domains/planning/wgc`, the
+directory, the port plugin in it), wgc (`domains/wgc`, the
 specialist's: no host, no intents). **Without a manifest:** a directory
 whose one catalog is a `.llp` is a program-only domain; every `.llp` is
 listed — with a host, a notch or its own README as a domain, else as a plain
 catalog — what it has read off the checkout (`#plugin`, `<stem>_host.py`,
 `#notch`, `<stem>.notch.json`, a README).
+
+**Units (catalog-packages, 2026-10-19).** Every package's program carries a `#`
+case (`#steps`, and `#init` where it is the live start already); its `metisc
+--run` trace is `goldens/traces/<name>.txt`. Where the program fires nothing
+from its live start (dog, plant, kitchen, sysadmin), the firing start is a CI
+case, `goldens/cases/<name>.llp` (the program included, unchanged): a CI case,
+not a domain. `ci/packages.py` holds both, with metispy's twin and the bundle's
+wire (catalog CI, job `packages`).
 
 ### Extensions and the world's reports (the architect's rulings, 2026-10-15)
 

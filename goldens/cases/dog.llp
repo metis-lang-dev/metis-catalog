@@ -1,0 +1,43 @@
+% CI case for the dog package (catalog-packages s-a2c529d6): the program
+% included unchanged, with a start that fires. Not a domain: the
+% program's own #init is its live start and stays as it is; this case
+% is only metisc --run's, against goldens/traces/dog.case.txt.
+catalog dog_case 1.
+include "../../domains/dog/dog.llp".
+#init posture(standing) 1
+#init at(door) 1
+#init idle 1
+#init battery_ok 1
+#init floor_dry 1
+#init free(left) 1
+#init free(right) 1
+#init free(around) 1
+#init clear(forward) 1
+#init wall(backward) 1
+#init leg_ok 1
+#init mapped(door) 1
+#init open(door) 1
+#init mapped(kitchen) 1
+#init closed(kitchen) 1
+#init unmapped(sofa) 1
+#init mapped(window_chair) 1
+#init closed(window_chair) 1
+#init unmapped(tag5) 1
+#init mapped(tag3) 1
+#init open(tag3) 1
+#init mapped(tag_near) 1
+#init open(tag_near) 1
+#init unmapped(elsewhere) 1
+#init person_in_view 1
+#init unseen(extinguisher) 1
+#init unseen(keys) 1
+#init unseen(bottle) 1
+#init seen(chair) 1
+#init where(chair,kitchen) 1
+#init seen(table) 1
+#init where(table,kitchen) 1
+#init cmd_go(kitchen) 1
+#steps 6
+#seeds 3
+#query done(go)
+#query refused(go)

@@ -1,0 +1,22 @@
+case wildfire steps=200 seeds=1
+I burning(x1,y3) 1
+I not_burning(x1,y1) 1
+I not_burning(x1,y2) 1
+I not_burning(x2,y1) 1
+I not_burning(x2,y2) 1
+I not_burning(x2,y3) 1
+I not_burning(x3,y1) 1
+I not_burning(x3,y2) 1
+I not_burning(x3,y3) 1
+I not_out_of_fuel(x1,y1) 1
+I not_out_of_fuel(x1,y2) 1
+I not_out_of_fuel(x1,y3) 1
+I not_out_of_fuel(x2,y1) 1
+I not_out_of_fuel(x2,y2) 1
+I not_out_of_fuel(x2,y3) 1
+I not_out_of_fuel(x3,y1) 1
+I not_out_of_fuel(x3,y2) 1
+I not_out_of_fuel(x3,y3) 1
+I tick 1
+T 1 begin[X=x1,Y=y1] visit[X=x1,Y=y1,U=x1,V=y2] visit[X=x1,Y=y2,U=x1,V=y3] visit[X=x1,Y=y3,U=x2,V=y1] visit[X=x2,Y=y1,U=x2,V=y2] visit[X=x2,Y=y2,U=x2,V=y3] visit[X=x2,Y=y3,U=x3,V=y1] visit[X=x3,Y=y1,U=x3,V=y2] visit[X=x3,Y=y2,U=x3,V=y3] close[X=x3,Y=y3] tally_up ready[X=x2,Y=y3] ready[X=x2,Y=y2] ready[X=x3,Y=y1] ready[X=x2,Y=y1] ready[X=x1,Y=y2] see_none[X=x2,Y=y1,S=s0,U=x1,V=y1,S2=s1] see_none[X=x2,Y=y3,S=s0,U=x1,V=y2,S2=s1] see_none[X=x2,Y=y2,S=s0,U=x1,V=y1,S2=s1] see_fire[X=x2,Y=y3,S=s1,K=k0,U=x1,V=y3,S2=s2,K2=k1] ready[X=x1,Y=y1] hold[X=x1,Y=y3] see_none[X=x1,Y=y2,S=s0,U=x1,V=y1,S2=s1] ready[X=x3,Y=y2] see_fire[X=x1,Y=y2,S=s1,K=k0,U=x1,V=y3,S2=s2,K2=k1] ready[X=x3,Y=y3] see_none[X=x2,Y=y3,S=s2,U=x2,V=y2,S2=s3] see_none[X=x3,Y=y1,S=s0,U=x2,V=y1,S2=s1] see_none[X=x1,Y=y1,S=s0,U=x1,V=y2,S2=s1] see_none[X=x3,Y=y3,S=s0,U=x2,V=y2,S2=s1] see_none[X=x2,Y=y3,S=s3,U=x3,V=y2,S2=s4] see_none[X=x2,Y=y3,S=s4,U=x3,V=y3,S2=s5] see_none[X=x2,Y=y2,S=s1,U=x1,V=y2,S2=s2] see_fire[X=x2,Y=y2,S=s2,K=k0,U=x1,V=y3,S2=s3,K2=k1] see_none[X=x2,Y=y1,S=s1,U=x1,V=y2,S2=s2] scan_done[X=x2,Y=y3,S=s5] see_none[X=x2,Y=y2,S=s3,U=x2,V=y1,S2=s4] see_none[X=x3,Y=y2,S=s0,U=x2,V=y1,S2=s1] see_none[X=x3,Y=y2,S=s1,U=x2,V=y2,S2=s2] see_none[X=x3,Y=y1,S=s1,U=x2,V=y2,S2=s2] see_none[X=x3,Y=y3,S=s1,U=x2,V=y3,S2=s2] see_none[X=x3,Y=y1,S=s2,U=x3,V=y2,S2=s3] see_none[X=x1,Y=y2,S=s2,U=x2,V=y1,S2=s3] scan_done[X=x3,Y=y1,S=s3] see_none[X=x3,Y=y3,S=s2,U=x3,V=y2,S2=s3] scan_done[X=x3,Y=y3,S=s3] see_none[X=x1,Y=y2,S=s3,U=x2,V=y2,S2=s4] see_none[X=x1,Y=y1,S=s1,U=x2,V=y1,S2=s2] see_none[X=x3,Y=y2,S=s2,U=x2,V=y3,S2=s3] see_none[X=x3,Y=y2,S=s3,U=x3,V=y1,S2=s4] see_none[X=x1,Y=y2,S=s4,U=x2,V=y3,S2=s5] see_none[X=x1,Y=y1,S=s2,U=x2,V=y2,S2=s3] scan_done[X=x1,Y=y2,S=s5] see_none[X=x3,Y=y2,S=s4,U=x3,V=y3,S2=s5] see_none[X=x2,Y=y1,S=s2,U=x2,V=y2,S2=s3] scan_done[X=x1,Y=y1,S=s3] see_none[X=x2,Y=y2,S=s4,U=x2,V=y3,S2=s5] see_none[X=x2,Y=y1,S=s3,U=x3,V=y1,S2=s4] scan_done[X=x3,Y=y2,S=s5] see_none[X=x2,Y=y2,S=s5,U=x3,V=y1,S2=s6] see_none[X=x2,Y=y2,S=s6,U=x3,V=y2,S2=s7] see_none[X=x2,Y=y1,S=s4,U=x3,V=y2,S2=s5] see_none[X=x2,Y=y2,S=s7,U=x3,V=y3,S2=s8] scan_done[X=x2,Y=y2,S=s8] scan_done[X=x2,Y=y1,S=s5] apply burn_fuel[X=x1,Y=y3] sift calm_target_k0[X=x3,Y=y1] spread catch-1[X=x1,Y=y2,K=k1] catch-2[X=x3,Y=y2,K=k0] catch-2[X=x3,Y=y3,K=k0] catch-2[X=x2,Y=y2,K=k1] catch-2[X=x2,Y=y1,K=k0] catch-2[X=x1,Y=y1,K=k0] catch-2[X=x2,Y=y3,K=k1]
+F 1 (done) burning(x1,y2):1 burning(x1,y3):1 not_burning(x1,y1):1 not_burning(x2,y1):1 not_burning(x2,y2):1 not_burning(x2,y3):1 not_burning(x3,y1):1 not_burning(x3,y2):1 not_burning(x3,y3):1 not_out_of_fuel(x1,y1):1 not_out_of_fuel(x1,y2):1 not_out_of_fuel(x2,y1):1 not_out_of_fuel(x2,y2):1 not_out_of_fuel(x2,y3):1 not_out_of_fuel(x3,y1):1 not_out_of_fuel(x3,y2):1 not_out_of_fuel(x3,y3):1 out_of_fuel(x1,y3):1

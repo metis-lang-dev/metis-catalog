@@ -3,7 +3,7 @@
 Concluded metis-loop experiment (2026-10-09), copied from
 `metis-loop/experiments/wolf-goat-cabbage/`. This experiment
 introduced the settle-stage idiom ("deterministic consequences fire
-before quiescence") that `bridge-torch/bridge-declarative.llp` later
+before quiescence") that `../bridge_decl/bridge_decl.llp` later
 extended.
 
 ## 1. What was formalized, from what

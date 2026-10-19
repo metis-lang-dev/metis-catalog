@@ -1,0 +1,12 @@
+case bridge_decl steps=150 seeds=1
+I pos(a,near) 1
+I pos(b,near) 1
+I pos(c,near) 1
+I pos(d,near) 1
+I torch(near) 1
+I plank 2
+I wick 15
+I beat 1
+I tally 1
+T 1 embark[X=c,S=near] embark[X=d,S=near] depart[S=near,T=far,M=m0,X=d] go advance[M=m0,N=m1,X=c] halt rearm dawn go advance[M=m1,N=m2,X=d] halt rearm dawn go advance[M=m2,N=m3,X=c] halt rearm dawn go advance[M=m3,N=m4,X=d] halt rearm dawn go advance[M=m4,N=m5,X=c] halt rearm alight[X=c,M=m5,T=far] dawn go advance[M=m5,N=m6,X=d] halt rearm dawn go advance[M=m6,N=m7,X=d] halt rearm dawn go advance[M=m7,N=m8,X=d] halt alight[X=d,M=m8,T=far] land[T=far,M=m8] rearm dawn embark[X=c,S=far] embark[X=d,S=far] depart[S=far,T=near,M=m0,X=d] go advance[M=m0,N=m1,X=c] halt rearm dawn go advance[M=m1,N=m2,X=c] halt rearm dawn go advance[M=m2,N=m3,X=d] halt rearm dawn go advance[M=m3,N=m4,X=c] halt rearm dawn go advance[M=m4,N=m5,X=c] halt rearm alight[X=c,M=m5,T=near] dawn go advance[M=m5,N=m6,X=d] halt rearm dawn go advance[M=m6,N=m7,X=d] halt rearm dawn go halt dawn go halt dawn go halt dawn go halt dawn go halt dawn go halt dawn go halt dawn go halt dawn go halt dawn go halt dawn go halt dawn go halt dawn go halt dawn go halt dawn go halt dawn go halt dawn go halt dawn go halt dawn go halt dawn go halt dawn go halt dawn go halt
+F 1 settle aboard(d):1 beat:1 lamp(near):1 party(m7):1 plank:1 pos(a,near):1 pos(b,near):1 pos(c,near):1 tally:1

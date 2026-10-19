@@ -1,0 +1,9 @@
+case wgc steps=40 seeds=1
+I farmer(near) 1
+I on(wolf,near) 1
+I on(goat,near) 1
+I on(cabbage,near) 1
+I boat 1
+I tally 1
+T 1 carry[A=near,X=goat,B=far] tide turn ebb row[A=far,B=near] tide turn ebb row[A=near,B=far] tide turn ebb row[A=far,B=near] tide turn ebb carry[A=near,X=cabbage,B=far] tide turn ebb row[A=far,B=near] tide turn eat[Y=cabbage,A=far,X=goat,B=near] ebb row[A=near,B=far] tide turn ebb carry[A=far,X=goat,B=near] tide turn ebb carry[A=near,X=goat,B=far] tide turn ebb carry[A=far,X=goat,B=near] tide turn
+F 1 shore boat:1 farmer(near):1 gone(cabbage):1 on(goat,near):1 on(wolf,near):1 tally:1

@@ -85,3 +85,6 @@ qui mu [dyn] : mark * m(i2) -o update * u(i0).
 qui us [dyn] : update * u(i2) -o sweep * s(i0).
 %% Commit complete -> next tick's snapshot.
 qui sm [dyn] : sweep * s(i2) -o mark * m(i0).
+
+#steps 6
+#seeds 3

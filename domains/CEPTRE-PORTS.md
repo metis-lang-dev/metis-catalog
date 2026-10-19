@@ -57,13 +57,13 @@ runs under `metisc --run` and passes the roundtrip gate.
 | 3lp | 25 | 1 | yes |  | ported | three_pigs/three_pigs.llp | catalog `three-pigs` (no leading digit in idents); consume-and-reproduce blows written as $-reads — survival is WHICH premise is `$` (`$wolf * strawhouse` vs `wolf * $brickhouse`); exact: brick 1, straw/stick 0.5 each, wolf spent 1; `#interactive go` live |
 | arith | 26 | 1 |  | yes |  |  |  |
 | barman | 121 | 1 | yes | yes |  |  |  |
-| blocks-world | 37 | 1 | yes |  | ported | planning/blocks_world.llp | 1:1, no frame axioms; win_condition commented in the original (kept) so the world never quiesces; exact: the 6-move plan c-table/b-on-c/a-on-b reached by a random walk at 6 steps with P[on(a,b)]=1/27; no $-overlap, no pumping |
+| blocks-world | 37 | 1 | yes |  | ported | blocks_world/blocks_world.llp | 1:1, no frame axioms; win_condition commented in the original (kept) so the world never quiesces; exact: the 6-move plan c-table/b-on-c/a-on-b reached by a random walk at 6 steps with P[on(a,b)]=1/27; no $-overlap, no pumping |
 | broadcast | 41 | 3 |  |  |  |  |  |
 | buffy-reenactment | 352 | 5 | yes | yes |  |  |  |
 | buffy-thesis | 390 | 6 | yes | yes |  |  |  |
 | buffy | 498 | 7 | yes | yes |  |  |  |
 | cell | 54 | 1 |  | yes |  |  |  |
-| cellular-automata | 35 | 2 |  | yes | ported | automata/cellular_automata.llp | the original is a SKELETON ("wrote no actual code yet"): both stages empty, empty context; ported as-is (grid + nbr, no update rule invented — a v2 for the user to author). nat bounded to n0..n2 (`#builtin NAT` has no counterpart); `pos` via the constructor-graph row; the 8 nbr facts give 6 of 8 Moore neighbours (anti-diagonal absent — kept) |
+| cellular-automata | 35 | 2 |  | yes | ported | cellular_automata/cellular_automata.llp | the original is a SKELETON ("wrote no actual code yet"): both stages empty, empty context; ported as-is (grid + nbr, no update rule invented — a v2 for the user to author). nat bounded to n0..n2 (`#builtin NAT` has no counterpart); `pos` via the constructor-graph row; the 8 nbr facts give 6 of 8 Moore neighbours (anti-diagonal absent — kept) |
 | citysim | 68 | 4 |  |  |  |  |  |
 | civ | 63 | 2 | yes |  |  |  |  |
 | cloak_of_darkness | 58 | 1 | yes | yes |  |  |  |
@@ -82,12 +82,12 @@ runs under `metisc --run` and passes the roundtrip gate.
 | family-tree-inverted | 78 | 1 | yes | yes |  |  |  |
 | family-tree | 105 | 1 | yes | yes |  |  |  |
 | five | 79 | 1 |  |  |  |  |  |
-| fptp | 51 | 3 |  | yes | ported | votes/fptp.llp | state-carrying qui links (`count -o pick * max(n0)`, `pick * hopeful(C,N) -o done * elected(C)`); `!elected`/`!defeated` via the P4 workaround (produced once: each producer consumes the candidate's single hopeful token); nat bounded n0..n6 (6 ballots); exact: alice elected P=1, bob/charlie defeated P=1; ties would be elected uniformly (kept, none here); no $-overlap, no pumping |
+| fptp | 51 | 3 |  | yes | ported | fptp/fptp.llp | state-carrying qui links (`count -o pick * max(n0)`, `pick * hopeful(C,N) -o done * elected(C)`); `!elected`/`!defeated` via the P4 workaround (produced once: each producer consumes the candidate's single hopeful token); nat bounded n0..n6 (6 ballots); exact: alice elected P=1, bob/charlie defeated P=1; ties would be elected uniformly (kept, none here); no $-overlap, no pumping |
 | garden-iter3 | 136 | 3 | yes | yes |  |  |  |
 | garden-med | 87 | 3 | yes | yes |  |  |  |
 | garden-small | 63 | 2 | yes | yes |  |  |  |
 | garden | 141 | 3 | yes | yes |  |  |  |
-| gossip | 61 | 2 |  |  | ported | social/gossip.llp | `says` nesting flattened (unbounded constructor — outside the finite-type fragment); !posted/!knows latching via not_posted/unheard once-tokens (P4 recipe); posters keep NOT knowing their own initial posts (original quirk, see `knows(p1,m1)` query); closure identical over 3 seeds; read->say link guarded by `$not_posted` so the saturated network QUIESCES (the original ping-pongs to the step bound) |
+| gossip | 61 | 2 |  |  | ported | gossip/gossip.llp | `says` nesting flattened (unbounded constructor — outside the finite-type fragment); !posted/!knows latching via not_posted/unheard once-tokens (P4 recipe); posters keep NOT knowing their own initial posts (original quirk, see `knows(p1,m1)` query); closure identical over 3 seeds; read->say link guarded by `$not_posted` so the saturated network QUIESCES (the original ping-pongs to the step bound) |
 | grammar-tinkering | 90 | 1 |  | yes |  |  |  |
 | hearthstone | 61 | 3 |  | yes |  |  |  |
 | hello-world | 10 | 1 | yes |  |  |  |  |
@@ -98,7 +98,7 @@ runs under `metisc --run` and passes the roundtrip gate.
 | interative-stage-test | 15 | 1 | yes |  |  |  |  |
 | lambda-ed | 83 | 2 | yes | yes |  |  |  |
 | leq | 14 | 0 |  | yes |  |  |  |
-| ll | 56 | 1 | yes |  | ported | logic/ll.llp | recursive `prop` enumerated as the subformulas of `context test` (bound stated); topR' -> topR-prime, `_` -> X; the original's open question "oneR requires quiescence/absence?" kept OPEN in the header (not solved); with rules commented as in the original; the test theorem is proved on every run (P=1, all goals/ctx consumed) |
+| ll | 56 | 1 | yes |  | ported | ll/ll.llp | recursive `prop` enumerated as the subformulas of `context test` (bound stated); topR' -> topR-prime, `_` -> X; the original's open question "oneR requires quiescence/absence?" kept OPEN in the header (not solved); with rules commented as in the original; the test theorem is proved on every run (P=1, all goals/ctx consumed) |
 | lola | 392 | 2 | yes |  |  |  |  |
 | love-triangle | 35 | 1 | yes | yes | ported* | love_triangle/love_triangle.llp | tutorial-variant port (ceptre-tutorial sol); examples/ version differs slightly — re-diff when touched |
 | mario | 96 | 1 | yes | yes |  |  |  |
@@ -113,7 +113,7 @@ runs under `metisc --run` and passes the roundtrip gate.
 | paper | 182 | 7 |  |  |  |  |  |
 | parable | 37 | 0 |  | yes |  |  |  |
 | planting | 45 | 1 | yes |  |  |  |  |
-| primes | 34 | 2 |  | yes | ported | arith/primes.llp | limit 12 (the original's own) -> nat n0..n12; plus/mult Horn clauses (plus/z, mult/z: quantified facts, literal); **$-overlap site**: collide's `$here N * here M` with `_`=1 makes M=N — written consume-and-reproduce (the literal `$` form erases every prime: P[here(n7)]=0); exact: primes 2,3,5,7,11 survive P=1, composites P=0; no pumping |
+| primes | 34 | 2 |  | yes | ported | primes/primes.llp | limit 12 (the original's own) -> nat n0..n12; plus/mult Horn clauses (plus/z, mult/z: quantified facts, literal); **$-overlap site**: collide's `$here N * here M` with `_`=1 makes M=N — written consume-and-reproduce (the literal `$` form erases every prime: P[here(n7)]=0); exact: primes 2,3,5,7,11 survive P=1, composites P=0; no pumping |
 | printXY | 36 | 1 |  |  |  |  |  |
 | professor | 31 | 1 | yes |  |  |  |  |
 | promweek | 1 | 0 |  |  |  |  |  |
@@ -143,7 +143,7 @@ runs under `metisc --run` and passes the roundtrip gate.
 | talespin | 122 | 1 | yes | yes | ported | talespin/talespin.llp | character constructors via the graph row; the `information`/`question` SUM types split per constructor (knows_atf/_atc/_likes, asks_*; tell_info -> tell_info_wheref/_wherec/_does_like); `solves_problem Any …` ported literally (quantified fact); **$-overlap sites**: ask (Someone=C) and the tell_info knows pairs — consume-and-reproduce; **pumping**: ask (re-asks until fed; unanswered honey asks pile up) — noted, not fixed; P[fed @8]=0.43 |
 | thanksgiving | 52 | 1 |  |  |  |  |  |
 | tiny | 7 | 0 |  |  |  |  |  |
-| tower_of_hanoi | 56 | 1 | yes | yes | ported | planning/tower_of_hanoi.llp | `top_of R`/`bottom P` via the constructor-graph row (`topof`/`bottomof` bwd); `smaller` = the original's Horn closure over `succ` (first `:-` rules in the catalog); unused constant `post : place` dropped, noted; optimal solve = 7 moves = 14 steps; no $-overlap, no pumping |
+| tower_of_hanoi | 56 | 1 | yes | yes | ported | tower_of_hanoi/tower_of_hanoi.llp | `top_of R`/`bottom P` via the constructor-graph row (`topof`/`bottomof` bwd); `smaller` = the original's Horn closure over `succ` (first `:-` rules in the catalog); unused constant `post : place` dropped, noted; optimal solve = 7 moves = 14 steps; no $-overlap, no pumping |
 | tragedy | 220 | 1 | yes | yes | ported | tragedy/tragedy.llp | v2: adds the `<>` guards the original lacked (self-murder/steal/witness/vengeance artifacts removed; suicide stays the one self-death); ⊕ head (formOpinion), $-read idiom, `#interactive all` live. v3: eroticize/divorce written as consume-and-reproduce — the original's `$a` beside `a` needs its own token (fidelity fix) |
 | vampire | 34 | 1 |  |  |  |  |  |
 | werewolves-witches-slayers | 231 | 8 | yes | yes |  |  |  |
@@ -212,13 +212,13 @@ Ceptre rejects). Verified 2026-10-04, seeds 1-3 unless noted:
       --alias ending_1=ending-marriage-and-death \
       --alias ending_2=ending-love-triangle \
       --alias ending_3=ending-vengeance
-    $T domains/planning/blocks_world.llp $E/blocks-world.cep --steps 30
-    $T domains/planning/tower_of_hanoi.llp $E/tower_of_hanoi.cep \
+    $T domains/blocks_world/blocks_world.llp $E/blocks-world.cep --steps 30
+    $T domains/tower_of_hanoi/tower_of_hanoi.llp $E/tower_of_hanoi.cep \
       --steps 80 --drop-line '^post : place\.' \
       --ctor topof=top_of@2 --ctor bottomof=bottom@2 \
       --proj pickup=2,3 --proj putdown_on_ring=1,3 \
       --proj putdown_on_post=1,3
-    $T domains/logic/ll.llp $E/ll.cep \
+    $T domains/ll/ll.llp $E/ll.cep \
       --ctor at=at --ctor tensor=tensor --ctor lolli=lolli \
       --proj lolliR=2,3 --proj lolliL=2,3 --proj tensorL=2,3 \
       --proj tensorR=2,3 --proj init=2

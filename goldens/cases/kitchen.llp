@@ -1,0 +1,13 @@
+% CI case for the kitchen package (catalog-packages s-a2c529d6): the program
+% included unchanged, with a start that fires. Not a domain: the
+% program's own #init is its live start and stays as it is; this case
+% is only metisc --run's, against goldens/traces/kitchen.case.txt.
+catalog kitchen_case 1.
+include "../../domains/kitchen/kitchen.llp".
+#init hand_free 1
+#init pot_space 3
+#steps 12
+#seeds 3
+#query served
+#query cooking
+#query held_soup

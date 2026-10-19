@@ -1,0 +1,16 @@
+case three_pigs_connectives steps=10 seeds=3
+I pig 3
+I wolf 1
+I straw 1
+I sticks 1
+I bricks 1
+T 1 build_stick build_straw blow_straw build_brick blow_stick-2 blow_brick
+F 1 (done) brickhouse:1 stickhouse:1
+T 2 build_stick build_straw blow_stick-2 blow_straw build_brick blow_stick-1 blow_brick
+F 2 (done) brickhouse:1
+T 3 build_brick build_straw blow_straw build_stick blow_stick-1 blow_brick
+F 3 (done) brickhouse:1
+Q strawhouse 0/3
+Q stickhouse 1/3
+Q brickhouse 3/3
+Q wolf 0/3
