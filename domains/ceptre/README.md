@@ -47,6 +47,10 @@ in this directory, verbatim.
 - Their run traces stay in `goldens/traces/<name>.txt`. They are the
   programs' recorded outputs, which CI compares against, not copies of the
   programs.
+- Older REPL transcripts under `domains/` (`ports/port-proto/transcripts/`,
+  `rddl/tamarisk/` and `rddl/wildfire/` step transcripts) quote metispy's
+  former narrate example, four rules of `three_pigs`; those quotes are
+  covered by this same notice.
 
 `CEPTRE-PORTS.md` is Robofortis's own text: the porting recipe and the
 track. It quotes Ceptre syntax only to explain the recipe, and it stays under
