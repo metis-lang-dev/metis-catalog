@@ -1,6 +1,6 @@
 catalog nav4 1.
 provenance hand "corpus: 2x2 navigation instance, one exact step" "2026-07-21".
-include "../domains/nav/nav_domain.llp".
+include "../../nav/nav_domain.llp".
 type cell {c00 c01 c10 c11}.
 north(c00,c01). north(c10,c11).
 south(c01,c00). south(c11,c10).

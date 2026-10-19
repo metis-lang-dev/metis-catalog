@@ -1,7 +1,7 @@
 % GENERATED instance — semantic graph from geometry.
 catalog road-scene 1.
 provenance hand "semantic compiler output" "2026-07-20".
-include "../road/handles_domain.llp".
+include "../handles_domain.llp".
 type vehicle {ego alfa}.
 type lane {l1 l2 l3}.
 type maneuver {keep left right}.

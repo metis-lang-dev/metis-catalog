@@ -79,7 +79,7 @@ query gclose
 query gsafe
 end
 case wheelchair-pack
-llp ../road/mini.llp
+llp ../mini.llp
 pack ../packs/wheelchair.llp
 init emvt 1
 steps 1
