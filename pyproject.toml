@@ -2,12 +2,14 @@
 # domains/<…>/domain.yaml read by both consoles (metis-loop, metis-agent)
 # and both agent backends; `python -m metis_catalog list`.
 [build-system]
-requires = ["setuptools>=68"]
+requires = ["setuptools>=77"]      # PEP 639: license as an SPDX expression
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "metis-catalog"
 version = "0.1.0"
+license = "Apache-2.0"
+license-files = ["LICENSE", "NOTICE"]
 description = "The metis catalog's loader: one directory and one domain.yaml per domain, read by the loop console, the agent console and both agent backends"
 requires-python = ">=3.10"
 dependencies = ["pyyaml>=6"]

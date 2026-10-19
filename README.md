@@ -78,3 +78,7 @@ Extracted from `chariot_ws/packages/wayplan/catalog` (R1 closure of
 the catalog-runtime rebase). Decode/binding code (geometry → semantic
 atoms, port registries) stays with the consuming runtime; this repo
 is sources + certified data only.
+
+## License
+
+Apache License 2.0 (see `LICENSE`, `NOTICE`).
