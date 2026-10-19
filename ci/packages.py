@@ -14,9 +14,7 @@ package is run and built, by both toolchains.
          extensions) equals metispy's bundle ground.wire (served_doc +
          emit_artifact) byte for byte.
 
-Every tracked package needs a trace, and every trace a package or a case, but
-a package PARKED by name (below: no case, no trace; its roundtrip, diagnose and
-key gates run as before) is listed as skipped. Each
+Every tracked package needs a trace, and every trace a package or a case. Each
 metisc call is its own process, at most --jobs at once (talespin grounds 105k
 events in about 2 minutes, for its run and for its wire alike).
 
@@ -37,8 +35,6 @@ sys.path.insert(0, str(ROOT))
 import metis_catalog as mc  # noqa: E402
 
 METISC = os.environ.get("METISC") or str(ROOT.parent / "metis-lang/src/metisc")
-# the packages this job does not run, by name, each with its reason
-PARKED = {"road": "parked: next release, SUMO (road-collapse s-2a2cbea3: moved, not fixed)"}
 TRACES = ROOT / "goldens/traces"
 CASES = ROOT / "goldens/cases"
 
@@ -57,8 +53,6 @@ def units(only):
     out = []
     for d in mc.domains(ROOT):
         if (only and d.name not in only) or (not only and d.dir not in dirs):   # --only: named, tracked or not
-            continue
-        if d.name in PARKED:
             continue
         served = d.serves()
         out.append((d.name, d.program or served[0], served))
@@ -181,9 +175,6 @@ def main(argv=None) -> int:
     with ProcessPoolExecutor(max(1, a.jobs)) as ex:
         results = sorted(ex.map(one, tasks), key=lambda r: r[0][0])
     bad = 0
-    for name, why in sorted(PARKED.items()):
-        if not a.only or name in a.only:
-            print(f"skip      {name}  {why}")
     for (name, _, _), res in results:
         for gate, ok, note in res:
             bad += not ok

@@ -3,7 +3,8 @@
 # increment history, its scene instances with the canonical-key manifest, and
 # its admission-gated packs — moved here from road/, scenes/ and packs/, not
 # fixed. SUMO runtime and the real port: next release (a separate subject).
-# No intents, no host; the catalog packages job exempts it by name.
+# No intents, no host. Its program, road.llp, is the production catalog included
+# unchanged on the production scene, so the package runs and builds nominally.
 display: the road
 line: "Road (parked): chariot's road-behavior catalog, its scenes and packs; SUMO runtime and the real port next release"
-program: road_catalog.llp
+program: road.llp

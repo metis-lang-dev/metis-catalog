@@ -5,12 +5,20 @@ The road domain in one package, as the user ruled (road-collapse s-2a2cbea3,
 on it next release with SUMO as the runtime. For now just collapse the 3 dirs
 into a road domain package, but do not try to fix it."
 
-**Parked.** The files are moved, not fixed: no program changed, no
-diagnostic fixed, no `#` case added. SUMO runtime and the real port: next
-release, a separate subject. The catalog packages job exempts the package by
-name (`ci/packages.py`, "parked"); roundtrip, diagnose (with its exemptions,
-`ci/diag-exempt.txt`) and the canonical-key gate (`ci/check.sh` gate 2:
-`scenes/manifest.txt` → `goldens/KEYS.txt`) run on its files as before.
+**Parked.** The files are moved, not fixed: no moved program changed, no
+diagnostic fixed. SUMO runtime and the real port: next release, a separate
+subject. So that the package runs and builds nominally (the user, 2026-10-19:
+"you can simplify road main script that it pass nominally"), its program is a
+new, simple `road.llp`: the production catalog `road_catalog.llp` included
+unchanged on the production scene (`scenes/prodcat_instance.llp`'s types and
+lane facts), with that scene's start from `scenes/manifest.txt` as its `#`
+case, one tick of 17 rows through the catalog's nine stages. Its weight ports
+(brk, cls, rss, zadv) have no host and price at their prior. It passes every
+package gate as any other package does: `metisc --run` against
+`goldens/traces/road.txt`, metispy's twin, the wire byte-equal to metispy's.
+Roundtrip, diagnose (with its exemptions, `ci/diag-exempt.txt`) and the
+canonical-key gate (`ci/check.sh` gate 2: `scenes/manifest.txt` →
+`goldens/KEYS.txt`) run on the other files as before.
 
 ## Provenance
 
@@ -24,7 +32,8 @@ mentions are this package's `packs/`).
 
 | file | what | was |
 | --- | --- | --- |
-| `road_catalog.llp` | the production road catalog (the runtime's); the package's program — an include fragment, typed by `scenes/prodcat_instance.llp` | `road/` |
+| `road.llp` | the package's program: `road_catalog.llp` on the production scene, one tick (new) | — |
+| `road_catalog.llp` | the production road catalog (the runtime's) — an include fragment, typed by `road.llp` and `scenes/prodcat_instance.llp` | `road/` |
 | `road_handles{,2,3,4}.llp`, `road_zones.llp` | the certified increment history (templates: their types come from metispy's instantiators) | `road/` |
 | `road_grid.llp`, `grid_domain.llp` | the exact-filter referee catalog (opaque RSS ports by design: referee, never runtime) and its grid domain | `road/` |
 | `handles_domain.llp`, `mini.llp` | the handle-encoding domain (fragment, typed by `scenes/road_close_instance.llp`) and the mini road the pack case runs on | `road/` |

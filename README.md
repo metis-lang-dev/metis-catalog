@@ -22,7 +22,7 @@ across benchmarks, each a full LLP world model.
 | `domains/ports/` | the port-plugin conformance fixtures (sensor, reservoir, clock): rates and exogenous input from a live environment. |
 | `domains/CEPTRE-PORTS.md` | the Ceptre → metis porting track: the recipe and the per-port log. |
 | --- | --- |
-| `domains/road/` | the road domain, PARKED until the SUMO subject (next release): the production road catalog (`road_catalog.llp`) + its increment history and referee catalog, its admission-gated packs (`packs/`), the scene instances and the case manifest the canonical-key gate grounds (`scenes/`). Moved from road/, scenes/, packs/, not fixed. |
+| `domains/road/` | the road domain, PARKED until the SUMO subject (next release): its program `road.llp` (the production road catalog `road_catalog.llp` on the production scene, one tick: it runs and builds nominally) + the catalog's increment history and referee catalog, its admission-gated packs (`packs/`), the scene instances and the case manifest the canonical-key gate grounds (`scenes/`). Moved from road/, scenes/, packs/, not fixed. |
 | `demo/` | tutorial catalogs. |
 | `goldens/` | committed artifacts + expectations: the product IR artifact the runtime loads (`*_ir_artifact.txt`), per-scene decision/marginal expectations (`*_ir_expect.txt`), canonical keys (`KEYS.txt`). Expectation floats come from the metispy exact referee; keys are cross-toolchain (metisc == metispy, byte-equal). `traces/<name>.txt`: each package's `metisc --run` trace, and `cases/<name>.llp` + `traces/<name>.case.txt`: CI cases, not domains — the program included unchanged with a start that fires, where the program's own `#init` is its live start (dog, plant, kitchen, sysadmin). |
 

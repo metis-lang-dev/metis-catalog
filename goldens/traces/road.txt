@@ -1,0 +1,27 @@
+case road steps=20 seeds=3
+I cmd(keep) 1
+I on(ego,l1) 1
+I on(alfa,l1) 1
+I gclose(alfa) 1
+I conf(alfa,live) 1
+I gsafe(beta) 1
+I conf(beta,live) 1
+I zc(ego,j1,zpast) 1
+I zc(alfa,j1,zpast) 1
+I zfree(j1) 1
+I zc(ego,x1,zpast) 1
+I zc(wally,x1,zpast) 1
+I zfree(x1) 1
+I emvt 1
+T 1 mkeep ea abo ab bsc bz estay[C=zpast] za astay[C=zpast] zx xestay[C=zpast] xw xwstay[C=zpast] wk aok cc bok
+F 1 (done) conf(alfa,live):1 conf(beta,live):1 gclose(beta):1 gsafe(alfa):1 on(alfa,l1):1 on(ego,l1):1 zc(alfa,j1,zpast):1 zc(ego,j1,zpast):1 zc(ego,x1,zpast):1 zc(wally,x1,zpast):1 zfree(j1):1 zfree(x1):1
+T 2 mkeep ea abo ab bsc bz estay[C=zpast] za astay[C=zpast] zx xestay[C=zpast] xw xwstay[C=zpast] wk aok cc bok
+F 2 (done) conf(alfa,live):1 conf(beta,live):1 gclose(beta):1 gsafe(alfa):1 on(alfa,l1):1 on(ego,l1):1 zc(alfa,j1,zpast):1 zc(ego,j1,zpast):1 zc(ego,x1,zpast):1 zc(wally,x1,zpast):1 zfree(j1):1 zfree(x1):1
+T 3 mkeep ea abo ab bsc bz estay[C=zpast] za astay[C=zpast] zx xestay[C=zpast] xw xwstay[C=zpast] wk aok cc bok
+F 3 (done) conf(alfa,live):1 conf(beta,live):1 gclose(beta):1 gsafe(alfa):1 on(alfa,l1):1 on(ego,l1):1 zc(alfa,j1,zpast):1 zc(ego,j1,zpast):1 zc(ego,x1,zpast):1 zc(wally,x1,zpast):1 zfree(j1):1 zfree(x1):1
+Q hitby(alfa) 0/3
+Q hitby(beta) 0/3
+Q zhit(ego) 0/3
+Q zhit(alfa) 0/3
+Q zhit(wally) 0/3
+Q zc(ego,j1,zin) 0/3

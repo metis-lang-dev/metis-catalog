@@ -1,0 +1,43 @@
+% The road package's program (road-collapse s-2a2cbea3): the production road
+% catalog, road_catalog.llp, included unchanged on one scene — the production
+% scene's types and lane facts (scenes/prodcat_instance.llp) and its start
+% (scenes/manifest.txt's prodcat case) as this file's case, one tick (17
+% rows through its nine stages) — so the package runs and builds nominally. Its weight ports (brk, cls, rss, zadv) have no
+% host: they price at their prior. SUMO runtime and the real port: next
+% release (a separate subject).
+catalog road 1.
+provenance hand "the production road catalog on the prodcat scene" "2026-10-19".
+include "road_catalog.llp".
+type vehicle {ego alfa beta wally}.
+type lane {l0 l1 l2}.
+type zn {j1 x1}.
+type maneuver {keep left right yield accel brake}.
+islane(l0).
+islane(l1).
+islane(l2).
+rightof(l1,l0).
+leftof(l0,l1).
+rightof(l2,l1).
+leftof(l1,l2).
+#init cmd(keep) 1
+#init on(ego,l1) 1
+#init on(alfa,l1) 1
+#init gclose(alfa) 1
+#init conf(alfa,live) 1
+#init gsafe(beta) 1
+#init conf(beta,live) 1
+#init zc(ego,j1,zpast) 1
+#init zc(alfa,j1,zpast) 1
+#init zfree(j1) 1
+#init zc(ego,x1,zpast) 1
+#init zc(wally,x1,zpast) 1
+#init zfree(x1) 1
+#init emvt 1
+#steps 20
+#seeds 3
+#query hitby(alfa)
+#query hitby(beta)
+#query zhit(ego)
+#query zhit(alfa)
+#query zhit(wally)
+#query zc(ego,j1,zin)
