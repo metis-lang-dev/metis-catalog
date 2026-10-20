@@ -27,7 +27,7 @@ program-only domain); every other .llp is listed as a plain catalog, with
 what it has read off the checkout (#plugin, #notch, a README).
 
     import metis_catalog as mc
-    mc.root()                 # the checkout ($METIS_CATALOG, else this package's repo)
+    mc.root()                 # the catalog ($METIS_CATALOG, else the wheel's own, else this package's repo)
     mc.domains()              # [Domain] — every manifest, by name
     mc.get("dog")             # Domain: .program .extensions() .serves() .host .host_spec_for(program_dir) .intent … .has()
     mc.index()                # every catalog for a console's list: the domains first (display line, has)
@@ -45,9 +45,14 @@ __version__ = "0.1.0"
 
 
 def root():
-    """The checkout: $METIS_CATALOG, else the repo this package lives in."""
+    """The catalog: $METIS_CATALOG, else the installed wheel's own (this
+    package's directory: the wheel carries domains/ and tools/ in it), else
+    the repo this package lives in (a checkout, an editable install)."""
     env = os.environ.get("METIS_CATALOG")
-    return Path(env).resolve() if env else Path(__file__).resolve().parents[1]
+    if env:
+        return Path(env).resolve()
+    own = Path(__file__).resolve().parent
+    return own if (own / "domains").is_dir() else own.parent
 
 
 @dataclass

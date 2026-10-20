@@ -1,6 +1,16 @@
 # metis_catalog: the catalog's loader (domain-catalog s-2a2bc758 step 2) —
 # domains/<…>/domain.yaml read by both consoles (metis-loop, metis-agent)
 # and both agent backends; `python -m metis_catalog list`.
+#
+#   pip install metis-catalog          the loader and the domain packages (pi-release s-8e13f6a8)
+#   pip install -e .                   a checkout: the loader reads the checkout's domains/
+#
+# The wheel carries the domain packages (domains/<name>/, the packages job's
+# set) as metis_catalog/domains/, and the hosts' tools as metis_catalog/tools/:
+# an installed loader's root() is the package directory. Not in it:
+# domains/ceptre/ (ACSL, not this grant), domains/rddl/ and domains/ports/
+# (records and fixtures, not packages), goldens/, demo/, a package's records/.
+# tests/test_wheel.py keeps PACKAGES below equal to the tracked packages.
 [build-system]
 requires = ["setuptools>=77"]      # PEP 639: license as an SPDX expression
 build-backend = "setuptools.build_meta"
@@ -15,4 +25,20 @@ requires-python = ">=3.10"
 dependencies = ["pyyaml>=6"]
 
 [tool.setuptools]
-packages = ["metis_catalog"]
+packages = ["metis_catalog", "metis_catalog.domains", "metis_catalog.tools"]
+
+[tool.setuptools.package-dir]
+"metis_catalog.domains" = "domains"
+"metis_catalog.tools" = "tools"
+
+[tool.setuptools.package-data]
+# PACKAGES: every tracked domains/<name>/domain.yaml outside domains/ceptre/
+"metis_catalog.domains" = [
+  "bridge/**/*", "bridge_decl/**/*", "dog/**/*", "elevators/**/*", "gol/**/*", "hanoi/**/*",
+  "kitchen/**/*", "kitchen_shared/**/*", "nav/**/*", "plant/**/*", "road/**/*", "sysadmin/**/*",
+  "tamarisk/**/*", "wgc/**/*", "wildfire/**/*", "xtraffic/**/*",
+]
+"metis_catalog.tools" = ["intents.py", "rddl_gym.py", "rddl_host.py"]
+
+[tool.setuptools.exclude-package-data]
+"metis_catalog.domains" = ["*/records/*", "*/__pycache__/*", "*/build/*", "*/*/__pycache__/*"]

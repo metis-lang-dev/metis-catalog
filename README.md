@@ -24,6 +24,39 @@ across benchmarks, each a full LLP world model.
 | `demo/` | tutorial catalogs. |
 | `goldens/` | committed artifacts + expectations: the product IR artifact the runtime loads (`*_ir_artifact.txt`), per-scene decision/marginal expectations (`*_ir_expect.txt`), canonical keys (`KEYS.txt`). Expectation floats come from the metispy exact referee; keys are cross-toolchain (metisc == metispy, byte-equal). `traces/<name>.txt`: each package's `metisc --run` trace, and `cases/<name>.llp` + `traces/<name>.case.txt`: CI cases, not domains — the program included unchanged with a start that fires, where the program's own `#init` is its live start (dog, plant, kitchen, sysadmin). |
 
+## Install
+
+```sh
+pip install metis-catalog          # the loader and the domain packages; Python 3.10+
+pip install metispy metis-catalog  # with the referee: a domain NAME builds and runs
+```
+
+The wheel carries the loader (`metis_catalog`, `python -m metis_catalog list`)
+and the domain packages under `domains/` (`metis_catalog/domains/` once
+installed: the packages `ci/packages.py` runs), with the hosts' tools; not
+`domains/ceptre/` (its own license, below), the experiment records
+(`domains/rddl/`), the port fixtures, `goldens/` or `demo/`. Installed,
+`metis_catalog.root()` is the wheel's catalog, read-only: a loop that writes a
+domain sets `METIS_CATALOG` to a checkout or a scratch copy. A checkout reads
+its own `domains/`:
+
+```sh
+pip install -e .                   # development: root() is this checkout
+```
+
+## Releasing
+
+metis-catalog goes to PyPI from GitHub by trusted publishing
+(`.github/workflows/publish.yml`, metispy's flow; no token anywhere): bump
+`version` in `pyproject.toml` and `metis_catalog.__version__`, commit,
+`gh release create vX.Y.Z` (the tag must be `v` + that version: the workflow
+refuses any other); the tag's push publishes straight through (the `pypi`
+environment has no required reviewer). The run builds the sdist and the wheel,
+smoke-installs the wheel in a fresh venv outside the checkout with metispy
+from PyPI (`tools/smoke_wheel.sh`: every package there, every domain's bundle
+built by name; ci.yml runs it on every push too) and uploads.
+`workflow_dispatch` is the dry run: everything but the upload.
+
 ## Experiments: the formalization record
 
 The metis-loop experiments, concluded and moved here on 2026-10-11, each

@@ -1,0 +1,45 @@
+#!/usr/bin/env bash
+# smoke_wheel.sh DIST — the built wheel in DIST installed into a fresh venv
+# outside any checkout, with metispy from PyPI, and run there (pi-release
+# s-8e13f6a8): the loader imports from site-packages and its root() is the
+# wheel's own catalog, every package of the packages job's set is in it (and
+# domains/ceptre/ is not), each served file is there, `python -m metis_catalog
+# list` answers, the intent generator and the RDDL host are found from a
+# package, and every domain builds its bundle BY NAME through metispy.
+# CI (ci.yml) and the release (publish.yml) run it.
+set -euo pipefail
+DIST=$(cd "$1" && pwd)
+W=$(mktemp -d)
+trap 'rm -r "$W"' EXIT
+"${PYTHON:-python3}" -m venv "$W/venv"
+"$W/venv/bin/pip" install -q "$DIST"/*.whl "${METISPY:-metispy}"
+cd "$W"                                   # no checkout on the path
+env -u METIS_CATALOG -u PYTHONPATH "$W/venv/bin/python" - <<'PY'
+import subprocess
+import sys
+from pathlib import Path
+
+import metis_catalog as mc
+
+PACKAGES = {"bridge", "bridge_decl", "dog", "elevators", "gol", "hanoi", "kitchen", "kitchen_shared",
+            "nav", "plant", "road", "sysadmin", "tamarisk", "wgc", "wildfire", "xtraffic"}
+r = mc.root()
+assert "site-packages" in mc.__file__ and r == Path(mc.__file__).resolve().parent, (mc.__file__, r)
+names = {d.name for d in mc.domains()}
+assert names == PACKAGES, sorted(names ^ PACKAGES)
+assert not (r / "domains" / "ceptre").exists(), "domains/ceptre/ (ACSL) is in the wheel"
+assert not list((r / "domains").rglob("records")), "a package's records/ is in the wheel"
+for d in mc.domains():
+    for f in d.serves():
+        assert f.is_file(), (d.name, f)
+assert (r / "tools" / "intents.py").is_file() and (r / "tools" / "rddl_host.py").is_file()
+out = Path.cwd() / "bundles"                          # the venv's scratch dir, removed on exit
+for name in sorted(PACKAGES - {"kitchen_shared"}):      # a partner: never loaded alone
+    subprocess.run([sys.executable, "-m", "metis.kernel.artifact", name, "-o", str(out / name)],
+                   check=True, stdout=subprocess.DEVNULL)
+    assert (out / name / "ground.wire").is_file(), name
+print("smoke: metis_catalog %s from %s, %d packages, %d bundles"
+      % (mc.__version__, r, len(names), len(PACKAGES) - 1))
+PY
+env -u METIS_CATALOG "$W/venv/bin/python" -m metis_catalog list --domains > /dev/null
+echo "SMOKE GREEN"

@@ -60,6 +60,25 @@ jobs:
           pip install -e ./metispy
           cd metis-catalog && python ci/crosscheck.py
 
+  # pi-release s-8e13f6a8: the wheel publish.yml uploads, built and installed
+  # in a fresh venv outside the checkout with metispy from PyPI
+  wheel:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          path: metis-catalog
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Build the sdist and the wheel
+        run: |
+          python -m pip install -q build
+          python -m build --outdir dist metis-catalog
+      - name: Smoke-install the wheel in a fresh venv, outside the checkout
+        run: bash metis-catalog/tools/smoke_wheel.sh dist
+
   # catalog-packages s-a2c529d6: every package run and built by both toolchains
   # (ci/packages.py) — `metisc --run` of its # case against goldens/traces/,
   # metispy's twin of the same run (I/T/F lines), and `metisc --wire` of the
