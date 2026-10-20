@@ -57,7 +57,7 @@ cd domains/dog
 metis dog.llp                              # hand-driven: + cmd_sit · events · step · why refused(go)
 metis --plugin dog_host:make dog.llp       # the scripted day: run 60 · log · why done(go)
 ```
-(`metis` is metispy's REPL; on taycann it is in metis-agent `py/.venv/bin`.)
+(`metis` is metispy's REPL, in the venv you installed metispy into.)
 
 ## Found while formalizing
 

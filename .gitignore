@@ -15,3 +15,7 @@ domains/ceptre/*/build/
 
 # an agentic-loop export test (the lamp demo's catalog_take into this checkout), not catalog content
 domains/lamp/
+
+# python -m build's output at the root (the wheel and the sdist publish.yml uploads)
+/build/
+/dist/

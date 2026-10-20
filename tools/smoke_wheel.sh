@@ -5,7 +5,8 @@
 # wheel's own catalog, every package of the packages job's set is in it (and
 # domains/ceptre/ is not), each served file is there, `python -m metis_catalog
 # list` answers, the intent generator and the RDDL host are found from a
-# package, and every domain builds its bundle BY NAME through metispy.
+# package, no file holds `/home/` or the host's name, and every domain builds
+# its bundle BY NAME through metispy.
 # CI (ci.yml) and the release (publish.yml) run it.
 set -euo pipefail
 DIST=$(cd "$1" && pwd)
@@ -15,6 +16,7 @@ trap 'rm -r "$W"' EXIT
 "$W/venv/bin/pip" install -q "$DIST"/*.whl "${METISPY:-metispy}"
 cd "$W"                                   # no checkout on the path
 env -u METIS_CATALOG -u PYTHONPATH "$W/venv/bin/python" - <<'PY'
+import os
 import subprocess
 import sys
 from pathlib import Path
@@ -33,6 +35,11 @@ for d in mc.domains():
     for f in d.serves():
         assert f.is_file(), (d.name, f)
 assert (r / "tools" / "intents.py").is_file() and (r / "tools" / "rddl_host.py").is_file()
+host = os.uname().nodename                             # no path or name of the host that built it
+for f in r.rglob("*"):
+    if f.is_file() and "__pycache__" not in f.parts:
+        t = f.read_bytes()
+        assert b"/home/" not in t and (len(host) < 4 or host.encode() not in t), ("a host path or name in", f.relative_to(r))
 out = Path.cwd() / "bundles"                          # the venv's scratch dir, removed on exit
 for name in sorted(PACKAGES - {"kitchen_shared"}):      # a partner: never loaded alone
     subprocess.run([sys.executable, "-m", "metis.kernel.artifact", name, "-o", str(out / name)],

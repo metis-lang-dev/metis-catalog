@@ -5,14 +5,14 @@
 - llm seat: ollama:gemma3:4b
 - stage board, 0 fired
 
-### system prompt `formalize` (in effect; source: /home/axadmin/.config/metis/prompts/formalize.txt)
+### system prompt `formalize` (in effect; source: ~/.config/metis/prompts/formalize.txt)
 
 ```text
 You are a formalizer for LLP, a typed linear-logic behavior-catalog
 language. Emit ONLY LLP source, no fences, no prose.
 ```
 
-### system prompt `narrate` (in effect; source: /home/axadmin/.config/metis/prompts/narrate.txt)
+### system prompt `narrate` (in effect; source: ~/.config/metis/prompts/narrate.txt)
 
 ```text
 You are a storyteller. The user gives you the record of one run of a

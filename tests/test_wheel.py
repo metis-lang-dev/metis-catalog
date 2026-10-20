@@ -8,9 +8,13 @@ import subprocess
 import tomllib
 from pathlib import Path
 
+import pytest
+
 import metis_catalog as mc
 
 ROOT = Path(__file__).resolve().parents[1]
+if not (ROOT / ".git").exists():
+    pytest.skip("the tracked packages need the git checkout (an unpacked sdist has none)", allow_module_level=True)
 
 
 def tracked():
