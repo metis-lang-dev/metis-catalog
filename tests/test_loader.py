@@ -48,7 +48,7 @@ def test_paths_and_the_host_spec():
 
 def test_the_index_lists_every_catalog_the_domains_first():
     es = mc.index(ROOT)
-    llps = [p for p in ROOT.rglob("*.llp") if ".git" not in p.parts]
+    llps = mc.walk(ROOT, "*.llp")          # the loader's walk: no dot directory, build/, records/ …
     assert len(es) == len(llps)                                                      # every program once
     kinds = [e["kind"] for e in es]
     assert kinds == sorted(kinds, key=lambda k: k != "domain")
