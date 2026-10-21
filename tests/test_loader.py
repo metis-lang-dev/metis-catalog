@@ -199,3 +199,29 @@ def test_a_package_may_name_its_neighbours_files_never_outside(tmp_path):
     assert mc.check_manifest(loose)["program"] == "../../../x.llp"
     with pytest.raises(mc.ManifestError, match="leaves the catalog root"):
         mc.check_manifest(loose, root=tmp_path)
+
+
+def test_a_package_is_a_manifest_anywhere_under_the_root(tmp_path):
+    """cwd-root s-ddac2cbf rule 9: domains/ is a convention, not a
+    requirement — a domain.yaml anywhere under the root is a package (its
+    name the directory's), never one under a dot directory, build/, records/
+    or __pycache__; the catalog's own domains/ceptre/ is a root of its 13."""
+    for rel in ("lamp", "shelf/bell", "domains/clock"):
+        d = tmp_path / rel
+        d.mkdir(parents=True)
+        (d / "domain.yaml").write_text("program: %s.llp\n" % d.name)
+        (d / ("%s.llp" % d.name)).write_text("%% the %s\n" % d.name)
+    for rel in (".metis/scratch/ghost", ".git/x", "lamp/build/copy", "lamp/records/r", "node_modules/n"):
+        d = tmp_path / rel
+        d.mkdir(parents=True)
+        (d / "domain.yaml").write_text("program: x.llp\n")
+        (d / "x.llp").write_text("% x\n")
+    assert [d.name for d in mc.domains(tmp_path)] == ["bell", "clock", "lamp"]
+    assert [e["name"] for e in mc.index(tmp_path)] == ["bell", "clock", "lamp"]
+    (tmp_path / "other" / "lamp").mkdir(parents=True)
+    (tmp_path / "other" / "lamp" / "domain.yaml").write_text("")
+    with pytest.raises(ValueError, match="domain 'lamp' twice"):
+        mc.domains(tmp_path)
+    ceptre = ROOT / "domains" / "ceptre"
+    if ceptre.is_dir():                                   # a checkout (the wheel has no ceptre/)
+        assert len(mc.domains(ceptre)) == 13 and "three_pigs" in {d.name for d in mc.domains(ceptre)}

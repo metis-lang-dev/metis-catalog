@@ -1,8 +1,10 @@
 """metis_catalog — the catalog's loader (domain-catalog s-2a2bc758; CATALOG.md).
 
-Each domain package is one directory under domains/ (its name is the
-directory's) with a manifest, domain.yaml; every key is optional and the
-loader refuses any other (check_manifest; CATALOG.md lists each key's reader):
+Each domain package is one directory with a manifest, domain.yaml, anywhere
+under the catalog root (its name is the directory's; domains/<name>/ is the
+convention of a repository-sized catalog, and where a new one is written;
+cwd-root s-ddac2cbf); every key is optional and the loader refuses any other
+(check_manifest; CATALOG.md lists each key's reader):
 
     program: dog.llp                  # paths are relative to the manifest's directory
     extensions: [extensions/a.llp]    # absent: extensions/*.llp in name order (each `extends` the program)
@@ -41,7 +43,7 @@ from pathlib import Path
 
 import yaml
 
-__version__ = "0.1.0"
+__version__ = "0.1.1"
 
 
 def root():
@@ -219,8 +221,9 @@ class ManifestError(ValueError):
 
 
 def _catalog_root(p):
-    """The catalog root a manifest lives in: the parent of the outermost
-    `domains` directory above it, or None outside a domains/ tree."""
+    """The catalog root a manifest lives in when no root is given: the parent
+    of the outermost `domains` directory above it, or None outside a
+    domains/ tree (domains() always passes its root)."""
     ups = [a for a in Path(os.path.abspath(p)).parents if a.name == "domains"]
     return ups[-1].parent if ups else None
 
@@ -290,11 +293,25 @@ def check_manifest(p, root=None):
     return m
 
 
+# never a catalog's: a dot directory (.metis/ the loops' state, .git/, .venv/ …) and these
+SKIP = ("build", "records", "__pycache__", "node_modules")
+
+
+def walk(r, name):
+    """Every file matching `name` (a glob) under the root `r`, sorted, never
+    under a dot directory or one of SKIP (bundles, surprise records, caches):
+    the root is a workspace too, and may be any directory."""
+    import fnmatch
+    out = []
+    for d, dirs, files in os.walk(r):
+        dirs[:] = [x for x in dirs if not x.startswith(".") and x not in SKIP]
+        out += [Path(d) / f for f in fnmatch.filter(files, name)]
+    return sorted(out)
+
+
 def _manifests(r=None):
     r = Path(r) if r else root()
-    for p in sorted((r / "domains").rglob("domain.yaml")):
-        if ".git" in p.parts or "__pycache__" in p.parts:
-            continue
+    for p in walk(r, "domain.yaml"):
         yield Domain(p.parent.name, p.parent.resolve(), check_manifest(p, r))
 
 
@@ -397,8 +414,8 @@ def index(r=None):
                     "notch": os.path.relpath(d.notch, prog.parent) if d.notch and prog else None,
                     "readme": d.readme.relative_to(r).as_posix() if d.readme else None, "has": has,
                     "pair": d.pair})
-    for p in sorted(r.rglob("*.llp")):
-        if ".git" in p.parts or p.resolve() in covered:
+    for p in walk(r, "*.llp"):
+        if p.resolve() in covered:
             continue
         out.append(_inferred(r, p, table))
     return sorted(out, key=lambda e: (e["kind"] != "domain", e["manifest"] is None, e["name"] if e["kind"] == "domain" else e["path"]))

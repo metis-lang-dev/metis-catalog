@@ -5,7 +5,8 @@
 | word | what it is |
 |---|---|
 | **domain** | the thing modelled: the dog, the plant, the kitchen |
-| **domain package** (`pkg` in code) | its directory in the catalog, `domains/<name>/`: what the user checks out and the loop develops; the same package serves the loop and the agent |
+| **domain package** (`pkg` in code) | its directory in the catalog, `domains/<name>/` by convention (a new one is written there), but any directory with a `domain.yaml` under the catalog root is one, its name the directory's (cwd-root s-ddac2cbf: `cd domains/ceptre && metis-loop` serves the 13 ports; never under a dot directory, `build/`, `records/`, `__pycache__`, `node_modules/`): what the user checks out and the loop develops; the same package serves the loop and the agent |
+| **catalog root** | the directory a loop starts in (`cd DIR && metis-loop`; `$METIS_CATALOG` from elsewhere): its packages are the catalog, an empty one is an empty catalog, and its `README.md` is the catalog's context — the console lands on it, the narrate seat reads it |
 | **extension** | a catalog in the package's `extensions/` (`catalog <card> 1. extends <name>`, the language's word): the served program is the program plus its extensions |
 | **bundle** | what the emitter forms from a package for the C++/Go runtime: `ground.wire` + `sidecar.json` (+ `program.ir`, `tools.json`); `python -m metis.kernel.artifact <name>`. `ground.wire` is compiled by the OCaml compiler, `metisc --wire <program> [--extension e.llp]…` (`$METISC`, else `metisc` on PATH): OCaml-authoritative. Without metisc, metispy's `emit_artifact` covers, byte-equal (metispy gate 4 and metis-lang gate 12) and logged (`ground.wire by …`). A failing metisc is an error, never covered. `sidecar.json`, `tools.json` and `program.ir` are metispy's harness data (bundle-compiler s-3985caf6) |
 | **card** | an offerable catalog at the served node (unchanged) |

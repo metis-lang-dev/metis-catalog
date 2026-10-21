@@ -87,7 +87,10 @@ python ci/packages.py --update --only NAME   # rewrite a package's trace after a
 ```
 
 **Every live program is a package** (`domains/<name>/`: domain.yaml,
-`<name>.llp`, a README). What stays outside packages, and why:
+`<name>.llp`, a README). The loader finds a package by its `domain.yaml`
+anywhere under the root, so a part of the catalog is a catalog too:
+`cd domains/ceptre && metis-loop` serves the Ceptre ports, with their
+README as the catalog's context. What stays outside packages, and why:
 
 | where | why it is not a package |
 | --- | --- |
