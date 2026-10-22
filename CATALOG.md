@@ -145,9 +145,11 @@ source of a domain's intents: the intent pass's grammar and prompts are
 a domain with a host needs no Python in metis-agent.
 
 ```
-python3 tools/intents.py gen <name>      # → domains/<name>/intent/<name>.gbnf, <name>-prompt.txt, <name>-spoken.txt
-python3 tools/intents.py check <name>    # the generated files are what intent.yaml makes (CI)
-python3 tools/intents.py schema <name>   # the JSON schema the grammar is made from
+python -m metis.intents gen <name>      # → domains/<name>/intent/<name>.gbnf, <name>-prompt.txt, <name>-spoken.txt
+python -m metis.intents check <name>    # the generated files are what intent.yaml makes (CI)
+python -m metis.intents schema <name>   # the JSON schema the grammar is made from
+                                        # (metispy's, from the catalog's directory or with $METIS_CATALOG;
+                                        #  tools/intents.py is a wrapper over it for one release)
 metis-agent/py: .venv/bin/python -m metis_agent.intent_check <name> [--no-model]   # the corpus through them
 ```
 

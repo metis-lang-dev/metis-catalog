@@ -2,7 +2,7 @@
 # person may ask the dog, the schema the intent pass is held to, and how each
 # intent maps to one command atom of dog.llp. The intent pass's grammar and
 # prompts are GENERATED from this file, never written by hand:
-#   python3 ../../tools/intents.py gen dog      (from this directory: intent/*)
+#   python -m metis.intents gen dog      (from the catalog's directory: intent/*)
 # The outcomes are dog.llp's %% lines; the world (pairs, words, reports) is
 # dog_host.py's.
 

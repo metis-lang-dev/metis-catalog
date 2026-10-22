@@ -48,8 +48,8 @@ jobs:
           python-version: '3.12'
       - name: intents (each domain's generated intent files are what its intent.yaml makes)
         run: |
-          python3 -m pip install --quiet pyyaml
-          cd metis-catalog && for f in domains/*/intent.yaml; do python3 tools/intents.py check "$(basename "$(dirname "$f")")"; done
+          python3 -m pip install --quiet pyyaml ./metispy     # the generator is metispy's metis.intents
+          cd metis-catalog && for f in domains/*/intent.yaml; do METIS_CATALOG=$PWD python3 -m metis.intents check "$(basename "$(dirname "$f")")"; done
       - name: the loader (metis_catalog — every manifest whole, the consoles' index, list)
         run: |
           python3 -m pip install --quiet pyyaml pytest -e ./metispy

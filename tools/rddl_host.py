@@ -40,12 +40,10 @@ The faces, as the domain agent drives a host:
 The gym runs in a child process (tools/rddl_gym.py) under the interpreter
 that has pyRDDLGym: $METIS_RDDL_PY, else this one if it imports pyRDDLGym,
 else the packages' shared .venv beside the catalog checkout."""
-import importlib.util
 import json
-import os
-import subprocess
-import sys
 from pathlib import Path
+
+from metis.host import GymChild, find_interpreter
 
 HERE = Path(__file__).resolve().parent
 
@@ -60,52 +58,16 @@ def atom_of(key):
 
 
 def interpreter():
-    py = os.environ.get("METIS_RDDL_PY")
-    if py:
-        return py
-    if importlib.util.find_spec("pyRDDLGym") is not None:
-        return sys.executable
-    shared = HERE.parent.parent / ".venv" / "bin" / "python"
-    if shared.exists():
-        return str(shared)
-    raise RuntimeError("no interpreter with pyRDDLGym: set METIS_RDDL_PY")
+    """$METIS_RDDL_PY, else this interpreter when it imports pyRDDLGym, else the packages'
+    shared .venv beside the catalog checkout (metis.host.find_interpreter)."""
+    return find_interpreter("METIS_RDDL_PY", "pyRDDLGym", [HERE.parent.parent / ".venv" / "bin" / "python"], default=False)
 
 
-class GymClient:
-    """tools/rddl_gym.py as a child: one request, one answer."""
+class GymClient(GymChild):
+    """tools/rddl_gym.py as a child: one request, one answer (metis.host.GymChild, metis-packages)."""
 
     def __init__(self, problem, instance):
-        import tempfile
-        self.err = tempfile.TemporaryFile("w+")  # the gym's stderr: its last lines name a crash
-        self.proc = subprocess.Popen([interpreter(), str(HERE / "rddl_gym.py")], stdin=subprocess.PIPE,
-                                     stdout=subprocess.PIPE, stderr=self.err, text=True)
-        self.info = self.call("open", problem=problem, instance=str(instance))
-
-    def call(self, op, **kw):
-        self.proc.stdin.write(json.dumps(dict(kw, op=op)) + "\n")
-        self.proc.stdin.flush()
-        line = self.proc.stdout.readline()
-        if not line:
-            self.err.seek(0)
-            tail = self.err.read().strip().splitlines()[-3:]
-            raise RuntimeError("the gym process ended (%s): %s" % (self.proc.poll(), " | ".join(tail)))
-        out = json.loads(line)
-        if not out.pop("ok"):
-            raise RuntimeError("gym %s: %s" % (op, out["error"]))
-        return out
-
-    def close(self):
-        try:
-            if self.proc.poll() is None:
-                self.proc.stdin.write('{"op": "close"}\n')
-                self.proc.stdin.flush()
-                self.proc.wait(timeout=10)
-        except (OSError, ValueError, subprocess.TimeoutExpired):
-            self.proc.kill()
-
-    def __del__(self):
-        if getattr(self, "proc", None) is not None:
-            self.close()
+        super().__init__(HERE / "rddl_gym.py", interpreter(), "gym", problem=problem, instance=str(instance))
 
 
 class RddlHost:
