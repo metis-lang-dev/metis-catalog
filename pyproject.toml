@@ -22,7 +22,7 @@ license = "Apache-2.0"
 license-files = ["LICENSE", "NOTICE"]    # the root grant only: domains/ceptre/LICENSE (ACSL) is not the wheel's, nor shipped in it
 description = "The metis catalog's loader: one directory and one domain.yaml per domain, read by the loop console, the agent console and both agent backends"
 requires-python = ">=3.10"
-dependencies = ["pyyaml>=6"]
+dependencies = ["pyyaml>=6", "metispy>=0.1.2"]   # the loader is metispy's (metis.catalog.manifests); metis_catalog re-exports it
 
 [tool.setuptools]
 packages = ["metis_catalog", "metis_catalog.domains", "metis_catalog.tools"]
