@@ -35,18 +35,9 @@ jobs:
           make -C metis-lang metisc
       - name: check.sh (roundtrip every catalog + canonical keys)
         run: sh metis-catalog/ci/check.sh
-      - name: intents (each domain's generated intent files are what its intent.yaml makes)
-        run: |
-          python3 -m pip install --quiet pyyaml
-          cd metis-catalog && for f in domains/*/intent.yaml; do python3 tools/intents.py check "$(basename "$(dirname "$f")")"; done
-      - name: the loader (metis_catalog — every manifest whole, the consoles' index, list)
-        run: |
-          python3 -m pip install --quiet pyyaml pytest
-          cd metis-catalog && python3 -m pytest -q tests && python3 -m metis_catalog list --domains
-      - name: diagnose.sh (no error diagnostics; reasoned exemptions)
-        run: sh metis-catalog/ci/diagnose.sh
-      # the cross-check against metispy (public sibling): every clean
-      # catalog compiles under the python referee too
+      # metispy (public sibling): the loader lives there since metis-packages
+      # s-65778b98 (metis_catalog re-exports metis.catalog.manifests), and the
+      # cross-check below compiles every clean catalog under the python referee
       - name: Checkout metispy (public sibling)
         uses: actions/checkout@v4
         with:
@@ -55,6 +46,16 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
+      - name: intents (each domain's generated intent files are what its intent.yaml makes)
+        run: |
+          python3 -m pip install --quiet pyyaml
+          cd metis-catalog && for f in domains/*/intent.yaml; do python3 tools/intents.py check "$(basename "$(dirname "$f")")"; done
+      - name: the loader (metis_catalog — every manifest whole, the consoles' index, list)
+        run: |
+          python3 -m pip install --quiet pyyaml pytest -e ./metispy
+          cd metis-catalog && python3 -m pytest -q tests && python3 -m metis_catalog list --domains
+      - name: diagnose.sh (no error diagnostics; reasoned exemptions)
+        run: sh metis-catalog/ci/diagnose.sh
       - name: crosscheck.py (metispy agrees with metisc)
         run: |
           pip install -e ./metispy
