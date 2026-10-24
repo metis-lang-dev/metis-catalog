@@ -38,7 +38,12 @@ for f in $(git ls-files '*.llp'); do
     fail=1
     continue
   fi
-  errs=$(printf '%s\n' "$out" | grep -c '"severity":"error"' || true)
+  # a lifted file (spec 12: `types (...)` its instance completes) typechecks
+  # alone; its type-incomplete is what grounding it would refuse, the
+  # instance's to answer — not an error of the file
+  errs=$(printf '%s\n' "$out" | grep '"severity":"error"' \
+           | grep -vc '"code":"type-incomplete"' || true)
+  lifted=$(printf '%s\n' "$out" | grep -c '"code":"type-incomplete"' || true)
   if printf '%s\n' "$EXEMPT" | grep -qx "$f"; then
     [ "$errs" = 0 ] && echo "NOTE $f typechecks now — drop it from ci/diag-exempt.txt"
     echo "exempt $f ($errs error(s))"
@@ -49,7 +54,7 @@ for f in $(git ls-files '*.llp'); do
     "$METISC" --diagnostics "$f" ${base:+--base "$base"} 2>&1 | grep '^error' | head -5
     fail=1
   else
-    echo "ok   $f${base:+ (with $base)}"
+    echo "ok   $f${base:+ (with $base)}$([ "$lifted" != 0 ] && echo " (lifted)")"
   fi
 done
 echo "diagnosed $n catalogs"
