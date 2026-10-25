@@ -1,0 +1,10 @@
+case: a cook without the pot keeps its onion and its one request while the other cook fills the pot
+boundaries:
+  - world: [hand_free, pot_space 3, order 2]
+    expect: {out: [tick__want(cook_a, pot)], fired: [fetch_onion, ask_pot]}
+  - world: [held_onion, pot_space 2, pot_onion 1, order 2]   # the other cook loads
+    expect: {out: [], status: idle, fired: []}
+  - world: [held_onion, cooking, order 2]                    # the other cook's soup cooks: the pot is full
+    expect: {out: [], status: idle, fired: []}
+  - world: [held_onion, pot_space 3, order 2]                # the pot is back, still not granted: no second request
+    expect: {out: [], status: idle, fired: []}
