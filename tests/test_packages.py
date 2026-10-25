@@ -1,7 +1,9 @@
 """The one CI check over every domain package (catalog-entry step 2): every
 manifest carries only the package's keys (the loader refuses any other),
 its files are there, and its generated intent files are what its
-intent.yaml makes (python -m metis.intents check)."""
+intent.yaml makes (python -m metis.intents check), and its own cases pass
+through the interface stub (cases/*.yaml: the package's program alone, its
+manifest's interface closed by the cases' facts; metis-lang spec/15 §10.4)."""
 import importlib.util
 import os
 import subprocess
@@ -41,3 +43,12 @@ def test_the_packages_files_are_there(d):
         pytest.skip(f"{d.name} serves from {', '.join(missing)}, not installed here")
     for p in ([d.program] if d.manifest.get("program") else []) + d.extensions() + d.serves():
         assert p.is_file(), (d.name, p)
+
+
+@pytest.mark.parametrize("d", [d for d in PACKAGES if (d.dir / "cases").is_dir()], ids=lambda d: d.name)
+def test_the_packages_own_cases_pass_through_the_interface_stub(d):
+    # the specialist alone (no director, no world): metispy's one generic stub, driven by the manifest
+    from metis.catalog import stub
+    rs = stub.run_package(d)
+    assert rs, "%s: cases/ holds no case" % d.name
+    assert all(r.passed for r in rs), stub.render(rs)
