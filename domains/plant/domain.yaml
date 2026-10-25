@@ -4,5 +4,5 @@ voice: third
 program: plant.llp
 host: plant_host.py:make
 intent: {spec: intent.yaml}   # the generated files at fixed names in intent/
-clock: {beats: 1}
+clock: {beats: 1, period: 1}   # a clock source: its world moves without the ego (the tick's rule 1, spec/15 §8.5)
 records: records/
