@@ -1,0 +1,9 @@
+case: a stop drops the cook's request, never its onion — it asks again while its order stands, and not once the orders are withdrawn
+boundaries:
+  - world: [hand_free, pot_space 3, order 2]
+    expect: {out: [tick__active(cook_a), tick__want(cook_a, pot)], status: running, fired: [fetch_onion, ask_pot]}
+  - deliver: [tick__cancel(cook_a)]                # the director's stop_cancel: its request dropped, its onion kept
+    expect: {out: [tick__active(cook_a), tick__want(cook_a, pot)], fired: [cancel, ask_pot]}   # its order stands: a fresh request
+  - deliver: [tick__cancel(cook_a)]                # stopped as the orders are withdrawn: it keeps its onion, asks nothing
+    world: [held_onion, pot_space 3, order 0]
+    expect: {out: [], fired: [cancel]}

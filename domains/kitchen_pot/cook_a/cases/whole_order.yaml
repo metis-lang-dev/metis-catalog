@@ -1,13 +1,13 @@
 case: a cook asks for the pot, is granted it, makes and serves one soup, gives the pot back and asks anew
 boundaries:
   - world: [hand_free, pot_space 3, order 2]
-    expect: {out: [tick__want(cook_a, pot)], status: running, fired: [fetch_onion, ask_pot]}
+    expect: {out: [tick__active(cook_a), tick__want(cook_a, pot)], status: running, fired: [fetch_onion, ask_pot]}
   - world: [held_onion, pot_space 3, order 2]      # its onion still in hand: no grant yet, nothing fires
     expect: {out: [], status: idle, fired: []}
   - grant: [pot]
     deliver: [tick__grant(cook_a, pot)]            # the director's grant, synced into its session
     expect:                                        # the soup, the pot given back (its grant copy consumed), the order
-      out: [tick__release(cook_a, pot), tick__done(cook_a), tick__want(cook_a, pot)]   # served, and its next order asked
+      out: [tick__release(cook_a, pot), tick__done(cook_a), tick__active(cook_a), tick__want(cook_a, pot)]   # done at the plate, served, its next order asked
       status: success
       fired: [load, fetch_onion, load, fetch_onion, load, start, fetch_dish, plate, serve, fetch_onion, ask_pot]
   - world: [held_onion, pot_space 3, order 1]      # the pot is free and the onion in hand, but the old grant is gone:

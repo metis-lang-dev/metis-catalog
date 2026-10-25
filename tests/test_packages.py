@@ -52,3 +52,15 @@ def test_the_packages_own_cases_pass_through_the_interface_stub(d):
     rs = stub.run_package(d)
     assert rs, "%s: cases/ holds no case" % d.name
     assert all(r.passed for r in rs), stub.render(rs)
+
+
+def test_the_kitchen_cooks_cancels_are_as_their_generator_writes_them():
+    # a stop's cancels (specialist-tree step 3c, the architect's ruling (c)): kept in the lifted cook base, which no
+    # installer regenerates — metispy's protocol_stub over the base's own rules, calm its idle, the world-private
+    # preds the world's (regenerate: python -m metis.catalog.protocol_stub … --write, the arguments below)
+    from metis.catalog import protocol_stub
+    kit = ROOT / "domains" / "kitchen_pot"
+    text = (kit / "cook_domain.llp").read_text()
+    assert protocol_stub.BEGIN in text
+    assert protocol_stub.refresh(text, "S", idle="calm", namespace="cook", bind="$self(S)",
+                                 world=protocol_stub.world_private(kit / "cook_a" / "domain.yaml")) == text

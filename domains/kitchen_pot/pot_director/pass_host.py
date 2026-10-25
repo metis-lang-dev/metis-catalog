@@ -1,17 +1,20 @@
 """The pass's host (the shared-pot kitchen's director): no world of its own — it exists so the agent can take lines
-into the director's session (the relayed reports and statuses, its grants' ages). Nothing to read, nothing to do."""
+into the director's session (the relayed reports and statuses, its grants' ages). Nothing to read, nothing to do;
+the agent's world lines (a stop's +tick__stop / -tick__stop, step 3c) are handed in at its next tick, as every tree
+director's host does."""
 
 
 class PassHost:
     def __init__(self):
-        self.beat, self.due, self.script, self.last = 0, (), {}, None
+        self.beat, self.due, self.script, self.last, self.queue = 0, (), {}, None, []
 
     def bind(self, reg):
         pass
 
     def tick(self, counts):
         self.beat += 1
-        return []
+        dos, self.queue = self.queue, []
+        return dos
 
     def on_event(self, name, args):
         pass
@@ -29,13 +32,13 @@ class PassHost:
         return False
 
     def world(self, lines):
-        raise ValueError("world lines: the pass has no world")
+        self.queue += [l.strip() for l in lines if l.strip()]
 
     def snapshot(self):
-        return {"beat": self.beat}
+        return {"beat": self.beat, "queue": list(self.queue)}
 
     def restore(self, snap):
-        self.beat = snap["beat"]
+        self.beat, self.queue = snap["beat"], list(snap.get("queue", ()))
 
 
 def make(case=None):

@@ -1,0 +1,17 @@
+case: a stop while the cook's soup cooks drops its request, never the soup — with an order standing it asks for the pot again to plate it
+boundaries:
+  - world: [held_onion, pot_onion 2, pot_space 1, order 1]
+    expect: {out: [tick__active(cook_a), tick__want(cook_a, pot)], status: running, fired: [ask_pot]}
+  - grant: [pot]                                   # granted; the order withdrawn meanwhile: the soup starts, no dish taken
+    deliver: [tick__grant(cook_a, pot)]
+    world: [held_onion, pot_onion 2, pot_space 1, order 0]
+    expect: {out: [], fired: [load, start]}
+  - lines: ["-tick__grant(cook_a,pot) 1"]          # the stop: the director's revoke and its cancel
+    revoke: [pot]
+    deliver: [tick__cancel(cook_a)]
+    expect: {out: [], fired: [cancel]}
+  - world: [hand_free, cooking, order 1]           # an order again: its own soup cooks, so it asks for the pot to plate
+    expect: {out: [tick__active(cook_a), tick__want(cook_a, pot)], fired: [ask_plate, fetch_dish]}
+  - grant: [pot]
+    deliver: [tick__grant(cook_a, pot)]
+    expect: {out: [tick__release(cook_a, pot), tick__done(cook_a)], status: success, fired: [plate, serve]}
