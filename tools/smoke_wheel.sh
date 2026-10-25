@@ -23,11 +23,11 @@ from pathlib import Path
 
 import metis_catalog as mc
 
-PACKAGES = {"bridge", "bridge_decl", "dog", "elevators", "gol", "hanoi", "kitchen", "kitchen_shared",
+PACKAGES = {"bridge", "bridge_decl", "dog", "elevators", "gol", "hanoi", "kitchen", "kitchen_pot", "kitchen_shared",
             "nav", "plant", "road", "sysadmin", "tamarisk", "wgc", "wildfire", "xtraffic"}
 r = mc.root()
 assert "site-packages" in mc.__file__ and r == Path(mc.__file__).resolve().parent, (mc.__file__, r)
-names = {d.name for d in mc.domains()}
+names = {d.dir.relative_to(r / "domains").parts[0] for d in mc.domains()}   # the packages' top directories (kitchen_pot holds three domains)
 assert names == PACKAGES, sorted(names ^ PACKAGES)
 assert not (r / "domains" / "ceptre").exists(), "domains/ceptre/ (ACSL) is in the wheel"
 assert not list((r / "domains").rglob("records")), "a package's records/ is in the wheel"
