@@ -41,12 +41,13 @@ for f in r.rglob("*"):
         t = f.read_bytes()
         assert b"/home/" not in t and (len(host) < 4 or host.encode() not in t), ("a host path or name in", f.relative_to(r))
 out = Path.cwd() / "bundles"                          # the venv's scratch dir, removed on exit
-for name in sorted(PACKAGES - {"kitchen_shared"}):      # a partner: never loaded alone
+built = sorted(d.name for d in mc.domains() if not d.partner_of)   # each domain (kitchen_pot: its three); a partner never alone
+for name in built:
     subprocess.run([sys.executable, "-m", "metis.kernel.artifact", name, "-o", str(out / name)],
                    check=True, stdout=subprocess.DEVNULL)
     assert (out / name / "ground.wire").is_file(), name
 print("smoke: metis_catalog %s from %s, %d packages, %d bundles"
-      % (mc.__version__, r, len(names), len(PACKAGES) - 1))
+      % (mc.__version__, r, len(names), len(built)))
 PY
 env -u METIS_CATALOG "$W/venv/bin/python" -m metis_catalog list --domains > /dev/null
 echo "SMOKE GREEN"

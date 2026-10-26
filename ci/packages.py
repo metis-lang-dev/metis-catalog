@@ -7,7 +7,11 @@ package is run and built, by both toolchains.
          of its own (kitchen_shared) runs the first file it serves. The CI
          cases in goldens/cases/<name>.llp (the program included, with a start
          that fires, where the program's own #init is its live start and
-         stays as it is) run against goldens/traces/<name>.case.txt.
+         stays as it is) run against goldens/traces/<name>.case.txt. A program
+         with no `#` case whose package has cases/ (kitchen_pot's cooks and
+         director: their cases are cases/*.yaml) runs those through metispy's
+         interface stub instead (python -m metis.catalog cases NAME); one with
+         neither (cook_b, pot_director) has the wire gate only, and says so.
   twin   metispy's replay of the same case (render_run, the REPL's `trace`)
          gives the same I/T/F lines: both samplers seeded alike.
   wire   `metisc --wire` of the served program (the program and its
@@ -15,7 +19,8 @@ package is run and built, by both toolchains.
          emit_artifact) byte for byte.
 
 Every tracked package needs a trace, and every trace a package or a case. Each
-metisc call is its own process, at most --jobs at once (talespin grounds 105k
+metisc call is its own process (METIS_HOME: the environment's, else metispy's
+own, as its include rule has it), at most --jobs at once (talespin grounds 105k
 events in about 2 minutes, for its run and for its wire alike).
 
   python ci/packages.py [--jobs N] [--only NAME...] [--no-py]
@@ -62,6 +67,25 @@ def units(only):
     return out
 
 
+def _home():
+    """METIS_HOME for metisc: the environment's, else metispy's metis.catalog.home() (the shared
+    packages, iface/): an include's last place, as metispy's own include rule has it."""
+    if os.environ.get("METIS_HOME"):
+        return os.environ["METIS_HOME"]
+    from metis import catalog
+    return str(catalog.home() if hasattr(catalog, "home") else Path(catalog.__file__).resolve().parent)   # before metispy 0.1.4
+
+
+def stub_cases(name):
+    """(ok, note): the package's cases/*.yaml through the interface stub (metis.catalog.stub)."""
+    from metis import catalog
+    from metis.catalog import stub
+    res = stub.run_package(catalog.get(name, ROOT))
+    bad = [c.as_dict().get("name") for c in res if not c.passed]
+    return (bool(res) and not bad), (f"{len(res)} cases/*.yaml through the stub (no # case)" if not bad
+                                     else f"cases failing through the stub: {bad}")
+
+
 def metisc(args):
     """(stdout, seconds). stdout goes to a file, not a pipe: talespin's wire is
     56 MB, and a pipe's reader starved by other work stalls the writer."""
@@ -69,7 +93,7 @@ def metisc(args):
     t = time.time()
     with tempfile.TemporaryFile("w+") as out:
         r = subprocess.run([METISC, *args], stdin=subprocess.DEVNULL, stdout=out,
-                           stderr=subprocess.PIPE, text=True)
+                           stderr=subprocess.PIPE, text=True, env=dict(os.environ, METIS_HOME=_home()))
         out.seek(0)
         text = out.read()
     if r.returncode:
@@ -101,6 +125,10 @@ def itf(text):
 def check_run(unit, py, update):
     """[(gate, ok, note)]: the unit's run against its trace, and its twin."""
     name, path, _ = unit
+    if "#steps" not in Path(path).read_text():          # no # case: its #init is its live start
+        if (Path(path).parent / "cases").is_dir():
+            return [("run", *stub_cases(name))]
+        return [("run", True, "no # case and no cases/: the wire gate only")]
     res = []
     gold = TRACES / f"{name}.txt"
     try:
