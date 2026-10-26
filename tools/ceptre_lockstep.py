@@ -45,14 +45,11 @@ import sys
 from collections import Counter
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve()
-                       .parents[2] / "metispy"))
-
-from metis.kernel.refsample import canonical_events          # noqa: E402
-from metis.kernel.weight import choice_weight                 # noqa: E402
-from metis.lang import (compile_catalog, parse,               # noqa: E402
+from metis.kernel.refsample import canonical_events          # metispy, installed in the python that runs this
+from metis.kernel.weight import choice_weight
+from metis.lang import (compile_catalog, parse,
                         resolve_includes)
-from metis.lang.directives import embedded_case               # noqa: E402
+from metis.lang.directives import embedded_case
 
 _MENU = re.compile(r"^(\d+): (.+?)\s*$")
 _NAME = re.compile(r"^([A-Za-z0-9_'-]+)(?:\[(.*)\])?$")
