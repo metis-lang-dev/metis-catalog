@@ -1,0 +1,9 @@
+{"args": {}, "verb": "WATER"}
+{"args": {}, "verb": "CHECK"}
+{"args": {}, "verb": "UNKNOWN"}
+{"args": {}, "verb": "water"}
+{"args": {}, "verb": "check"}
+{"args": {}, "verb": "NO_SUCH_VERB"}
+{"args": {}, "verb": "NAVIGATE"}
+{"args": {"goal": {"description": "a unicorn", "type": "OBJECT"}}, "verb": "NAVIGATE"}
+{"args": {"target": {"attributes": {"color": "red"}, "description": "keys", "type": "OBJECT"}}, "verb": "FIND"}

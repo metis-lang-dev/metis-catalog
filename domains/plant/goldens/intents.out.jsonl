@@ -1,0 +1,9 @@
+{"in": {"args": {}, "verb": "WATER"}, "out": {"atom": "cmd_water", "act": "water", "used": [], "dropped": {}}}
+{"in": {"args": {}, "verb": "CHECK"}, "out": {"atom": "cmd_check", "act": "check", "used": [], "dropped": {}}}
+{"in": {"args": {}, "verb": "UNKNOWN"}, "out": {"error": "no row for verb 'UNKNOWN'"}}
+{"in": {"args": {}, "verb": "water"}, "out": {"atom": "cmd_water", "act": "water", "used": [], "dropped": {}}}
+{"in": {"args": {}, "verb": "check"}, "out": {"atom": "cmd_check", "act": "check", "used": [], "dropped": {}}}
+{"in": {"args": {}, "verb": "NO_SUCH_VERB"}, "out": {"error": "no row for verb 'NO_SUCH_VERB'"}}
+{"in": {"args": {}, "verb": "NAVIGATE"}, "out": {"error": "no row for verb 'NAVIGATE'"}}
+{"in": {"args": {"goal": {"description": "a unicorn", "type": "OBJECT"}}, "verb": "NAVIGATE"}, "out": {"error": "no row for verb 'NAVIGATE'"}}
+{"in": {"args": {"target": {"attributes": {"color": "red"}, "description": "keys", "type": "OBJECT"}}, "verb": "FIND"}, "out": {"error": "no row for verb 'FIND'"}}

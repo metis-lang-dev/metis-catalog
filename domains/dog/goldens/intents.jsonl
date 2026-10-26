@@ -1,0 +1,85 @@
+{"args": {}, "verb": "CANCEL"}
+{"args": {}, "verb": "CHITCHAT"}
+{"args": {}, "verb": "DATE"}
+{"args": {"target": {"attributes": {"color": "blue"}, "description": "bottle", "type": "OBJECT"}}, "verb": "FIND"}
+{"args": {"constraints": [{"reference": {"description": "window", "type": "OBJECT"}, "relation": "NEAR"}], "target": {"attributes": {"color": "red"}, "description": "chair", "type": "OBJECT"}}, "verb": "FIND"}
+{"args": {"target": {"description": "fire extinguisher", "type": "OBJECT"}}, "verb": "FIND"}
+{"args": {"target": {"description": "keys", "type": "OBJECT"}}, "verb": "FIND"}
+{"args": {"target": {"description": "the person", "type": "PERSON"}}, "verb": "FOLLOW"}
+{"args": {"action": "LIE_DOWN"}, "verb": "LOCAL_ACTION"}
+{"args": {"action": "MOVE", "direction": "BACKWARD", "distance_m": 0.5}, "verb": "LOCAL_ACTION"}
+{"args": {"action": "MOVE", "direction": "BACKWARD"}, "verb": "LOCAL_ACTION"}
+{"args": {"action": "MOVE", "direction": "FORWARD", "distance_m": 1}, "verb": "LOCAL_ACTION"}
+{"args": {"action": "MOVE", "direction": "FORWARD", "distance_m": 2}, "verb": "LOCAL_ACTION"}
+{"args": {"action": "MOVE", "direction": "FORWARD"}, "verb": "LOCAL_ACTION"}
+{"args": {"action": "SHAKE"}, "verb": "LOCAL_ACTION"}
+{"args": {"action": "SIT_DOWN"}, "verb": "LOCAL_ACTION"}
+{"args": {"action": "STAND_UP"}, "verb": "LOCAL_ACTION"}
+{"args": {"action": "TURN", "direction": "AROUND"}, "verb": "LOCAL_ACTION"}
+{"args": {"action": "TURN", "angle_deg": 90, "direction": "LEFT"}, "verb": "LOCAL_ACTION"}
+{"args": {"action": "TURN", "direction": "LEFT"}, "verb": "LOCAL_ACTION"}
+{"args": {"action": "TURN", "direction": "RIGHT"}, "verb": "LOCAL_ACTION"}
+{"args": {"constraints": [{"reference": {"description": "window", "type": "OBJECT"}, "relation": "NEXT_TO"}], "goal": {"description": "chair", "type": "OBJECT"}}, "verb": "NAVIGATE"}
+{"args": {"goal": {"description": "door", "type": "OBJECT"}}, "verb": "NAVIGATE"}
+{"args": {"goal": {"description": "sofa", "type": "OBJECT"}}, "verb": "NAVIGATE"}
+{"args": {"goal": {"description": "kitchen", "type": "REGION"}}, "verb": "NAVIGATE"}
+{"args": {"goal": {"description": "april tag", "type": "TAG"}, "tag_id": 3}, "verb": "NAVIGATE"}
+{"args": {"goal": {"description": "april tag", "type": "TAG"}, "tag_id": 7}, "verb": "NAVIGATE"}
+{"args": {"goal": {"description": "tag", "type": "TAG"}, "tag_id": 5}, "verb": "NAVIGATE"}
+{"args": {"goal": {"description": "tag", "type": "TAG"}}, "verb": "NAVIGATE"}
+{"args": {"target": {"description": "chair", "type": "OBJECT"}}, "verb": "QUERY"}
+{"args": {"target": {"description": "keys", "type": "OBJECT"}}, "verb": "QUERY"}
+{"args": {"constraints": [{"reference": {"description": "table", "type": "OBJECT"}, "relation": "NEXT_TO"}], "target": {"description": "table", "type": "OBJECT"}}, "verb": "QUERY"}
+{"args": {"target": {"description": "what", "type": "OBJECT"}}, "verb": "QUERY"}
+{"args": {"target": {"description": "the person", "type": "PERSON"}}, "verb": "QUERY"}
+{"args": {}, "verb": "STOP"}
+{"args": {}, "verb": "TIME"}
+{"args": {}, "verb": "UNKNOWN"}
+{"args": {}, "verb": "stand"}
+{"args": {}, "verb": "sit"}
+{"args": {}, "verb": "lie"}
+{"args": {"side": "left"}, "verb": "turn"}
+{"args": {"side": "right"}, "verb": "turn"}
+{"args": {"side": "around"}, "verb": "turn"}
+{"args": {}, "verb": "turn"}
+{"args": {"way": "forward"}, "verb": "move"}
+{"args": {"way": "backward"}, "verb": "move"}
+{"args": {}, "verb": "move"}
+{"args": {}, "verb": "paw"}
+{"args": {"place": "window_chair"}, "verb": "go"}
+{"args": {"place": "tag3"}, "verb": "go"}
+{"args": {"place": "tag5"}, "verb": "go"}
+{"args": {"place": "tag_near"}, "verb": "go"}
+{"args": {"place": "door"}, "verb": "go"}
+{"args": {"place": "kitchen"}, "verb": "go"}
+{"args": {}, "verb": "go"}
+{"args": {"thing": "extinguisher"}, "verb": "find"}
+{"args": {"thing": "keys"}, "verb": "find"}
+{"args": {"thing": "bottle"}, "verb": "find"}
+{"args": {"thing": "chair"}, "verb": "find"}
+{"args": {"thing": "table"}, "verb": "find"}
+{"args": {}, "verb": "find"}
+{"args": {}, "verb": "follow"}
+{"args": {}, "verb": "stop"}
+{"args": {}, "verb": "cancel"}
+{"args": {"thing": "extinguisher"}, "verb": "query"}
+{"args": {"thing": "keys"}, "verb": "query"}
+{"args": {"thing": "bottle"}, "verb": "query"}
+{"args": {"thing": "chair"}, "verb": "query"}
+{"args": {"thing": "table"}, "verb": "query"}
+{"args": {}, "verb": "query"}
+{"args": {"place": "window_chair"}, "verb": "look"}
+{"args": {"place": "tag3"}, "verb": "look"}
+{"args": {"place": "tag5"}, "verb": "look"}
+{"args": {"place": "tag_near"}, "verb": "look"}
+{"args": {"place": "door"}, "verb": "look"}
+{"args": {"place": "kitchen"}, "verb": "look"}
+{"args": {}, "verb": "look"}
+{"args": {}, "verb": "time"}
+{"args": {}, "verb": "date"}
+{"args": {}, "verb": "chat"}
+{"args": {}, "verb": "unknown"}
+{"args": {}, "verb": "NO_SUCH_VERB"}
+{"args": {}, "verb": "NAVIGATE"}
+{"args": {"goal": {"description": "a unicorn", "type": "OBJECT"}}, "verb": "NAVIGATE"}
+{"args": {"target": {"attributes": {"color": "red"}, "description": "keys", "type": "OBJECT"}}, "verb": "FIND"}

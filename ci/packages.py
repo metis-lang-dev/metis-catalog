@@ -17,6 +17,13 @@ package is run and built, by both toolchains.
   wire   `metisc --wire` of the served program (the program and its
          extensions) equals metispy's bundle ground.wire (served_doc +
          emit_artifact) byte for byte.
+  golden a package with goldens/ (its day.jsonl and intents.jsonl in,
+         their .out.jsonl out; dagent-fixtures s-86bbd1e7 step 2): metispy
+         writes the same goldens again (metis.domain.day), byte for byte. A
+         commit that changes what the package says without writing them
+         again (`python -m metis.catalog golden NAME`) fails here; --update
+         writes them. The domain agents (metis-agent's Go and py) are held to
+         the same files in their own CI.
 
 Every tracked package needs a trace, and every trace a package or a case. Each
 metisc call is its own process (METIS_HOME: the environment's, else metispy's
@@ -24,7 +31,7 @@ own, as its include rule has it), at most --jobs at once (talespin grounds 105k
 events in about 2 minutes, for its run and for its wire alike).
 
   python ci/packages.py [--jobs N] [--only NAME...] [--no-py]
-  python ci/packages.py --update [--only NAME...]     write the traces
+  python ci/packages.py --update [--only NAME...]     write the traces and the goldens
 
 METISC as in check.sh. --no-py: the run gate only (no metispy)."""
 import argparse
@@ -118,6 +125,28 @@ def py_wire(served):
     return emit_artifact(doc, doc.catalog.ground(dict(case["init"])), case["steps"])
 
 
+def check_golden(unit, update):
+    """[(gate, ok, note)]: the package's goldens/ against what metispy makes of it now."""
+    from metis import catalog
+    from metis.domain import day
+    d = catalog.get(unit[0], ROOT)
+    if update:
+        files = day.golden(d)
+        for f, text in files.items():
+            (d.dir / day.GOLDENS / f).write_text(text)
+        return [("golden", bool(files), f"wrote {', '.join(sorted(files))}" if files else "no day.jsonl or intents.jsonl")]
+    bad = day.check(d)
+    return [("golden", not bad, "\n".join(f"goldens/{f}: {w}" for f, w in bad))]
+
+
+def has_goldens(unit):
+    """A package (not a CI case) whose directory has goldens/."""
+    if unit[2] is None:
+        return False
+    from metis import catalog
+    return (catalog.get(unit[0], ROOT).dir / "goldens").is_dir()
+
+
 def itf(text):
     return [l for l in text.splitlines() if l[:2] in ("I ", "T ", "F ")]
 
@@ -184,6 +213,8 @@ def one(task):
     """One gate of one unit, in a worker process of its own (metispy's work is
     pure Python: threads would serialize it)."""
     u, gate, py, update = task
+    if gate == "golden":
+        return u, check_golden(u, update)
     return u, (check_run(u, py, update) if gate == "run" else check_wire(u, py))
 
 
@@ -199,6 +230,7 @@ def main(argv=None) -> int:
     py = not a.no_py
     tasks = [(u, "run", py, a.update) for u in us] + [(u, "wire", py, False) for u in us
                                                       if u[2] is not None and not a.update]
+    tasks += [(u, "golden", py, a.update) for u in us if py and has_goldens(u)]
     tasks.sort(key=lambda t: t[0][0] not in HEAVY)     # stable: otherwise in order
     with ProcessPoolExecutor(max(1, a.jobs)) as ex:
         results = sorted(ex.map(one, tasks), key=lambda r: r[0][0])

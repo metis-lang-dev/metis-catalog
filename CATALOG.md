@@ -104,6 +104,22 @@ case, `goldens/cases/<name>.llp` (the program included, unchanged): a CI case,
 not a domain. `ci/packages.py` holds both, with metispy's twin and the bundle's
 wire (catalog CI, job `packages`).
 
+**A package's golden (dagent-fixtures s-86bbd1e7, the user's ownership rule of
+2026-10-26).** The golden is part of the package, beside it: `domains/<d>/goldens/`
+holds the package's scripted day in (`day.jsonl`: the clock's beats, the intents,
+the world lines, the ports, the REPL reads) and what the package says to it out
+(`day.out.jsonl`: every reply as the reply table has it, the script the narrator
+gets, the end state with the surprise records), and the intents its card is held
+to (`intents.jsonl` → `intents.out.jsonl`: atom, act, used, dropped, or the error).
+metispy writes the `.out` files (`python -m metis.catalog golden <d>`, metis.domain.day:
+the package at its own level, no narrator, consult or surprise verbs); the packages
+job checks it writes them again byte for byte, so **a commit that edits a program,
+an extension or intent.yaml writes the golden again in the same push, or the
+catalog's CI fails**. The domain agents are held to the same files in their own
+CI (metis-agent: the Go agent and the py agent), neither of them the reference.
+The goldens are written, never hand-edited: `cases/*.yaml` stay the hand-written
+interface cases (the stub's). dog and plant have goldens (2026-10-27).
+
 ### Extensions and the world's reports (the architect's rulings, 2026-10-15)
 
 An extension in `extensions/` is merged into the SERVED program: the agent

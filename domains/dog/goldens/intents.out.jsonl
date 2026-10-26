@@ -1,0 +1,85 @@
+{"in": {"args": {}, "verb": "CANCEL"}, "out": {"atom": "cmd_cancel", "act": "cancel", "used": [], "dropped": {}}}
+{"in": {"args": {}, "verb": "CHITCHAT"}, "out": {"atom": "cmd_chat", "act": "chat", "used": [], "dropped": {}}}
+{"in": {"args": {}, "verb": "DATE"}, "out": {"atom": "cmd_date", "act": "date", "used": [], "dropped": {}}}
+{"in": {"args": {"target": {"attributes": {"color": "blue"}, "description": "bottle", "type": "OBJECT"}}, "verb": "FIND"}, "out": {"atom": "cmd_find(bottle)", "act": "find", "used": ["target"], "dropped": {"target.attributes": {"color": "blue"}}}}
+{"in": {"args": {"constraints": [{"reference": {"description": "window", "type": "OBJECT"}, "relation": "NEAR"}], "target": {"attributes": {"color": "red"}, "description": "chair", "type": "OBJECT"}}, "verb": "FIND"}, "out": {"atom": "cmd_find(chair)", "act": "find", "used": ["target"], "dropped": {"constraints": [{"reference": {"description": "window", "type": "OBJECT"}, "relation": "NEAR"}], "target.attributes": {"color": "red"}}}}
+{"in": {"args": {"target": {"description": "fire extinguisher", "type": "OBJECT"}}, "verb": "FIND"}, "out": {"atom": "cmd_find(extinguisher)", "act": "find", "used": ["target"], "dropped": {}}}
+{"in": {"args": {"target": {"description": "keys", "type": "OBJECT"}}, "verb": "FIND"}, "out": {"atom": "cmd_find(keys)", "act": "find", "used": ["target"], "dropped": {}}}
+{"in": {"args": {"target": {"description": "the person", "type": "PERSON"}}, "verb": "FOLLOW"}, "out": {"atom": "cmd_follow", "act": "follow", "used": [], "dropped": {"target": {"description": "the person", "type": "PERSON"}}}}
+{"in": {"args": {"action": "LIE_DOWN"}, "verb": "LOCAL_ACTION"}, "out": {"atom": "cmd_lie", "act": "lie", "used": ["action"], "dropped": {}}}
+{"in": {"args": {"action": "MOVE", "direction": "BACKWARD", "distance_m": 0.5}, "verb": "LOCAL_ACTION"}, "out": {"atom": "cmd_move(backward)", "act": "move", "used": ["action", "direction"], "dropped": {"distance_m": 0.5}}}
+{"in": {"args": {"action": "MOVE", "direction": "BACKWARD"}, "verb": "LOCAL_ACTION"}, "out": {"atom": "cmd_move(backward)", "act": "move", "used": ["action", "direction"], "dropped": {}}}
+{"in": {"args": {"action": "MOVE", "direction": "FORWARD", "distance_m": 1}, "verb": "LOCAL_ACTION"}, "out": {"atom": "cmd_move(forward)", "act": "move", "used": ["action", "direction"], "dropped": {"distance_m": 1}}}
+{"in": {"args": {"action": "MOVE", "direction": "FORWARD", "distance_m": 2}, "verb": "LOCAL_ACTION"}, "out": {"atom": "cmd_move(forward)", "act": "move", "used": ["action", "direction"], "dropped": {"distance_m": 2}}}
+{"in": {"args": {"action": "MOVE", "direction": "FORWARD"}, "verb": "LOCAL_ACTION"}, "out": {"atom": "cmd_move(forward)", "act": "move", "used": ["action", "direction"], "dropped": {}}}
+{"in": {"args": {"action": "SHAKE"}, "verb": "LOCAL_ACTION"}, "out": {"atom": "cmd_paw", "act": "paw", "used": ["action"], "dropped": {}}}
+{"in": {"args": {"action": "SIT_DOWN"}, "verb": "LOCAL_ACTION"}, "out": {"atom": "cmd_sit", "act": "sit", "used": ["action"], "dropped": {}}}
+{"in": {"args": {"action": "STAND_UP"}, "verb": "LOCAL_ACTION"}, "out": {"atom": "cmd_stand", "act": "stand", "used": ["action"], "dropped": {}}}
+{"in": {"args": {"action": "TURN", "direction": "AROUND"}, "verb": "LOCAL_ACTION"}, "out": {"atom": "cmd_turn(around)", "act": "turn", "used": ["action", "direction"], "dropped": {}}}
+{"in": {"args": {"action": "TURN", "angle_deg": 90, "direction": "LEFT"}, "verb": "LOCAL_ACTION"}, "out": {"atom": "cmd_turn(left)", "act": "turn", "used": ["action", "direction"], "dropped": {"angle_deg": 90}}}
+{"in": {"args": {"action": "TURN", "direction": "LEFT"}, "verb": "LOCAL_ACTION"}, "out": {"atom": "cmd_turn(left)", "act": "turn", "used": ["action", "direction"], "dropped": {}}}
+{"in": {"args": {"action": "TURN", "direction": "RIGHT"}, "verb": "LOCAL_ACTION"}, "out": {"atom": "cmd_turn(right)", "act": "turn", "used": ["action", "direction"], "dropped": {}}}
+{"in": {"args": {"constraints": [{"reference": {"description": "window", "type": "OBJECT"}, "relation": "NEXT_TO"}], "goal": {"description": "chair", "type": "OBJECT"}}, "verb": "NAVIGATE"}, "out": {"atom": "cmd_go(window_chair)", "act": "go", "used": ["goal", "constraints"], "dropped": {}}}
+{"in": {"args": {"goal": {"description": "door", "type": "OBJECT"}}, "verb": "NAVIGATE"}, "out": {"atom": "cmd_go(door)", "act": "go", "used": ["goal"], "dropped": {}}}
+{"in": {"args": {"goal": {"description": "sofa", "type": "OBJECT"}}, "verb": "NAVIGATE"}, "out": {"atom": "cmd_go(sofa)", "act": "go", "used": ["goal"], "dropped": {}}}
+{"in": {"args": {"goal": {"description": "kitchen", "type": "REGION"}}, "verb": "NAVIGATE"}, "out": {"atom": "cmd_go(kitchen)", "act": "go", "used": ["goal"], "dropped": {}}}
+{"in": {"args": {"goal": {"description": "april tag", "type": "TAG"}, "tag_id": 3}, "verb": "NAVIGATE"}, "out": {"atom": "cmd_go(tag3)", "act": "go", "used": ["goal", "tag_id"], "dropped": {}}}
+{"in": {"args": {"goal": {"description": "april tag", "type": "TAG"}, "tag_id": 7}, "verb": "NAVIGATE"}, "out": {"atom": "cmd_go(elsewhere)", "act": "go", "used": ["goal"], "dropped": {"tag_id": 7}}}
+{"in": {"args": {"goal": {"description": "tag", "type": "TAG"}, "tag_id": 5}, "verb": "NAVIGATE"}, "out": {"atom": "cmd_go(tag5)", "act": "go", "used": ["goal", "tag_id"], "dropped": {}}}
+{"in": {"args": {"goal": {"description": "tag", "type": "TAG"}}, "verb": "NAVIGATE"}, "out": {"atom": "cmd_go(tag_near)", "act": "go", "used": ["goal", "tag_id"], "dropped": {}}}
+{"in": {"args": {"target": {"description": "chair", "type": "OBJECT"}}, "verb": "QUERY"}, "out": {"atom": "cmd_query(chair)", "act": "query", "used": ["target"], "dropped": {}}}
+{"in": {"args": {"target": {"description": "keys", "type": "OBJECT"}}, "verb": "QUERY"}, "out": {"atom": "cmd_query(keys)", "act": "query", "used": ["target"], "dropped": {}}}
+{"in": {"args": {"constraints": [{"reference": {"description": "table", "type": "OBJECT"}, "relation": "NEXT_TO"}], "target": {"description": "table", "type": "OBJECT"}}, "verb": "QUERY"}, "out": {"atom": "cmd_query(table)", "act": "query", "used": ["target"], "dropped": {"constraints": [{"reference": {"description": "table", "type": "OBJECT"}, "relation": "NEXT_TO"}]}}}
+{"in": {"args": {"target": {"description": "what", "type": "OBJECT"}}, "verb": "QUERY"}, "out": {"atom": "cmd_look(elsewhere)", "act": "look", "used": ["target"], "dropped": {}}}
+{"in": {"args": {"target": {"description": "the person", "type": "PERSON"}}, "verb": "QUERY"}, "out": {"atom": "cmd_look(elsewhere)", "act": "look", "used": ["target"], "dropped": {}}}
+{"in": {"args": {}, "verb": "STOP"}, "out": {"atom": "cmd_stop", "act": "stop", "used": [], "dropped": {}}}
+{"in": {"args": {}, "verb": "TIME"}, "out": {"atom": "cmd_time", "act": "time", "used": [], "dropped": {}}}
+{"in": {"args": {}, "verb": "UNKNOWN"}, "out": {"atom": "cmd_unknown", "act": "unknown", "used": [], "dropped": {}}}
+{"in": {"args": {}, "verb": "stand"}, "out": {"atom": "cmd_stand", "act": "stand", "used": [], "dropped": {}}}
+{"in": {"args": {}, "verb": "sit"}, "out": {"atom": "cmd_sit", "act": "sit", "used": [], "dropped": {}}}
+{"in": {"args": {}, "verb": "lie"}, "out": {"atom": "cmd_lie", "act": "lie", "used": [], "dropped": {}}}
+{"in": {"args": {"side": "left"}, "verb": "turn"}, "out": {"atom": "cmd_turn(left)", "act": "turn", "used": ["direction"], "dropped": {}}}
+{"in": {"args": {"side": "right"}, "verb": "turn"}, "out": {"atom": "cmd_turn(right)", "act": "turn", "used": ["direction"], "dropped": {}}}
+{"in": {"args": {"side": "around"}, "verb": "turn"}, "out": {"atom": "cmd_turn(around)", "act": "turn", "used": ["direction"], "dropped": {}}}
+{"in": {"args": {}, "verb": "turn"}, "out": {"error": "no direction given"}}
+{"in": {"args": {"way": "forward"}, "verb": "move"}, "out": {"atom": "cmd_move(forward)", "act": "move", "used": ["direction"], "dropped": {}}}
+{"in": {"args": {"way": "backward"}, "verb": "move"}, "out": {"atom": "cmd_move(backward)", "act": "move", "used": ["direction"], "dropped": {}}}
+{"in": {"args": {}, "verb": "move"}, "out": {"error": "no direction given"}}
+{"in": {"args": {}, "verb": "paw"}, "out": {"atom": "cmd_paw", "act": "paw", "used": [], "dropped": {}}}
+{"in": {"args": {"place": "window_chair"}, "verb": "go"}, "out": {"atom": "cmd_go(window_chair)", "act": "go", "used": ["goal"], "dropped": {}}}
+{"in": {"args": {"place": "tag3"}, "verb": "go"}, "out": {"atom": "cmd_go(tag3)", "act": "go", "used": ["goal"], "dropped": {}}}
+{"in": {"args": {"place": "tag5"}, "verb": "go"}, "out": {"atom": "cmd_go(tag5)", "act": "go", "used": ["goal"], "dropped": {}}}
+{"in": {"args": {"place": "tag_near"}, "verb": "go"}, "out": {"atom": "cmd_go(tag_near)", "act": "go", "used": ["goal"], "dropped": {}}}
+{"in": {"args": {"place": "door"}, "verb": "go"}, "out": {"atom": "cmd_go(door)", "act": "go", "used": ["goal"], "dropped": {}}}
+{"in": {"args": {"place": "kitchen"}, "verb": "go"}, "out": {"atom": "cmd_go(kitchen)", "act": "go", "used": ["goal"], "dropped": {}}}
+{"in": {"args": {}, "verb": "go"}, "out": {"error": "no goal given"}}
+{"in": {"args": {"thing": "extinguisher"}, "verb": "find"}, "out": {"atom": "cmd_find(extinguisher)", "act": "find", "used": ["target"], "dropped": {}}}
+{"in": {"args": {"thing": "keys"}, "verb": "find"}, "out": {"atom": "cmd_find(keys)", "act": "find", "used": ["target"], "dropped": {}}}
+{"in": {"args": {"thing": "bottle"}, "verb": "find"}, "out": {"atom": "cmd_find(bottle)", "act": "find", "used": ["target"], "dropped": {}}}
+{"in": {"args": {"thing": "chair"}, "verb": "find"}, "out": {"atom": "cmd_find(chair)", "act": "find", "used": ["target"], "dropped": {}}}
+{"in": {"args": {"thing": "table"}, "verb": "find"}, "out": {"atom": "cmd_find(table)", "act": "find", "used": ["target"], "dropped": {}}}
+{"in": {"args": {}, "verb": "find"}, "out": {"error": "no target given"}}
+{"in": {"args": {}, "verb": "follow"}, "out": {"atom": "cmd_follow", "act": "follow", "used": [], "dropped": {}}}
+{"in": {"args": {}, "verb": "stop"}, "out": {"atom": "cmd_stop", "act": "stop", "used": [], "dropped": {}}}
+{"in": {"args": {}, "verb": "cancel"}, "out": {"atom": "cmd_cancel", "act": "cancel", "used": [], "dropped": {}}}
+{"in": {"args": {"thing": "extinguisher"}, "verb": "query"}, "out": {"atom": "cmd_query(extinguisher)", "act": "query", "used": ["target"], "dropped": {}}}
+{"in": {"args": {"thing": "keys"}, "verb": "query"}, "out": {"atom": "cmd_query(keys)", "act": "query", "used": ["target"], "dropped": {}}}
+{"in": {"args": {"thing": "bottle"}, "verb": "query"}, "out": {"atom": "cmd_query(bottle)", "act": "query", "used": ["target"], "dropped": {}}}
+{"in": {"args": {"thing": "chair"}, "verb": "query"}, "out": {"atom": "cmd_query(chair)", "act": "query", "used": ["target"], "dropped": {}}}
+{"in": {"args": {"thing": "table"}, "verb": "query"}, "out": {"atom": "cmd_query(table)", "act": "query", "used": ["target"], "dropped": {}}}
+{"in": {"args": {}, "verb": "query"}, "out": {"error": "no target given"}}
+{"in": {"args": {"place": "window_chair"}, "verb": "look"}, "out": {"atom": "cmd_look(window_chair)", "act": "look", "used": ["target"], "dropped": {}}}
+{"in": {"args": {"place": "tag3"}, "verb": "look"}, "out": {"atom": "cmd_look(tag3)", "act": "look", "used": ["target"], "dropped": {}}}
+{"in": {"args": {"place": "tag5"}, "verb": "look"}, "out": {"atom": "cmd_look(tag5)", "act": "look", "used": ["target"], "dropped": {}}}
+{"in": {"args": {"place": "tag_near"}, "verb": "look"}, "out": {"atom": "cmd_look(tag_near)", "act": "look", "used": ["target"], "dropped": {}}}
+{"in": {"args": {"place": "door"}, "verb": "look"}, "out": {"atom": "cmd_look(door)", "act": "look", "used": ["target"], "dropped": {}}}
+{"in": {"args": {"place": "kitchen"}, "verb": "look"}, "out": {"atom": "cmd_look(kitchen)", "act": "look", "used": ["target"], "dropped": {}}}
+{"in": {"args": {}, "verb": "look"}, "out": {"error": "no target given"}}
+{"in": {"args": {}, "verb": "time"}, "out": {"atom": "cmd_time", "act": "time", "used": [], "dropped": {}}}
+{"in": {"args": {}, "verb": "date"}, "out": {"atom": "cmd_date", "act": "date", "used": [], "dropped": {}}}
+{"in": {"args": {}, "verb": "chat"}, "out": {"atom": "cmd_chat", "act": "chat", "used": [], "dropped": {}}}
+{"in": {"args": {}, "verb": "unknown"}, "out": {"atom": "cmd_unknown", "act": "unknown", "used": [], "dropped": {}}}
+{"in": {"args": {}, "verb": "NO_SUCH_VERB"}, "out": {"error": "no row for verb 'NO_SUCH_VERB'"}}
+{"in": {"args": {}, "verb": "NAVIGATE"}, "out": {"error": "no goal given"}}
+{"in": {"args": {"goal": {"description": "a unicorn", "type": "OBJECT"}}, "verb": "NAVIGATE"}, "out": {"atom": "cmd_go(elsewhere)", "act": "go", "used": ["goal"], "dropped": {}}}
+{"in": {"args": {"target": {"attributes": {"color": "red"}, "description": "keys", "type": "OBJECT"}}, "verb": "FIND"}, "out": {"atom": "cmd_find(keys)", "act": "find", "used": ["target"], "dropped": {"target.attributes": {"color": "red"}}}}

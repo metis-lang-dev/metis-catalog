@@ -84,6 +84,7 @@ sh ci/check.sh         # METISC=<path> to override the sibling metis-lang build
 sh ci/diagnose.sh      # no error diagnostics (reasoned exemptions in ci/diag-exempt.txt)
 python ci/packages.py  # every package: --run against its trace, metispy's twin, --wire against metispy's bundle
 python ci/packages.py --update --only NAME   # rewrite a package's trace after a deliberate change
+python -m metis.catalog golden NAME          # rewrite a package's goldens/ after a change to its program or intents (CI checks them)
 ```
 
 **Every live program is a package** (`domains/<name>/`: domain.yaml,
