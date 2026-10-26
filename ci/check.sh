@@ -24,7 +24,7 @@ trap 'rm -rf "$WORK" "$RT"' EXIT
 "$METISC" --roundtrip "$RT"
 
 echo "== 2. canonical keys: scene instance grounds to the committed key"
-"$METISC" --keys "$ROOT/domains/road/scenes/manifest.txt" > "$WORK/keys.txt"
+"$METISC" --keys "$ROOT/.archive/road/scenes/manifest.txt" > "$WORK/keys.txt"
 diff -u "$ROOT/goldens/KEYS.txt" "$WORK/keys.txt"
 
 echo "ALL GATES GREEN"

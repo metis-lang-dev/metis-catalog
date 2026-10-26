@@ -1,53 +1,20 @@
-# road — parked until the SUMO subject (next release)
+# road — the road domains over roles (road-world s-e812715d step 2)
 
-The road domain in one package, as the user ruled (road-collapse s-2a2cbea3,
-2026-10-19): "packs, road, scenes all belong to the road domain. We'll work
-on it next release with SUMO as the runtime. For now just collapse the 3 dirs
-into a road domain package, but do not try to fix it."
+The RSS world's decisions as LLP, the geometry in the host (the framework's six rules: roles not lanes, geometry in
+the host, re-projection with no recompilation, generators beside the package, decisions in the logic and prices in the
+ports). Replaces the parked package, now in `.archive/road/` with its provenance.
 
-**Parked.** The files are moved, not fixed: no moved program changed, no
-diagnostic fixed. SUMO runtime and the real port: next release, a separate
-subject. So that the package runs and builds nominally (the user, 2026-10-19:
-"you can simplify road main script that it pass nominally"), its program is a
-new, simple `road.llp`: the production catalog `road_catalog.llp` included
-unchanged on the production scene (`scenes/prodcat_instance.llp`'s types and
-lane facts), with that scene's start from `scenes/manifest.txt` as its `#`
-case, one tick of 17 rows through the catalog's nine stages. Its weight ports
-(brk, cls, rss, zadv) have no host and price at their prior. It passes every
-package gate as any other package does: `metisc --run` against
-`goldens/traces/road.txt`, metispy's twin, the wire byte-equal to metispy's.
-Roundtrip, diagnose (with its exemptions, `ci/diag-exempt.txt`) and the
-canonical-key gate (`ci/check.sh` gate 2: `scenes/manifest.txt` →
-`goldens/KEYS.txt`) run on the other files as before.
+| file | what |
+| --- | --- |
+| `capacity.llp` | the role vocabulary, one per vehicle: lead, follower, leadleft/followleft, leadright/followright, a1..a3, vru1, nextzone, the sides; the situation layer's constellations and responses |
+| `responder_domain.llp`, `responder/` | the FAST member (every world step, 0.1 s): the proper response — it takes the controls on a longitudinal response or a lateral one toward a lane change's side, brakes at the asked response, stops the lateral move, hands the controls back |
+| `planner_domain.llp`, `planner/` | the SLOW member (every tenth step, 1 s): the keep-table once each over roles — the safety stage (yield at a zone not the ego's, the walker, the zipper's turn) before the progress stage (lane change past a slow lead, accel with room, keep, a gentle brake behind a closing lead) |
+| `road_director/` | the generic tree director (metispy iface/director_tree_domain.llp) over the one resource, the controls: priority(responder, planner), k = 2, m = 1 |
+| `composition.yaml`, `tick_types.llp` | the composition (response 2), the protocol's types. No family package (tools/iface_gen.py): its cut is empty — the members share nothing but the protocol, each reads its own world-private copy |
+| `eval/` | the instrument's world model of a lane change (spec/16 §10.1, `tick: ego`): the target lane's follower and lead, their intent belief, closing hazards by tick; cases gap / tight and their goldens; the level lc_risk |
+| `*/cases/` | the members' stub cases, the old scenes among them: road-close, prodcat lead-lanes-free, Euro NCAP AEB VRU CPNA-25 and CPFA-50 |
 
-## Provenance
-
-Chariot's road catalog: the source of truth for chariot's road-behavior
-catalog, metisc catalogs compiled and certified python-side and grounded per
-scene by metispy's semantic compiler (`metis.domains.road.gridcat`). The
-upstream README is kept verbatim as `UPSTREAM-README.md` (its `packs/`
-mentions are this package's `packs/`).
-
-## What is here (moved from)
-
-| file | what | was |
-| --- | --- | --- |
-| `road.llp` | the package's program: `road_catalog.llp` on the production scene, one tick (new) | — |
-| `road_catalog.llp` | the production road catalog (the runtime's) — an include fragment, typed by `road.llp` and `scenes/prodcat_instance.llp` | `road/` |
-| `road_handles{,2,3,4}.llp`, `road_zones.llp` | the certified increment history (templates: their types come from metispy's instantiators) | `road/` |
-| `road_grid.llp`, `grid_domain.llp` | the exact-filter referee catalog (opaque RSS ports by design: referee, never runtime) and its grid domain | `road/` |
-| `handles_domain.llp`, `mini.llp` | the handle-encoding domain (fragment, typed by `scenes/road_close_instance.llp`) and the mini road the pack case runs on | `road/` |
-| `wheelchair.llp` | the pack overlay, the catalog-side copy (`extends road`) | `road/` |
-| `packs/wheelchair.llp` | the admission-gated pack (metispy's scene/loop vocabulary; containment-typed: it constrains, never enables) | `packs/` |
-| `scenes/prodcat_instance.llp`, `scenes/road_close_instance.llp`, `scenes/nav4_instance.llp` | generated scene instances (the include-adopts-catalog pattern); `nav4_instance` is the 2×2 navigation corpus instance (it includes `../../nav/nav_domain.llp`) | `scenes/` |
-| `scenes/manifest.txt` | the scene cases the canonical-key gate grounds (metisc `--keys`) | `scenes/` |
-| `UPSTREAM-README.md` | chariot's README | `road/` |
-
-The layout is the user's (the package root, `packs/` and `scenes/` beneath
-it). Every `.llp` is byte-equal to the file it was, except that the three scene
-instances' include lines moved with them, and nothing else did:
-`../road/road_catalog.llp` → `../road_catalog.llp`,
-`../road/handles_domain.llp` → `../handles_domain.llp`, and
-`../domains/nav/nav_domain.llp` → `../../nav/nav_domain.llp`. The manifest's
-`../road/mini.llp` is now `../mini.llp`. Their keys in `goldens/KEYS.txt` are
-unchanged.
+The members' hosts are the road world's (metis-worlds `road/world/road_host.py`, found through `$METIS_ROAD_WORLD`):
+the exerciser (`road_world.py`) or the SUMO host (step 4); the facts every host writes are `road_facts.py`, the
+commands and the restrictor `restrict.py`. Each base carries its generated cancel rules (metispy
+`metis.catalog.protocol_stub`; tests/test_packages.py checks they are current).

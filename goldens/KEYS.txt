@@ -1,4 +1,7 @@
 K prodcat-lead-lanes-free c33c5dad39189414625a6d7c88f7a53cf19a9ae3dea7a9c227a161e0b8558e98
+I prodcat-lead-lanes-free dir ../road_catalog.llp 366fb2077da279c836f7e4f814494621034a789e419fa4e370954aceb884c35c
 K nav4-scene 3f09e6c5c676d896df7a7af225b6e0897e8abc95e6933e04bdc6be6756427a71
+I nav4-scene dir ../../../domains/nav/nav_domain.llp 94a411396b82369d48b2529190d4c9b6994842a29aab7358c74db66fe57b2aae
 K road-close-scene 5d0c48b8b90c86e2c887fd724f29a0fc02ee8181dcead866e8fb2f47a9993b57
+I road-close-scene dir ../handles_domain.llp 5361434c1836d785c2e86445583b7be009e3169940efef05614930e13b3b6687
 K wheelchair-pack f94e252feb34cc433120fd8af9da47228058db39c9b7162f14f1bf183f72ecc7
