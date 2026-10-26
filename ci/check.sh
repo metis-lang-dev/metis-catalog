@@ -1,9 +1,8 @@
 #!/bin/sh
 # metis-catalog gates — metisc only (set METISC, default: the sibling
 # metis-lang checkout). Gate 1: parse (pretty a) = a over every .llp.
-# Gate 2: the committed scene instance grounds to the committed
-# canonical program_key — the cross-toolchain identity contract
-# (the same key is asserted python-side in metispy's cross-checks).
+# (Gate 2, the parked road scenes' canonical keys, went with them:
+# road-move 2026-10-26; metis-lang's corpus pins its own keys.)
 set -eu
 ROOT=$(cd "$(dirname "$0")/.." && pwd)
 METISC=${METISC:-$ROOT/../metis-lang/src/metisc}
@@ -22,9 +21,5 @@ trap 'rm -rf "$WORK" "$RT"' EXIT
     printf 'case rt-%s\nllp %s\nsteps 1\nend\n' "$(basename "$f" .llp)" "$f"
   done ) > "$RT"
 "$METISC" --roundtrip "$RT"
-
-echo "== 2. canonical keys: scene instance grounds to the committed key"
-"$METISC" --keys "$ROOT/.archive/road/scenes/manifest.txt" > "$WORK/keys.txt"
-diff -u "$ROOT/goldens/KEYS.txt" "$WORK/keys.txt"
 
 echo "ALL GATES GREEN"

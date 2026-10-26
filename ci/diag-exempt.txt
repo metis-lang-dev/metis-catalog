@@ -1,32 +1,3 @@
-# Catalogs NOT diagnosed standalone by ci/diagnose.sh — each with its
-# reason. Every entry is a CI finding (CI.md), not a silent skip; remove
-# a line as soon as the file typechecks on its own.
-#
-# include fragments: typed by the scene that includes them (the scene
-# IS diagnosed, so the fragment is covered through it)
-.archive/road/road_catalog.llp    fragment, typed by .archive/road/scenes/prodcat_instance.llp
-.archive/road/handles_domain.llp  fragment, typed by .archive/road/scenes/road_close_instance.llp
-# type-parameterized templates: their types are supplied by metispy's
-# domain instantiators (domains/road/gridcat.py, domains/xtraffic/model.py);
-# no instance in this repo — finding: add one, or move them
-.archive/road/grid_domain.llp     template (lane/cell types from metispy gridcat)
-.archive/road/road_grid.llp       template (lane types from metispy gridcat)
-.archive/road/road_handles.llp    template (lane types from metispy)
-.archive/road/road_handles2.llp   template (lane types from metispy)
-.archive/road/road_handles3.llp   template (lane types from metispy)
-.archive/road/road_handles4.llp   template (lane types from metispy)
-# packs: `extends road.` needs a base; against the instantiated road
-# (.archive/road/scenes/prodcat_instance.llp) wcmark is var-untypable — finding, road
-# catalog work is parked by the user
-.archive/road/packs/wheelchair.llp  pack: wcmark var-untypable vs the road instance
-.archive/road/wheelchair.llp        pack: wcmark var-untypable vs the road instance
-# road_zones: a TEMPLATE like the road_* above — types (car speed zn dist
-# side axis occ act) and Horn tables (actv still reach osucc odec flip)
-# are instance-emitted by roadcat.zonecat, which is in no repo (finding,
-# 2026-10-07). Both toolchains agree it is untypable standalone (77
-# var-type-unknown); it passed as "clean" only because metisc crashed
-# on the over-cap slice and diagnose.sh read the empty stdout as 0.
-.archive/road/road_zones.llp      template (types + tables from roadcat.zonecat, generator missing)
 # experiment packs (catalog-consolidation, 2026-10-11): `extends <base>`,
 # compiled standalone they report extends-no-base; each is typed against
 # the base beside it (the experiment README says which)

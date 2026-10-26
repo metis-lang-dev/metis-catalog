@@ -64,27 +64,3 @@ def test_the_kitchen_cooks_cancels_are_as_their_generator_writes_them():
     assert protocol_stub.BEGIN in text
     assert protocol_stub.refresh(text, "S", idle="calm", namespace="cook", bind="$self(S)",
                                  world=protocol_stub.world_private(kit / "cook_a" / "domain.yaml")) == text
-
-
-@pytest.mark.parametrize("member", ["responder", "planner"])
-def test_the_road_members_cancels_are_as_their_generator_writes_them(member):
-    # the road domains (road-world s-e812715d step 2): each member base's stop stub, from metispy's protocol_stub
-    from metis.catalog import protocol_stub
-    road = ROOT / "domains" / "road"
-    text = (road / ("%s_domain.llp" % member)).read_text()
-    assert protocol_stub.BEGIN in text
-    assert protocol_stub.refresh(text, member, idle="idle", namespace=member,
-                                 world=protocol_stub.world_private(road / member / "domain.yaml")) == text
-
-
-METISC = Path(os.environ.get("METISC") or ROOT.parent / "metis-lang" / "src" / "metisc")
-
-
-@pytest.mark.skipif(not METISC.is_file(), reason="no metisc (METISC, else metis-lang/src/metisc beside)")
-@pytest.mark.parametrize("case", ["gap", "tight"])
-def test_the_road_lane_change_risk_is_its_golden(case):
-    # the instrument's lane-change query over the road's world model (spec/16 §10.1, tick: ego): needs a metisc of
-    # metis-lang master >= 97b8749 (rows by tick)
-    ev = ROOT / "domains" / "road" / "eval"
-    r = subprocess.run([str(METISC), "--evaluate", "cases/%s.yaml" % case], cwd=ev, capture_output=True, text=True)
-    assert r.stdout + r.stderr + "rc %d\n" % r.returncode == (ev / "goldens" / ("%s.txt" % case)).read_text()
