@@ -17,7 +17,7 @@ concurrency:
 
 jobs:
   catalogs:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
@@ -64,7 +64,7 @@ jobs:
   # pi-release s-8e13f6a8: the wheel publish.yml uploads, built and installed
   # in a fresh venv outside the checkout with metispy from PyPI
   wheel:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
@@ -88,7 +88,7 @@ jobs:
   # 105k events in metisc for its run and again for its wire (~2 min each,
   # run side by side with --jobs 2).
   packages:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
