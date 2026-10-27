@@ -1,0 +1,1 @@
+In a REPL session on kitchen.llp (the loop console, the hosted kitchen too) the cook starts with no free hand: type `do +hand_free` once, then `run`; the agent serves the pair scene, whose start has it.
