@@ -118,7 +118,7 @@ def test_the_kitchen_pair_serves_its_pair_scenes():
     pair.SCENES), not the loop console's kitchen.llp."""
     import metis_catalog as mc
     pytest.importorskip("metis.domains.kitchen")
-    k, s = mc.get("kitchen").serves(), mc.get("kitchen_shared").serves()
+    k, s = mc.get("kitchen", ROOT).serves(), mc.get("kitchen_shared", ROOT).serves()
     assert [x.name for x in k] == ["kitchen_host.llp"] and k[0].is_file()
     assert [x.name for x in s] == ["kitchen_shared.llp"] and s[0].is_file()
     assert k[0].parent.name == "catalogs" and s[0].parent.name == "shared"

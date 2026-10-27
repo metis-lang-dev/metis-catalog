@@ -1,7 +1,8 @@
 """metis_catalog — the catalog's loader moved into metispy as metis.catalog.manifests (metis-packages
 s-65778b98: the runtime's own distribution), re-exported here for one release (removed at r0.2).
 This package stays the domains' data: domains/ and tools/ beside it (a checkout) or in it (the
-wheel), which metis.catalog.manifests.root() still finds through it.
+wheel), which metis.catalog.installed() and manifests.data_dir() find through it (the default root is
+the cwd: release-r02).
 
     import metis_catalog as mc        # → from metis.catalog import manifests as mc
 """

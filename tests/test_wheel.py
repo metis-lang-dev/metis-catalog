@@ -37,5 +37,9 @@ def test_smoke_lists_the_same_packages():
 
 
 def test_root_is_the_checkout(monkeypatch):
+    """The checkout's own catalog is the root when the checkout is the cwd (the default root is the cwd,
+    release-r02); installed -e, data_dir() names its directory wherever the cwd is."""
     monkeypatch.delenv("METIS_CATALOG", raising=False)
+    monkeypatch.chdir(ROOT)
     assert mc.root() == ROOT
+    assert mc.data_dir() in (ROOT, ROOT / "metis_catalog")
