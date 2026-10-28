@@ -116,3 +116,11 @@ jobs:
         run: |
           pip install --quiet pyyaml -e ./metispy
           cd metis-catalog && python ci/packages.py --jobs 2
+      # spec 17 §4 (linker s-5908724a step 2): kitchen_pot links to one image (metisc --link, every L-check over the
+      # I-checks, the derived director compared with its hand one); its hash == domains/kitchen_pot/image.golden.
+      # METIS_HOME: metispy's iface/ (the protocol and the tree director), as the Live's.
+      - name: the link (kitchen_pot's image hash)
+        run: |
+          cd metis-catalog/domains/kitchen_pot
+          METIS_HOME="$GITHUB_WORKSPACE/metispy/metis/catalog" "$GITHUB_WORKSPACE/metis-lang/src/metisc" --link composition.yaml --check | tee "$RUNNER_TEMP/link.txt"
+          grep -qx "image kitchen_pot v-$(cat image.golden)" "$RUNNER_TEMP/link.txt"
