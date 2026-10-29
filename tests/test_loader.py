@@ -121,7 +121,7 @@ def test_the_kitchen_pair_serves_its_pair_scenes():
     k, s = mc.get("kitchen", ROOT).serves(), mc.get("kitchen_shared", ROOT).serves()
     assert [x.name for x in k] == ["kitchen_host.llp"] and k[0].is_file()
     assert [x.name for x in s] == ["kitchen_shared.llp"] and s[0].is_file()
-    assert k[0].parent.name == "catalogs" and s[0].parent.name == "shared"
+    assert k[0].parent.name == "tick" and s[0].parent.name == "shared"     # the tick form (pair.SCENES)
 
 
 def test_the_manifests_extensions_list_orders_them(tmp_path):

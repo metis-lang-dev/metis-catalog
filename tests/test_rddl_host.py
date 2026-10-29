@@ -78,7 +78,7 @@ def test_nav_host_world_lines_seed_and_episode_end():
     assert h.nonfluents["P___x9__y12"] == 0.75 and m.die(("x6_y12", "x9_y12"), {}, h) == 0.75
     h.world(["reset 7"])
     assert h.seed == 7 and h.t == 0 and h.reading()["at(x21_y12)"] == 1
-    for _ in range(40):
+    for _ in range(41):                                     # the first tick reads the reset world (copy semantics)
         if h.tick({}) is None:
             break
     assert h.done and h.t == 40 and h.tick({}) is None     # the gym's horizon ends the episode

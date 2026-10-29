@@ -6,7 +6,7 @@ display: the first cook
 line: "the kitchen: the first cook, its orders and soups"
 voice: third
 program: kitchen.llp
-serves: ["metis.domains.kitchen:catalogs/kitchen_host.llp"]   # what the agent serves: pair.SCENES["kitchen"]
+serves: ["metis.domains.kitchen:catalogs/tick/kitchen_host.llp"]   # what the agent serves: pair.SCENES["kitchen"] (the tick form)
 host: metis.domains.kitchen.host:make
 agent: agent.py:kitchen
 clock: {beats: 2}

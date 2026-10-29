@@ -147,7 +147,9 @@ class RddlHost:
         self.stalled = False                     # an observing program that stopped taking its steps
         self.fresh = False                       # read_steps: the last row (or beat) stepped the gym
         self._take(self.gym.call("reset", seed=seed))
-        self.stepped = False
+        # the episode's first tick reads the world as reset, it does not move it: a beat begins with its tick (copy
+        # semantics, metis-lang spec/17 amendment 4), before the program's first move
+        self.stepped = True
 
     def _take(self, out):
         self.obs, self.values = set(out["obs"]), out["values"]
@@ -190,6 +192,11 @@ class RddlHost:
         if action is not None and not self.done:
             self._step(action)
             self.fresh = True
+
+    def world_stepped(self):
+        """The last event stepped the gym (on_event): under copy semantics the program reads the gym's outcome at its
+        next tick, so the watch ends the beat on it (metispy Watch.tick_due): one stepping move per tick."""
+        return self.stepped and self.fresh
 
     def observe(self, counts):
         if self.done:

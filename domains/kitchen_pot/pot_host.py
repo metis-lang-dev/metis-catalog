@@ -110,6 +110,10 @@ class PotHost:
     """One cook's host over the shared kitchen: bind · tick · on_event · observe · reading · sync · pending (the
     face metis-agent's Live reads under the tick)."""
 
+    # the other cook acts on this world too: a cook's surprise test compares only what it modelled for its own
+    # commands, the other's change being its tick's input (copy semantics, metis-lang spec/17 amendment 4)
+    shared_world = True
+
     def __init__(self, package_dir, case=None):
         spec = json.load(open(os.path.join(package_dir, "cook.json")))
         self.cook = spec["cook"]
@@ -118,26 +122,14 @@ class PotHost:
         # a hosted day as metis-agent's AgentHost runs one: no person's script (the orders are the kitchen's), nothing
         # due by the clock, the beat counted at each tick
         self.beat, self.due, self.script, self.last = 0, (), {}, None
-        self._pot = None                               # the latched pot (latch / unlatch), else live
 
     def bind(self, reg):
         pass
 
     def reading(self):
-        r = self.kitchen.reading(self.cook)
-        if self._pot is not None:                      # latched: the pot as it stood at the boundary, the hand live
-            r = {a: n for a, n in r.items() if a not in POT}
-            r.update(self._pot)
-        return r
-
-    def latch(self):
-        """The tick's rule 2, host-defined: the pot (what the OTHER cook changes) as it stands at this boundary
-        until unlatch(); this cook's own hand and orders stay live, so its own commands are never hidden from it."""
-        full = self.kitchen.reading(self.cook)
-        self._pot = {a: n for a, n in full.items() if a in POT}
-
-    def unlatch(self):
-        self._pot = None
+        """This cook's kitchen as it stands. The Live snapshots it at each tick for every cook alike (copy semantics,
+        metis-lang spec/17 amendment 4): a cook's own command shows from its next tick, as the other's does."""
+        return self.kitchen.reading(self.cook)
 
     def observe(self, counts):
         return self.reading()

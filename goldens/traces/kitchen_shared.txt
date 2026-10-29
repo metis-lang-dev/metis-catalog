@@ -1,7 +1,7 @@
 case kitchen_shared steps=12 seeds=1
 I hand_free 1
-T 1 fetch_onion partner_load fetch_onion partner_load fetch_dish
-F 1 (done) held_dish:1
+T 1 -
+F 1 (done) hand_free:1
 Q served 0/1
 Q cooking 0/1
 Q held_soup 0/1

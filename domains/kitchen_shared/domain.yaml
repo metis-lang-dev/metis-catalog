@@ -4,5 +4,5 @@ display: the second cook
 line: "the kitchen's second cook (partner_load: the onion it holds into the first cook's pot)"
 voice: third
 agent: ../kitchen/agent.py:kitchen_shared
-serves: ["metis.domains.kitchen:catalogs/shared/kitchen_shared.llp"]   # pair.SCENES["kitchen_shared"]
+serves: ["metis.domains.kitchen:catalogs/tick/shared/kitchen_shared.llp"]   # pair.SCENES["kitchen_shared"] (the tick form)
 partner_of: kitchen
