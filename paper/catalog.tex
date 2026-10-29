@@ -1,4 +1,4 @@
-% Behavior Catalogs in Practice — draft 0.2
+% Behavior Catalogs in Practice — draft 0.3
 % Build: tectonic catalog.tex   (as metis-lang/paper; references are inline)
 \documentclass[11pt]{article}
 
@@ -31,7 +31,7 @@ extends them under a human gate}
 \author{The metis project\thanks{Sources, catalog, goldens and the loop:
 \repourl\ (metis-catalog, metis-loop, metis-agentic-loop, metis-agent,
 metispy, metis-lang). Correspondence: \texttt{info@robofortis.com}.}}
-\date{Draft 0.2 --- 2026-10-27}
+\date{Draft 0.3 --- 2026-10-29}
 
 \begin{document}
 \maketitle
@@ -100,7 +100,7 @@ the loop could not do and the rules that forced.
 
 \paragraph{The stack.} metis has three layers and three papers. The
 \emph{language} paper, \emph{Behavior Programs as Measures over Proofs}
-(draft 0.3), gives the semantics, the compiler \metisc, the referee
+(draft 0.5), gives the semantics, the compiler \metisc, the referee
 \metispy, and their parity \src{S13}. This paper is the second layer: the
 catalog and the loop. The third, \emph{Small Models, Certified Behavior}
 (in preparation), is the agent: a small local model made
@@ -201,8 +201,27 @@ run; \texttt{records/} is written by the agents and never carried.}
   key covers the union and an old bundle is never overwritten. The OCaml
   compiler writes \texttt{ground.wire}; metispy's emitter must produce the
   same bytes, and the catalog's CI checks this for every package
-  (\S\ref{sec:ci}). The bundle is the release artifact: a catalog release
-  attaches one per package, and that is what a device installs.
+  (\S\ref{sec:ci}). A catalog release attaches one per package.
+\item An \emph{image} is what the linker forms from a composition: every
+  member's bundle, the shared predicates resolved, the director generated
+  from the composition's declarations, under one hash. A package that
+  runs alone is linked into a one-member image the same way. The image,
+  not the bundle, is what a device installs and what a certificate names;
+  a deployment plan (which process holds which members, what carries the
+  messages between them) is checked against the image and kept outside
+  its hash. A project builds it with one rule:
+\begin{verbatim}
+build/kitchen_pot.image: composition.yaml $(wildcard */*.llp) \
+                         $(wildcard */domain.yaml)
+	metisc build .
+\end{verbatim}
+  \texttt{metisc build} recompiles the stale bundles by the lock's source
+  hashes, links, writes the image and prints its hash; \texttt{metisc
+  check} is the dry run. Dependencies are packages found by name through
+  the include rule (the project root, the toolchain's standard units,
+  then the shared home) and recorded in the lock with their place and
+  key; nothing is set in the environment to link a composition that
+  speaks only the standard protocol.
 \end{itemize}
 
 \paragraph{The start is the program's.} A program's \texttt{\#init} lines
@@ -414,7 +433,11 @@ The catalog's CI has two jobs (Table~\ref{tab:ci}).
     metispy's bundle \texttt{ground.wire} byte for byte;
   \item \emph{golden}: the toolkit regenerates the package's
     \texttt{goldens/} byte for byte, and the two domain agents are held to
-    the same files in their own CI.
+    the same files in their own CI;
+  \item \emph{link}: every composition links, with every check on, to the
+    image hash committed beside it (\texttt{image.golden}); a member
+    edit that changes a shared predicate, the capacity, or the director's
+    promised response fails here before any runtime sees it.
   \end{itemize}
   The cases in \texttt{goldens/cases/} get the run and twin gates.
   Every tracked package needs a trace, and every trace a package or a
@@ -975,7 +998,7 @@ S9 & metis-agentic-loop \tool{docs/LOOP-AGENT.md}, \tool{prompts/seed-task.md}, 
 S10 & loop-fixes s-855d8067: metis-loop 5fe077c (the SDK's edit, the since-diff, the README's mechanical parts), metis-agentic-loop 73d770e, e31fe33, 04506d2 \\
 S11 & agent-no-intent s-7fd29000 \tool{steps/step1-report.md}; metis-agent a0a19e6, metis-catalog e1f7607, metis-lang 2651103 \\
 S12 & metis-loop f562644 (bytes kept), e1bfcc7 (the notch carried), 0ba8d84 (a notch never edited) \\
-S13 & metis-lang \tool{paper/metis.tex}, draft 0.3 \\
+S13 & metis-lang \tool{paper/metis.tex}, draft 0.5 \\
 S14 & metis-agent \tool{py/tests/test\_rddl\_world.py}, \tool{py/tests/test\_rddl\_watch.py}; at 41c5ed7 \\
 S15 & metis-catalog \tool{domains/ceptre/three\_pigs/three\_pigs.llp} (\tool{domains/three\_pigs/} at 07d232b), \tool{goldens/traces/three\_pigs.txt}; at 07d232b \\
 S16 & road-collapse s-2a2cbea3 \tool{steps/step1-report.md}; metis-catalog 115a8b8, 07d232b \\
