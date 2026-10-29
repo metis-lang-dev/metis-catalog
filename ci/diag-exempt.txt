@@ -3,7 +3,3 @@
 # the base beside it (the experiment README says which)
 demo/synthetic-meadow/shepherd_pack.llp  pack: extends meadow (demo/synthetic-meadow/meadow.llp)
 domains/rddl/elevators/iter2-world/pack1.llp  pack: extends the iter2 base (iter2-world/base.llp)
-# alf_view (toolchain-units s-ddaed776 step 2): its level type and pred are GENERATED from domain.yaml
-# (spec/16 amendment 1); a file-only compile has no manifest. Drop once metisc --diagnostics takes --manifest
-# and diagnose.sh passes the domain.yaml beside a package program.
-domains/alf_view/alf_view.llp  levels generated from the manifest (spec/16 amendment 1)
