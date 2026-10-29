@@ -1,0 +1,6 @@
+display: the alfworld view's place level
+line: "where the object likely is: a belief level the toolchain declares (metis-lang spec/16 amendment 1)"
+program: alf_view.llp
+beliefs: {inrecep: {port: where, lone: R}}
+evaluate: {fetch: {reach: at(loc2), within: 3}}
+levels: {place_level: {from: {belief: where}, at: [0.05, 0.4], names: [low, mid, high]}, fetch_risk: {from: {evaluate: fetch}, at: [0.5, 0.9], names: [high, mid, low]}}

@@ -39,6 +39,8 @@ import os
 import subprocess
 import sys
 import time
+
+import yaml
 from concurrent.futures import ProcessPoolExecutor
 from pathlib import Path
 
@@ -109,10 +111,10 @@ def py_run(path):
     return render_run(Path(path).stem, case, prog) + "\n"
 
 
-def py_wire(served):
+def py_wire(served, manifest=None):
     from metis.kernel.artifact import served_doc
     from metis.kernel.wire import emit_artifact
-    doc, case, _ = served_doc(served[0], served[1:])
+    doc, case, _ = served_doc(served[0], served[1:], manifest)
     return emit_artifact(doc, doc.catalog.ground(dict(case["init"])), case["steps"])
 
 
@@ -177,22 +179,38 @@ def check_run(unit, py, update):
 
 
 def check_wire(unit, py):
-    """[(gate, ok, note)]: the served program's wire, metisc against metispy."""
-    _, _, served = unit
+    """[(gate, ok, note)]: the served program's wire, metisc against metispy, with the package's manifest (its
+    levels' generated declarations, metis-lang spec/16 amendment 1); a package with a levels: block adds the
+    levels gate: metisc --levels == metispy's metis.lang.levels, byte for byte."""
+    name, _, served = unit
+    manifest = mc.get(name, ROOT).dir / "domain.yaml"
     args = ["--wire", str(served[0])]
     for e in served[1:]:
         args += ["--extension", str(e)]
+    args += ["--manifest", str(manifest)]
+    lv = []
+    if "levels" in (yaml.safe_load(manifest.read_text()) or {}):
+        try:
+            gen, _ = metisc(["--levels", str(manifest)])
+            if py:
+                from metis.lang.levels import lines
+                ok = "".join(l + "\n" for l in lines(manifest)) == gen
+                lv = [("levels", ok, f"{len(gen.splitlines())} generated" if ok else "metisc --levels differs from metispy's")]
+            else:
+                lv = [("levels", True, f"{len(gen.splitlines())} generated (metisc only)")]
+        except RuntimeError as e:
+            lv = [("levels", False, str(e))]
     try:
         w, dt = metisc(args)
     except RuntimeError as e:
-        return [("wire", False, str(e))]
+        return [("wire", False, str(e))] + lv
     if not py:
-        return [("wire", True, f"{dt:.1f}s (metisc only)")]
+        return [("wire", True, f"{dt:.1f}s (metisc only)")] + lv
     try:
-        ok = py_wire(served) == w
-        return [("wire", ok, f"{dt:.1f}s" if ok else "metisc --wire differs from metispy's ground.wire")]
+        ok = py_wire(served, manifest) == w
+        return [("wire", ok, f"{dt:.1f}s" if ok else "metisc --wire differs from metispy's ground.wire")] + lv
     except Exception as e:                              # noqa: BLE001
-        return [("wire", False, f"{type(e).__name__}: {str(e)[:200]}")]
+        return [("wire", False, f"{type(e).__name__}: {str(e)[:200]}")] + lv
 
 
 # the units whose metisc ground takes minutes start first, so their run and
