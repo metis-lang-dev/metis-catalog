@@ -1,4 +1,3 @@
 # tracked packages the wheel does NOT ship yet, each with its reason and the event that drops the line.
 # tests/test_wheel.py holds pyproject's package-data and tools/smoke_wheel.sh to the tracked packages minus
 # these; a line whose package is no longer tracked fails the test (stale exclusion).
-alf_view  needs metispy newer than the released 0.2.0: its level declarations are generated from the manifest (metis-lang spec/16 amendment 1, toolchain-units s-ddaed776); the smoke installs metispy from PyPI. Drop at the next lockstep release.

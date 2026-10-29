@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # smoke_wheel.sh DIST — the built wheel in DIST installed into a fresh venv
-# outside any checkout, with metispy from PyPI, and run there (pi-release
+# outside any checkout, with metispy from PyPI (METISPY overrides: CI pairs the sibling master), and run there (pi-release
 # s-8e13f6a8): the loader imports from site-packages and its data_dir() is the
 # wheel's own catalog (named as the root: the default root is the cwd, release-r02), every package of the packages job's set is in it (and
 # domains/ceptre/ is not), each served file is there, `python -m metis_catalog
@@ -23,7 +23,7 @@ from pathlib import Path
 
 import metis_catalog as mc
 
-PACKAGES = {"bridge", "bridge_decl", "dog", "elevators", "gol", "hanoi", "kitchen", "kitchen_pot", "kitchen_shared",
+PACKAGES = {"alf_view", "bridge", "bridge_decl", "dog", "elevators", "gol", "hanoi", "kitchen", "kitchen_pot", "kitchen_shared",
             "nav", "plant", "sysadmin", "tamarisk", "wgc", "wildfire", "xtraffic"}
 r = mc.data_dir()
 assert "site-packages" in mc.__file__ and r == Path(mc.__file__).resolve().parent, (mc.__file__, r)
