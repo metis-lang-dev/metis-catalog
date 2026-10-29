@@ -23,7 +23,7 @@ from pathlib import Path
 
 import metis_catalog as mc
 
-PACKAGES = {"bridge", "bridge_decl", "dog", "elevators", "gol", "hanoi", "kitchen", "kitchen_pot", "kitchen_shared",
+PACKAGES = {"alf_view", "bridge", "bridge_decl", "dog", "elevators", "gol", "hanoi", "kitchen", "kitchen_pot", "kitchen_shared",
             "nav", "plant", "sysadmin", "tamarisk", "wgc", "wildfire", "xtraffic"}
 r = mc.data_dir()
 assert "site-packages" in mc.__file__ and r == Path(mc.__file__).resolve().parent, (mc.__file__, r)

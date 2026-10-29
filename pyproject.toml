@@ -34,7 +34,7 @@ packages = ["metis_catalog", "metis_catalog.domains", "metis_catalog.tools"]
 [tool.setuptools.package-data]
 # PACKAGES: every tracked domains/<name>/domain.yaml outside domains/ceptre/
 "metis_catalog.domains" = [
-  "bridge/**/*", "bridge_decl/**/*", "dog/**/*", "elevators/**/*", "gol/**/*", "hanoi/**/*",
+  "alf_view/**/*", "bridge/**/*", "bridge_decl/**/*", "dog/**/*", "elevators/**/*", "gol/**/*", "hanoi/**/*",
   "kitchen/**/*", "kitchen_pot/**/*", "kitchen_shared/**/*", "nav/**/*", "plant/**/*", "sysadmin/**/*",
   "tamarisk/**/*", "wgc/**/*", "wildfire/**/*", "xtraffic/**/*",
 ]
