@@ -18,9 +18,16 @@ if not (ROOT / ".git").exists():
 
 
 def tracked():
+    """The tracked packages the wheel ships: every domains/*/domain.yaml outside ceptre/, minus the reasoned
+    exclusions in ci/wheel-exclude.txt (a package ahead of the released metispy); an exclusion that names a
+    package no longer tracked is stale and fails here."""
     out = subprocess.run(["git", "ls-files", "domains/*/domain.yaml"], cwd=ROOT,
                          capture_output=True, text=True, check=True).stdout.split()
-    return {p.split("/")[1] for p in out if not p.startswith("domains/ceptre/")}
+    all_ = {p.split("/")[1] for p in out if not p.startswith("domains/ceptre/")}
+    excluded = {ln.split()[0] for ln in (ROOT / "ci" / "wheel-exclude.txt").read_text().splitlines()
+                if ln.strip() and not ln.startswith("#")}
+    assert excluded <= all_, f"stale wheel exclusion(s): {sorted(excluded - all_)}"
+    return all_ - excluded
 
 
 def test_package_data_is_the_tracked_packages():
