@@ -8,6 +8,9 @@
 # loader and the bundle emitter build it (catalog-entry step 2). metisc
 # takes one base, so an extension that extends another extension is not
 # expressible here yet: today every extension extends the program.
+# A package whose manifest has a levels: block passes it (--manifest): its
+# level declarations are generated from it (metis-lang spec/16 amendment 1),
+# for the program and for an extension's base alike.
 # METISC as in check.sh. A listed file that now typechecks is reported
 # so the exemption can be dropped.
 set -eu
@@ -21,7 +24,7 @@ for f in $(git ls-files '*.llp'); do
   # a metisc CRASH (Fatal error / exit != 0) is never "clean": its
   # stdout is empty, so counting error rows alone read it as 0 errors —
   # that is how road_zones' DiagnosticDefect passed as clean.
-  base=""
+  base=""; man=""
   case "$f" in
     domains/*/extensions/*.llp)
       pkg=$(dirname "$(dirname "$f")")
@@ -31,9 +34,14 @@ for f in $(git ls-files '*.llp'); do
         fail=1
         continue
       fi
-      base="$pkg/$prog" ;;
+      base="$pkg/$prog"
+      grep -q '^levels:' "$pkg/domain.yaml" && man="$pkg/domain.yaml" ;;
+    domains/*.llp)
+      pkg=$(dirname "$f")
+      prog=$(sed -n 's/^program:[[:space:]]*\([^[:space:]#]*\).*/\1/p' "$pkg/domain.yaml" 2>/dev/null | head -1)
+      [ "$prog" = "$(basename "$f")" ] && grep -q '^levels:' "$pkg/domain.yaml" && man="$pkg/domain.yaml" ;;
   esac
-  if ! out=$("$METISC" --diagnostics-json "$f" ${base:+--base "$base"} 2>&1); then
+  if ! out=$("$METISC" --diagnostics-json "$f" ${base:+--base "$base"} ${man:+--manifest "$man"} 2>&1); then
     echo "FAIL $f: metisc crashed — $(printf '%s\n' "$out" | tail -1)"
     fail=1
     continue
@@ -51,10 +59,10 @@ for f in $(git ls-files '*.llp'); do
   fi
   if [ "$errs" != 0 ]; then
     echo "FAIL $f: $errs error diagnostic(s)"
-    "$METISC" --diagnostics "$f" ${base:+--base "$base"} 2>&1 | grep '^error' | head -5
+    "$METISC" --diagnostics "$f" ${base:+--base "$base"} ${man:+--manifest "$man"} 2>&1 | grep '^error' | head -5
     fail=1
   else
-    echo "ok   $f${base:+ (with $base)}$([ "$lifted" != 0 ] && echo " (lifted)")"
+    echo "ok   $f${base:+ (with $base)}${man:+ (levels from $man)}$([ "$lifted" != 0 ] && echo " (lifted)")"
   fi
 done
 echo "diagnosed $n catalogs"
