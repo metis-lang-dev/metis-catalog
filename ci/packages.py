@@ -26,8 +26,8 @@ package is run and built, by both toolchains.
          the same files in their own CI.
 
 Every tracked package needs a trace, and every trace a package or a case. Each
-metisc call is its own process (METIS_HOME: the environment's, else metispy's
-own, as its include rule has it), at most --jobs at once (talespin grounds 105k
+metisc call is its own process (in the environment as it is: metisc finds its own
+standard units, metis-lang spec/17 amendment 5), at most --jobs at once (talespin grounds 105k
 events in about 2 minutes, for its run and for its wire alike).
 
   python ci/packages.py [--jobs N] [--only NAME...] [--no-py]
@@ -74,15 +74,6 @@ def units(only):
     return out
 
 
-def _home():
-    """METIS_HOME for metisc: the environment's, else metispy's metis.catalog.home() (the shared
-    packages, iface/): an include's last place, as metispy's own include rule has it."""
-    if os.environ.get("METIS_HOME"):
-        return os.environ["METIS_HOME"]
-    from metis import catalog
-    return str(catalog.home() if hasattr(catalog, "home") else Path(catalog.__file__).resolve().parent)   # before metispy 0.1.4
-
-
 def stub_cases(name):
     """(ok, note): the package's cases/*.yaml through the interface stub (metis.catalog.stub)."""
     from metis import catalog
@@ -100,7 +91,7 @@ def metisc(args):
     t = time.time()
     with tempfile.TemporaryFile("w+") as out:
         r = subprocess.run([METISC, *args], stdin=subprocess.DEVNULL, stdout=out,
-                           stderr=subprocess.PIPE, text=True, env=dict(os.environ, METIS_HOME=_home()))
+                           stderr=subprocess.PIPE, text=True)
         out.seek(0)
         text = out.read()
     if r.returncode:
