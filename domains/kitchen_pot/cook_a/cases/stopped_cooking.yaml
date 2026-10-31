@@ -14,4 +14,4 @@ boundaries:
     expect: {out: [tick__active(cook_a), tick__want(cook_a, pot)], fired: [ask_plate, fetch_dish]}
   - grant: [pot]
     deliver: [tick__grant(cook_a, pot)]
-    expect: {out: [tick__release(cook_a, pot), tick__done(cook_a)], status: success, fired: [plate, serve]}
+    expect: {out: [tick__released(cook_a, pot, g0), tick__done(cook_a)], status: success, fired: [plate, released, serve]}
