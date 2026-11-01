@@ -36,6 +36,10 @@ pred changing(side) : planner.
 pred settled(side) : planner.               % no change runs, and the ego did not leave that side lately (the host's)
 pred below_limit : planner.
 pred at_limit : planner.
+pred below_target : planner.                % the ego against what it wants: min(pace, the lane's limit, a stop wish's 0), exclusive
+pred at_target : planner.
+pred above_target : planner.
+pred change_reason(side) : planner.         % why to change to that side, truthfully: a slow lead (the overtaking side) or a person's wish
 pred lead_slow : planner.                   % a slow lead within reach ahead
 pred lead_ok : planner.
 pred accel_ok : planner.                    % a plan of full acceleration keeps the lead at a safe distance
