@@ -19,8 +19,10 @@
 %                     change, accel, keep, a change preferred
 %                     to following a slow lead (keep_lead's static weight)
 % The geometry is the host's (rule 2): it says classes (zone_at, zprio, zbusy, lead_slow …), the rules decide.
+% the road FAMILY's planner (road-family s-f62c0ed8, 2026-11-01): the lane change rule is change.llp, the car's unit; the
+% neighbour-lane and roomy facts stay here (declarations in place, so the car's bundle is the one-file planner's).
 catalog planner_domain 1.
-provenance text "the road family in the catalog (road-family s-f62c0ed8, 2026-11-01; the lane change is change.llp): the road's plan: progress, lane choice, zone entry and yield, the zipper, the walker" "2026-10-26".
+provenance text "the road's plan: progress, lane choice, zone entry and yield, the zipper, the walker" "2026-10-26".
 layers (dyn).
 stages (safety progress).
 types (obj side zone zclass prio walk resp).   % completed by the instance (capacity.llp)
@@ -63,6 +65,13 @@ pred idle : planner.
 pred busy : planner.
 pred trip : planner.                        % the drive to the destination (the instance's)
 pred go : planner.                          % this beat's progress decision is due (decide's: one a beat)
+% the neighbour lanes' roles, by side (a lane change reads the target lane's lead and follower)
+bwd side_lead(side, obj).
+bwd side_follow(side, obj).
+side_lead(left, leadleft).
+side_lead(right, leadright).
+side_follow(left, followleft).
+side_follow(right, followright).
 bwd closing_in(zclass).                     % where a yield applies
 closing_in(near).
 closing_in(at).
@@ -71,6 +80,9 @@ yields_to(obj).
 yields_to(same).
 bwd soft(resp).                             % the planner's own braking (the responder's is brake_min)
 soft(brake_min_correct).
+bwd roomy(zclass).                          % where a lane change is allowed
+roomy(none).
+roomy(far).
 stage safety {
   %% I drive on to my destination: I ask for the controls.
   drive [dyn] : idle * $trip -o busy * tick__active(planner) * tick__want(planner, controls).
