@@ -1,0 +1,11 @@
+% planner — the road family's planner over the role vocabulary, the car's (road-family s-f62c0ed8): the base with the lane
+% change (change.llp brings planner_domain.llp), the capacity, the protocol.
+catalog planner 1.
+provenance text "the road's planner over roles: the host binds the world onto them each tick" "2026-10-26".
+include "../change.llp".
+include "../capacity.llp".
+include "../tick_types.llp".
+#init idle 1
+#init trip 1
+#steps 6
+#seeds 1

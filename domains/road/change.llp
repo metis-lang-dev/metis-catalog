@@ -1,0 +1,24 @@
+% change — the lane change, a unit of the road family a CAR'S planner includes and a chair's does not (road-family
+% s-f62c0ed8, spec/18 §2.3 and §3: a leavable block lives in a unit of its own; derivation by unit choice, never by
+% override). It brings the family's planner (planner_domain.llp) with it, so a program includes THIS unit for the planner
+% with the lane change, or planner_domain.llp alone for the planner without it. The keep-table's mleft/mright: a lane
+% change only to an adjacent lane, its lead and follower safe, the ego not just arrived from that side, no conflict zone
+% near (roomy). The rule competes in the progress stage with accel and keep_* as before (a second stage block of one
+% stage merges with the first).
+catalog change 1.
+provenance text "the road family's lane change, the car's unit (from planner_domain.llp, road-world s-e812715d step 2)" "2026-11-01".
+include "planner_domain.llp".
+% the neighbour lanes' roles, by side (a lane change reads the target lane's lead and follower)
+bwd side_lead(side, obj).
+bwd side_follow(side, obj).
+side_lead(left, leadleft).
+side_lead(right, leadright).
+side_follow(left, followleft).
+side_follow(right, followright).
+bwd roomy(zclass).                          % where a lane change is allowed
+roomy(none).
+roomy(far).
+stage progress {
+  %% The lead is slow and the {D} lane is safe ahead and behind, and I did not just leave it: I change to it.
+  change [dyn] : $busy * $tick__grant(planner, controls) * $lead_slow * $adjacent(D) * $settled(D) * $side_lead(D, L) * $safe_long(L) * $safe_lat(L) * $side_follow(D, F) * $safe_long(F) * $safe_lat(F) * $zone_at(nextzone, C) * $roomy(C) * go -o ().
+}
