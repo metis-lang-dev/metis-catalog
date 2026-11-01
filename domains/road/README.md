@@ -10,7 +10,7 @@
 | `planner_domain.llp` | the SLOW member without the lane change: the safety stage (yield at a zone not the ego's, the walker, the zipper, the crossing's soft brake) before the progress stage (accel with room, keep at the limit, keep the gap, follow a slow lead, ease off behind a closing lead) | the chair (the sidewalk has no lanes to change) |
 | `change.llp` | the lane change: a unit of its own that brings `planner_domain.llp` with it (spec/18 §3: a leavable block lives in a unit of its own) | the car (the road world) |
 | `responder/`, `planner/` | the family's member packages: the programs over the units, the cases, no host (a consumer's package names its host) | the family's own cases and traces |
-| `goldens/traces/` | the members' traces (metisc --run), byte for byte | CI |
+| the repo's `goldens/traces/planner.txt`, `responder.txt` | the members' traces (metisc --run), byte for byte (ci/packages.py) | CI |
 
 **The ports.** The family's rules read verdicts, never numbers (rule 2). The prices a platform sets are the projection's parameters in `libs/semantic-world` (`situation`, `dynamics_for`: the RSS response times and accelerations, the lateral margins, the stopping reach that defines `near`), passed by the consumer's host, and the rules' `@w` weights (e.g. `keep_lead` 0.01). A number that differs by platform never enters a rule.
 
