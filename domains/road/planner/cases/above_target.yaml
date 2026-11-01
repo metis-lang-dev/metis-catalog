@@ -1,0 +1,7 @@
+case: "above what it wants (the person's pace, or a stop): the planner eases off with its own soft brake, no lead needed"
+boundaries:
+  - world: [above_target, lead_ok, accel_ok, cross_settled(nextzone), keep_ok, zone_at(nextzone, none), now]
+    expect: {out: [tick__active(planner), tick__want(planner, controls)], status: running, fired: [drive]}
+  - grant: [controls]
+    deliver: [tick__grant(planner, controls)]
+    expect: {status: running, fired: [decide, brake_target, back]}

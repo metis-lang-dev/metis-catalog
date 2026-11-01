@@ -1,0 +1,7 @@
+case: "a reason to change with no slow lead (a person's wish): the rule reads the reason, not lead_slow. No other progress rule can fire in this world, so the change shows on every seed"
+boundaries:
+  - world: [at_target, lead_ok, cross_settled(nextzone), adjacent(left), change_reason(left), settled(left), safe_long(leadleft), safe_lat(leadleft), safe_long(followleft), safe_lat(followleft), zone_at(nextzone, none), now]
+    expect: {out: [tick__active(planner), tick__want(planner, controls)], status: running, fired: [drive]}
+  - grant: [controls]
+    deliver: [tick__grant(planner, controls)]
+    expect: {status: running, fired: [decide, change, back]}

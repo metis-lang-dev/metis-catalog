@@ -34,13 +34,11 @@ pred safe_lat(obj) : planner.
 pred adjacent(side) : planner.              % a same-direction lane on that side
 pred changing(side) : planner.
 pred settled(side) : planner.               % no change runs, and the ego did not leave that side lately (the host's)
-pred below_limit : planner.
-pred at_limit : planner.
 pred below_target : planner.                % the ego against what it wants: min(pace, the lane's limit, a stop wish's 0), exclusive
 pred at_target : planner.
 pred above_target : planner.
 pred change_reason(side) : planner.         % why to change to that side, truthfully: a slow lead (the overtaking side) or a person's wish
-pred lead_slow : planner.                   % a slow lead within reach ahead
+pred lead_slow : planner.                   % a slow lead within reach ahead: the truth of one, never a wish
 pred lead_ok : planner.
 pred accel_ok : planner.                    % a plan of full acceleration keeps the lead at a safe distance
 pred accel_no : planner.
@@ -112,14 +110,16 @@ stage safety {
 %% Nothing calls for a yield, the controls are mine: I go on with the plan.
 qui decide [dyn] : safety * $tick__grant(planner, controls) * now -o progress * go.
 stage progress {
-  %% Below the limit, nothing slow ahead, room before the lead: I speed up.
-  accel [dyn] : $busy * $tick__grant(planner, controls) * $below_limit * $lead_ok * $accel_ok * $cross_settled(nextzone) * go -o ().
-  %% Below the limit, but a car at the zone ahead has not shown it yields: I keep my speed until it does.
-  keep_cross [dyn] : $busy * $tick__grant(planner, controls) * $below_limit * $lead_ok * $accel_ok * $cross_unsettled(nextzone) * go -o ().
-  %% Below the limit, but no room to speed up before the lead: I keep my speed.
-  keep_gap [dyn] : $busy * $tick__grant(planner, controls) * $below_limit * $lead_ok * $accel_no * $keep_ok * go -o ().
-  %% At the limit: I keep my speed.
-  keep_limit [dyn] : $busy * $tick__grant(planner, controls) * $at_limit * $keep_ok * go -o ().
+  %% Below what I want, nothing slow ahead, room before the lead: I speed up.
+  accel [dyn] : $busy * $tick__grant(planner, controls) * $below_target * $lead_ok * $accel_ok * $cross_settled(nextzone) * go -o ().
+  %% Below what I want, but a car at the zone ahead has not shown it yields: I keep my speed until it does.
+  keep_cross [dyn] : $busy * $tick__grant(planner, controls) * $below_target * $lead_ok * $accel_ok * $cross_unsettled(nextzone) * go -o ().
+  %% Below what I want, but no room to speed up before the lead: I keep my speed.
+  keep_gap [dyn] : $busy * $tick__grant(planner, controls) * $below_target * $lead_ok * $accel_no * $keep_ok * go -o ().
+  %% At what I want: I keep my speed.
+  keep_limit [dyn] : $busy * $tick__grant(planner, controls) * $at_target * $keep_ok * go -o ().
+  %% Above what I want: I ease off, {R}.
+  brake_target [dyn] : $busy * $tick__grant(planner, controls) * $above_target * $soft(R) * go -o ().
   %% The lead is slow and no lane is free: I follow it.
   keep_lead [dyn] : $busy * $tick__grant(planner, controls) * $lead_slow * $keep_ok * go -o ()  @w 0.01.
   %% The lead is closing in on me: I ease off, {R}.
