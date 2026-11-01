@@ -1,0 +1,7 @@
+case: "at the line, still no view of the road that has the way: the planner steps forward to see (StVO 8(2))"
+boundaries:
+  - world: [below_target, lead_ok, accel_ok, cross_settled(nextzone), keep_ok, seen_ahead, zone_at(nextzone, at), zprio(nextzone, obj), conflict(nextzone), zclear(nextzone), road_hidden(nextzone), inch_room(nextzone), now]
+    expect: {out: [tick__active(planner), tick__want(planner, controls)], status: running, fired: [drive]}
+  - grant: [controls]
+    deliver: [tick__grant(planner, controls)]
+    expect: {status: running, fired: [inch_hidden]}

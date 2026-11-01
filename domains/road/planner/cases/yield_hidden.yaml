@@ -1,0 +1,7 @@
+case: "the side road has the way and its road cannot be seen, nobody visible on it (zbusy is false by that alone): the planner stops before the line (StVO 8(2))"
+boundaries:
+  - world: [below_target, lead_ok, accel_ok, cross_settled(nextzone), keep_ok, seen_ahead, zone_at(nextzone, near), zprio(nextzone, obj), conflict(nextzone), zclear(nextzone), road_hidden(nextzone), inch_no(nextzone), now]
+    expect: {out: [tick__active(planner), tick__want(planner, controls)], status: running, fired: [drive]}
+  - grant: [controls]
+    deliver: [tick__grant(planner, controls)]
+    expect: {status: running, fired: [yield_hidden]}

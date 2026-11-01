@@ -1,0 +1,7 @@
+case: "its own way cannot be seen as far as it would need to stop: the planner eases off, whoever has the way"
+boundaries:
+  - world: [above_target, lead_ok, accel_ok, cross_settled(nextzone), keep_ok, unseen_ahead, zone_at(nextzone, none), now]
+    expect: {out: [tick__active(planner), tick__want(planner, controls)], status: running, fired: [drive]}
+  - grant: [controls]
+    deliver: [tick__grant(planner, controls)]
+    expect: {status: running, fired: [brake_unseen]}

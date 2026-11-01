@@ -1,0 +1,7 @@
+case: "the same zone, its road in view and clear: nothing to wait for, the planner speeds up"
+boundaries:
+  - world: [below_target, lead_ok, accel_ok, cross_settled(nextzone), keep_ok, seen_ahead, zone_at(nextzone, near), zprio(nextzone, obj), conflict(nextzone), zclear(nextzone), road_in_view(nextzone), now]
+    expect: {out: [tick__active(planner), tick__want(planner, controls)], status: running, fired: [drive]}
+  - grant: [controls]
+    deliver: [tick__grant(planner, controls)]
+    expect: {status: running, fired: [decide, accel, back]}
