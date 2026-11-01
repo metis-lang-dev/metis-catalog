@@ -54,9 +54,9 @@ pred zbusy(zone) : planner.                 % someone inside or coming
 pred zclear(zone) : planner.
 pred seen_ahead : planner.                  % the ego's OWN way can be seen to its stopping reach, or to the first car on it: the holder's duty, range and occlusion alike
 pred unseen_ahead : planner.
-pred road_in_view(zone) : planner.          % where the zone's priority is not the ego's: its crossing lanes can be seen, back to where a car could still reach it (the yielder's duty, StVO 8(2))
+pred road_in_view(zone) : planner.          % where the zone's priority is not the ego's and no red or amber governs: its crossing lanes can be seen, back to where a car could still reach it (the yielder's duty, StVO 8(2))
 pred road_hidden(zone) : planner.
-pred inch_room(zone) : planner.             % … hidden, and it may step forward to see: at the line or past it, at a walk, short of the crossing lane
+pred inch_room(zone) : planner.             % … hidden, and it may go on to see: at a walk, room behind any lead, short of the crossing lane
 pred inch_no(zone) : planner.
 pred cross_settled(zone) : planner.         % every car on a crossing lane near the zone stands, or none is there
 pred cross_unsettled(zone) : planner.       % one still moves: whether it yields is not yet seen
@@ -106,9 +106,9 @@ stage safety {
   arrive [dyn] : busy * trip * $at_dest -o idle * tick__done(planner) * tick__release(planner, controls).
   %% The zone ahead is not mine to take and someone comes: I stop before its line.
   yield_zone [dyn] : $busy * $tick__grant(planner, controls) * $zone_at(nextzone, C) * $closing_in(C) * $zprio(nextzone, P) * $yields_to(P) * $conflict(nextzone) * $zbusy(nextzone) * now -o ().
-  %% The zone ahead is not mine to take and I cannot see its road: I stop before its line, and wait there until I can.
+  %% The zone ahead is not mine to take, I cannot see its road, and I am too fast or have no room to go on: I stop before it.
   yield_hidden [dyn] : $busy * $tick__grant(planner, controls) * $zone_at(nextzone, C) * $closing_in(C) * $zprio(nextzone, P) * $yields_to(P) * $conflict(nextzone) * $road_hidden(nextzone) * $inch_no(nextzone) * now -o ().
-  %% At its line I still cannot see that road: I step forward, slowly, to see; never up to the crossing lane.
+  %% I still cannot see that road, and there is room: I go on at a walk to where I can; never up to the crossing lane.
   inch_hidden [dyn] : $busy * $tick__grant(planner, controls) * $zprio(nextzone, P) * $yields_to(P) * $conflict(nextzone) * $road_hidden(nextzone) * $inch_room(nextzone) * now -o ().
   %% A car at the zone ahead has not shown it yields, and we would be there together: I ease off, {R}, so I can still stop short.
   brake_cross [dyn] : $busy * $tick__grant(planner, controls) * $cross_overlap(nextzone) * $soft(R) * now -o ().
