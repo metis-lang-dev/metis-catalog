@@ -1,0 +1,5 @@
+case signals steps=6 seeds=1
+I idle 1
+I tick__gen(signals,controls,g0) 1
+T 1 -
+F 1 (done) idle:1 tick__gen(signals,controls,g0):1

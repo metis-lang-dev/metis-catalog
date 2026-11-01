@@ -2,5 +2,5 @@
 % and resource made concrete.
 catalog road_tick_types 1.
 provenance text "the road composition's members and its one resource, the controls" "2026-10-26".
-type domain {responder planner}.
+type domain {responder signals planner}.
 type resource {controls}.

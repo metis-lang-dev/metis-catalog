@@ -1,0 +1,4 @@
+case: "a red the brakes cannot stop for asks nothing of the lights"
+boundaries:
+  - world: [signal(nextzone, red), zone_at(nextzone, near), now]
+    expect: {out: [], status: idle, fired: []}

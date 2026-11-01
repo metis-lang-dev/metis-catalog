@@ -1,0 +1,9 @@
+case: "a red ahead and near: the lights take the controls and stop before the line, and on green hand them back"
+boundaries:
+  - world: [signal(nextzone, red), zone_at(nextzone, near), can_halt(nextzone), now]
+    expect: {out: [tick__active(signals), tick__want(signals, controls)], status: running, fired: [guard_red]}
+  - grant: [controls]
+    deliver: [tick__grant(signals, controls)]
+    expect: {out: [], status: running, fired: [yield_red]}
+  - world: [signal(nextzone, green), zone_at(nextzone, at)]
+    expect: {status: success, fired: [light_clear, released]}

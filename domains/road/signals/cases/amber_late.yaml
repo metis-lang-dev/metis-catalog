@@ -1,0 +1,4 @@
+case: "an amber too late to stop for asks nothing of the lights: the plan goes on"
+boundaries:
+  - world: [signal(nextzone, amber), zone_at(nextzone, near), can_halt(nextzone), now]
+    expect: {out: [], status: idle, fired: []}

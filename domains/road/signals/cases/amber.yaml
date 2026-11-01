@@ -1,0 +1,7 @@
+case: "an amber I can stop for takes the controls"
+boundaries:
+  - world: [signal(nextzone, amber), zone_at(nextzone, near), can_stop(nextzone), now]
+    expect: {out: [tick__active(signals), tick__want(signals, controls)], status: running, fired: [guard_amber]}
+  - grant: [controls]
+    deliver: [tick__grant(signals, controls)]
+    expect: {out: [], status: running, fired: [yield_amber]}

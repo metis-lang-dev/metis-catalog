@@ -1,0 +1,10 @@
+% signals — the road family's lights member (road-agent s-357becc7): its base and the capacity, the protocol.
+catalog signals 1.
+provenance text "the road's lights over the roles: the host binds the world each tick" "2026-11-01".
+include "../signals_domain.llp".
+include "../capacity.llp".
+include "../tick_types.llp".
+#init idle 1
+#init tick__gen(signals, controls, g0) 1
+#steps 6
+#seeds 1
