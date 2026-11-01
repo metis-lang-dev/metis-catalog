@@ -1,3 +1,5 @@
+# pinned to seed 1's stream: `fired` below is an order only that seed gives (fetch_dish and the serve are the sampler's), so a run on another seed says nothing of the rules
+rng: "1"
 case: a cook asks for the pot, is granted it, makes and serves one soup, gives the pot back and asks anew
 boundaries:
   - world: [hand_free, pot_space 3, order 2]
