@@ -1,0 +1,7 @@
+case: "at a stop sign, the road that has the way hidden, not yet stood: the host says inch_no and the planner holds at the line; the walk comes after one standing tick"
+boundaries:
+  - world: [below_target, lead_ok, accel_ok, cross_settled(nextzone), keep_ok, seen_ahead, zone_at(nextzone, at), zprio(nextzone, obj), conflict(nextzone), zclear(nextzone), stop_sign(nextzone), road_hidden(nextzone), inch_no(nextzone), now]
+    expect: {out: [tick__active(planner), tick__want(planner, controls)], status: running, fired: [drive]}
+  - grant: [controls]
+    deliver: [tick__grant(planner, controls)]
+    expect: {status: running, fired: [yield_hidden]}

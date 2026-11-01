@@ -56,6 +56,7 @@ pred seen_ahead : planner.                  % the ego's OWN way can be seen to i
 pred unseen_ahead : planner.
 pred road_in_view(zone) : planner.          % where the zone's priority is not the ego's and no red or amber governs: its crossing lanes can be seen, back to where a car could still reach it (the yielder's duty, StVO 8(2))
 pred road_hidden(zone) : planner.
+pred stop_sign(zone) : planner.             % the next link has a stop sign: the host says inch_room there only after one standing tick at the line
 pred inch_room(zone) : planner.             % … hidden, and it may go on to see: at a walk, room behind any lead, short of the crossing lane
 pred inch_no(zone) : planner.
 pred cross_settled(zone) : planner.         % every car on a crossing lane near the zone stands, or none is there
