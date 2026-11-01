@@ -48,7 +48,7 @@ pred keep_ok : planner.                     % two plans at its speed keep the le
 pred keep_no : planner.
 pred at_dest : planner.
 pred zone_at(zone, zclass) : planner.       % where the ego is from the next zone (near: within its stopping reach)
-pred zprio(zone, prio) : planner.           % whose the zone is
+pred zprio(zone, prio) : planner.           % who has the way at the zone: P is a VALUE of type prio, {ego, obj, same}: obj: the other has it (yields_to says where the ego yields)
 pred can_stop(zone) : planner.
 pred late(zone) : planner.
 pred zfree(zone) : planner.
