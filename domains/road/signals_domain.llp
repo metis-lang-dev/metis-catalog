@@ -23,6 +23,7 @@ pred now : signals.                         % the host's beat: one command a tic
 % its own
 pred idle : signals.
 pred busy : signals.
+invariant mode (idle busy) : 1.                  % one of them at every reachable state: every rule keeps the sum (spec/00 §5a)
 bwd closing_in(zclass).
 closing_in(near).
 closing_in(at).

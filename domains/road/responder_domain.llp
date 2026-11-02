@@ -47,6 +47,7 @@ pred drive_away_sector(sector) : responder. % … the heading it drives away tow
 pred idle : responder.
 pred busy : responder.
 pred away : responder.                      % it holds the controls to drive away (free space)
+invariant mode (idle busy away) : 1.         % one of them at every reachable state: every rule keeps the sum (spec/00 §5a)
 bwd brakes(resp).                           % the responses that brake
 brakes(brake_min_correct).
 brakes(brake_min).
