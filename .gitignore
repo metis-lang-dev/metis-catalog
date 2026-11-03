@@ -19,3 +19,6 @@ domains/lamp/
 # python -m build's output at the root (the wheel and the sdist publish.yml uploads)
 /build/
 /dist/
+
+# the metis loops' own state (records, sessions, scratch)
+/.metis/
