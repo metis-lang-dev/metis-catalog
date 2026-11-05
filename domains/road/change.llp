@@ -35,10 +35,15 @@ stage progress {
   change_back [dyn] : $busy * $tick__grant(planner, controls) * $own_kind(K) * off_route(K) * $adjacent(D) * $lane_kind(D, driving) * $settled(D) * $side_clear(D) * $zone_at(nextzone, C) * $roomy(C) * go -o ().
   %% A car stands in my lane, no lane of mine on my {E} side, and the oncoming {D} lane is clear for the whole pass: I pass through it.
   change_oncoming [dyn] : $busy * $tick__grant(planner, controls) * $lead_standing * $oncoming(D) * $oncoming_clear(D) * other_side(D, E) * $lane_kind(E, X) * not_driving(X) * $settled(D) * $zone_at(nextzone, C) * $roomy(C) * go -o ().
+  %% My lane leaves my route ahead and the {D} lane carries it on, free: I change to it.
+  change_route [dyn] : $busy * $tick__grant(planner, controls) * $route_lane(D) * $adjacent(D) * $lane_kind(D, driving) * $settled(D) * $side_clear(D) * $zone_at(nextzone, C) * not_in(C) * go -o ().
 }
 include "planner_domain.llp".
 % The gap records (road-scenarios s-e23be780 step 3, steps/road-gap-vocabulary-architect.md; the vocabulary is the architect's,
 % planner_domain.llp, stated by the host in the EGO's heading frame):
+%   change_route           20261105T151048-ec8088 (commonroad-world s-9b7591fb step 2): the ego's lane does not continue along
+%                          its route (CommonRoad's USA_Peach-4_5_T-1: the straight way on leaves from the two right lanes only);
+%                          route_lane(D) is the host's, the change allowed up to the junction's line (not_in), not only where roomy
 %   change_oncoming        20261105T051440-668e45: a car standing in the only lane, the oncoming lane lent for the whole pass
 %                          (oncoming_clear: the host's verdict, the lead and follower of that lane included; busy or unseen:
 %                          nothing fires, the ego waits behind it); back home by change_back (own_kind(oncoming), off route)
@@ -65,6 +70,13 @@ bwd off_route(lkind).                       % a lane the route does not run on: 
 off_route(parking).
 off_route(bidirectional).
 off_route(oncoming).                        % the opposite direction's lane: lent for a pass (change_oncoming), never a stay (668e45)
+pred route_lane(side) : planner.            % my lane leaves my route ahead and the lane on that side carries it on (the host's, from the net's
+                                            % connections: stated early enough to change while the zone is far, never inside a junction; ec8088)
+bwd not_in(zclass).                         % where a route change is allowed: up to the junction's line, never inside it
+not_in(none).
+not_in(far).
+not_in(near).
+not_in(at).
 bwd not_driving(lkind).                     % no driving lane there
 not_driving(parking).
 not_driving(bidirectional).

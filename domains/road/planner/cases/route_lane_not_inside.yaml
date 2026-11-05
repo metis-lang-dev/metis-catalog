@@ -1,0 +1,7 @@
+case: "ec8088: my lane leaves my route, but I am inside the junction's zone: no route change there (not_in): the planner holds its lane"
+boundaries:
+  - world: [at_target, lead_ok, cross_settled(nextzone), adjacent(right), side_clear(right), own_kind(driving), lane_kind(right, driving), lane_kind(left, none), settled(right), route_lane(right), zone_at(nextzone, in), now]
+    expect: {out: [tick__active(planner), tick__want(planner, controls)], status: running, fired: [drive]}
+  - grant: [controls]
+    deliver: [tick__grant(planner, controls)]
+    expect: {status: running, fired: [decide, back]}
