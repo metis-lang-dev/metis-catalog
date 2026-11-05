@@ -18,7 +18,9 @@ provenance text "the road family's lane change, the car's unit (from planner_dom
 %   change_back   on a lane off the route's (parking, bidirectional): back to a driving lane beside
 % side_clear(D) (surprise-kinds s-7a02c2ac, spec 20 §2, the architect's (B)): the host's verdict that the {D} side is free to
 % change into: adjacent(D) and each of its two roles (its lead, its follower) unfilled or safe by the fold (safe_long and
-% safe_lat). An unfilled role gets role_empty(R) and no safety fact (no filler); the fine facts stay for rules that name L, F.
+% safe_lat), stated only for an adjacent same-direction side. An unfilled role gets role_empty(R) and no safety fact (no
+% filler). No rule reads side_lead / side_follow or a role's safe_* now; they stay as vocabulary, stated for FILLED roles,
+% for a pack that names the side's L or F (a closing follower, a lead's signal), never to fake an empty role.
 % A wish and a pass naming opposite sides in one tick are two enabled rules of equal prior: the sampler's draw decides
 % (as when change_reason named both sides before), not the rules' order; the case wish_against_pass records the seeded draw:
 % the wish (change) fires.
