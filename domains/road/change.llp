@@ -46,7 +46,11 @@ include "planner_domain.llp".
 %                          route_lane(D) is the host's, the change allowed up to the junction's line (not_in), not only where roomy
 %   change_oncoming        20261105T051440-668e45: a car standing in the only lane, the oncoming lane lent for the whole pass
 %                          (oncoming_clear: the host's verdict, the lead and follower of that lane included; busy or unseen:
-%                          nothing fires, the ego waits behind it); back home by change_back (own_kind(oncoming), off route)
+%                          nothing fires, the ego waits behind it); back home by change_home (below)
+%   change_home            668e45 on SUMO (road-gap-sumo): back from the oncoming lane as soon as the route lane is free: a
+%                          SAFETY rule (StVO 5(4): back to the right as soon as possible). As progress (change_back) it was
+%                          one draw against keep_limit (at_target, keep_ok: w 1 each) and the ego stayed on the oncoming lane
+%                          into the next car. No roomy(C): near a junction the stay is the hazard, not the change
 %   change_emergency_right 20261105T051440-13b2f9: an emergency vehicle behind me: I move over, to the right first (keep right);
 %   change_emergency_left  to the left when no driving lane is on my right, or (change_emergency_left_busy) when the right one is
 %                          busy (side_busy: the host's complement of side_clear, the architect's ruling). A yield, so a SAFETY block: it comes before any
@@ -59,6 +63,8 @@ stage safety {
   change_emergency_left [dyn] : $busy * $tick__grant(planner, controls) * $emergency(follower) * other_side(D, right) * $lane_kind(right, X) * not_driving(X) * $adjacent(D) * $lane_kind(D, driving) * $settled(D) * $side_clear(D) * $zone_at(nextzone, C) * $roomy(C) * now -o ().
   %% An emergency vehicle comes up behind me, the lane on my right is busy, and the {D} lane on my left is a driving one, free: I move over for it.
   change_emergency_left_busy [dyn] : $busy * $tick__grant(planner, controls) * $emergency(follower) * other_side(D, right) * $side_busy(right) * $adjacent(D) * $lane_kind(D, driving) * $settled(D) * $side_clear(D) * $zone_at(nextzone, C) * $roomy(C) * now -o ().
+  %% I drive on the oncoming lane, lent for a pass, and my route lane on the {D} side is a driving one, safe ahead and behind: I change back to it now.
+  change_home [dyn] : $busy * $tick__grant(planner, controls) * $own_kind(oncoming) * $adjacent(D) * $lane_kind(D, driving) * $settled(D) * $side_clear(D) * now -o ().
 }
 % the host's lane kinds (road_facts.py) and their classes
 types (lkind).                              % completed by the instance (capacity.llp)

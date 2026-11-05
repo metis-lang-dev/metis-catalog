@@ -1,0 +1,7 @@
+case: "668e45 on SUMO: on the oncoming lane, the pass done near a junction (zone_at near: no lane change by roomy), the route lane free: the planner changes back to it all the same (change_home)"
+boundaries:
+  - world: [at_target, lead_ok, keep_ok, accel_ok, cross_settled(nextzone), adjacent(right), side_clear(right), own_kind(oncoming), lane_kind(right, driving), lane_kind(left, none), settled(right), settled(left), zone_at(nextzone, near), can_stop(nextzone), now]
+    expect: {out: [tick__active(planner), tick__want(planner, controls)], status: running, fired: [drive]}
+  - grant: [controls]
+    deliver: [tick__grant(planner, controls)]
+    expect: {status: running, fired: [change_home]}

@@ -1,0 +1,7 @@
+case: "668e45 on SUMO: on the oncoming lane beside the standing car, the route lane busy (side_busy: the car not yet passed): no change back; the planner keeps (keep_limit)"
+boundaries:
+  - world: [at_target, lead_ok, keep_ok, accel_ok, cross_settled(nextzone), adjacent(right), side_busy(right), own_kind(oncoming), lane_kind(right, driving), lane_kind(left, none), settled(right), settled(left), zone_at(nextzone, far), now]
+    expect: {out: [tick__active(planner), tick__want(planner, controls)], status: running, fired: [drive]}
+  - grant: [controls]
+    deliver: [tick__grant(planner, controls)]
+    expect: {status: running, fired: [decide, keep_limit, back]}
