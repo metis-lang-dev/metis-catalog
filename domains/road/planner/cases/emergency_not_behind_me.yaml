@@ -1,0 +1,7 @@
+case: "the gap records (i), 13b2f9: an emergency vehicle behind on the right lane, not behind me (emergency(followright) only; side_clear(right) absent by the amended contract): no yield, the planner plans as before (keep_limit)"
+boundaries:
+  - world: [at_target, lead_ok, keep_ok, cross_settled(nextzone), emergency(followright), adjacent(right), own_kind(driving), lane_kind(right, driving), lane_kind(left, none), settled(left), settled(right), zone_at(nextzone, none), now]
+    expect: {out: [tick__active(planner), tick__want(planner, controls)], status: running, fired: [drive]}
+  - grant: [controls]
+    deliver: [tick__grant(planner, controls)]
+    expect: {status: running, fired: [decide, keep_limit, back]}

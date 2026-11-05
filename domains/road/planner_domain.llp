@@ -41,6 +41,14 @@ pred above_target : planner.
 family target (below_target at_target above_target).   % the host's exclusive reading (spec/00 §5a): a rule reads a member, never writes one
 pred change_reason(side) : planner.         % a person's wish to change to that side (road_wishes.py); a slow lead's pass is change.llp's own reason
 pred lead_slow : planner.                   % a slow lead within reach ahead: the truth of one, never a wish
+% the two gap records' vocabulary (road-scenarios s-e23be780 step 3, steps/road-gap-vocabulary-architect.md, the architect's word):
+% the host states it every tick, in the EGO's heading frame (on the oncoming lane the route lane is the ego's right side)
+pred lead_standing : planner.               % the lead stands within reach, not waiting at a zone or a light: an obstacle, not a queue (668e45)
+pred oncoming(side) : planner.              % the lane on that side is the opposite direction's driving lane (lane_kind(D, none) beside it) (668e45)
+pred oncoming_clear(side) : planner.        % that oncoming lane free and seen for the whole pass (the host's arithmetic; unseen is busy) (668e45)
+pred oncoming_busy(side) : planner.
+family oncoming_room (oncoming_clear oncoming_busy).   % stated only where oncoming(D) holds: exclusive per such side, the host's
+pred emergency(obj) : planner.              % the role's mover is an emergency vehicle with its lights on: a class, never a belief (13b2f9)
 pred lead_ok : planner.
 pred accel_ok : planner.                    % a plan of full acceleration keeps the lead at a safe distance
 pred accel_no : planner.

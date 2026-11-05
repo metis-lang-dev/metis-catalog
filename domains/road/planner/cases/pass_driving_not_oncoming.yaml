@@ -1,0 +1,7 @@
+case: "the gap records (c), 668e45: a standing car, a driving lane of mine on the right and the oncoming lane on the left clear: the pass takes the driving lane (change_pass), never the oncoming one (not_driving(right) false)"
+boundaries:
+  - world: [below_target, lead_slow, lead_standing, accel_ok, cross_settled(nextzone), keep_ok, adjacent(right), side_clear(right), own_kind(driving), lane_kind(right, driving), lane_kind(left, none), oncoming(left), oncoming_clear(left), settled(left), settled(right), zone_at(nextzone, none), now]
+    expect: {out: [tick__active(planner), tick__want(planner, controls)], status: running, fired: [drive]}
+  - grant: [controls]
+    deliver: [tick__grant(planner, controls)]
+    expect: {status: running, fired: [decide, change_pass, back]}

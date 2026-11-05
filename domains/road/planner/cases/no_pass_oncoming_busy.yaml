@@ -1,0 +1,7 @@
+case: "the gap records (b), 668e45: the same, the oncoming lane busy (or not seen far enough): no pass, the planner follows the standing car (keep_lead)"
+boundaries:
+  - world: [below_target, lead_slow, lead_standing, accel_ok, cross_settled(nextzone), keep_ok, own_kind(driving), lane_kind(left, none), lane_kind(right, none), oncoming(left), oncoming_busy(left), settled(left), settled(right), zone_at(nextzone, none), now]
+    expect: {out: [tick__active(planner), tick__want(planner, controls)], status: running, fired: [drive]}
+  - grant: [controls]
+    deliver: [tick__grant(planner, controls)]
+    expect: {status: running, fired: [decide, keep_lead, back]}

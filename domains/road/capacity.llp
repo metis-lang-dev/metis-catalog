@@ -7,7 +7,8 @@ catalog road_capacity 1.
 provenance text "the road domains' roles: one capacity per vehicle, bound by the host each tick" "2026-10-26".
 type obj {lead follower leadleft followleft leadright followright a1 a2 a3 vru1}.
 type side {left right}.
-type lkind {driving parking bidirectional none}.  % a lane's OpenDRIVE kind as the host's net keeps it; none: no same-direction lane
+type lkind {driving parking bidirectional oncoming none}.  % a lane's OpenDRIVE kind as the host's net keeps it; none: no same-direction lane;
+                                                        % oncoming: the ego's lane is the opposite direction's (road-scenarios s-e23be780, record 20261105T051440-668e45)
 type constel {same_dir opp_dir xing_ego_prio xing_obj_prio xing_same_prio unstructured not_relevant}.
 type resp {none brake_min_correct brake_min brake_max}.   % brake_max: rule 5 escalated, only the hardest stops short (road-scenarios s-e23be780)
 type before {none long lat both}.

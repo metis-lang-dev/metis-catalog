@@ -33,8 +33,25 @@ stage progress {
   change_aside [dyn] : $busy * $tick__grant(planner, controls) * $lead_slow * $adjacent(D) * $lane_kind(D, K) * off_route(K) * other_side(D, E) * $lane_kind(E, X) * not_driving(X) * $settled(D) * $side_clear(D) * $zone_at(nextzone, C) * $roomy(C) * go -o ().
   %% I drive on a {K} lane, off the route's, and the {D} lane beside is a driving one, safe ahead and behind: I change back to it.
   change_back [dyn] : $busy * $tick__grant(planner, controls) * $own_kind(K) * off_route(K) * $adjacent(D) * $lane_kind(D, driving) * $settled(D) * $side_clear(D) * $zone_at(nextzone, C) * $roomy(C) * go -o ().
+  %% A car stands in my lane, no lane of mine on my {E} side, and the oncoming {D} lane is clear for the whole pass: I pass through it.
+  change_oncoming [dyn] : $busy * $tick__grant(planner, controls) * $lead_standing * $oncoming(D) * $oncoming_clear(D) * other_side(D, E) * $lane_kind(E, X) * not_driving(X) * $settled(D) * $zone_at(nextzone, C) * $roomy(C) * go -o ().
 }
 include "planner_domain.llp".
+% The gap records (road-scenarios s-e23be780 step 3, steps/road-gap-vocabulary-architect.md; the vocabulary is the architect's,
+% planner_domain.llp, stated by the host in the EGO's heading frame):
+%   change_oncoming        20261105T051440-668e45: a car standing in the only lane, the oncoming lane lent for the whole pass
+%                          (oncoming_clear: the host's verdict, the lead and follower of that lane included; busy or unseen:
+%                          nothing fires, the ego waits behind it); back home by change_back (own_kind(oncoming), off route)
+%   change_emergency_right 20261105T051440-13b2f9: an emergency vehicle behind me: I move over, to the right first (keep right);
+%   change_emergency_left  to the left only when no driving lane is on my right. A yield, so a SAFETY block: it comes before any
+%                          progress (it takes `now`, the beat's plan is the move). The side is bound through other_side, so the
+%                          command carries D. No lane free: no rule, the ego holds its lane.
+stage safety {
+  %% An emergency vehicle comes up behind me and the {D} lane on my right is a driving one, free: I move over for it.
+  change_emergency_right [dyn] : $busy * $tick__grant(planner, controls) * $emergency(follower) * other_side(D, left) * $adjacent(D) * $lane_kind(D, driving) * $settled(D) * $side_clear(D) * $zone_at(nextzone, C) * $roomy(C) * now -o ().
+  %% An emergency vehicle comes up behind me, no driving lane on my right, and the {D} lane on my left is a driving one, free: I move over for it.
+  change_emergency_left [dyn] : $busy * $tick__grant(planner, controls) * $emergency(follower) * other_side(D, right) * $lane_kind(right, X) * not_driving(X) * $adjacent(D) * $lane_kind(D, driving) * $settled(D) * $side_clear(D) * $zone_at(nextzone, C) * $roomy(C) * now -o ().
+}
 % the host's lane kinds (road_facts.py) and their classes
 types (lkind).                              % completed by the instance (capacity.llp)
 pred own_kind(lkind) : planner.             % the kind of the ego's lane
@@ -43,6 +60,7 @@ pred side_clear(side) : planner.            % that side free to change into: adj
 bwd off_route(lkind).                       % a lane the route does not run on: a pass may use it, a stay may not
 off_route(parking).
 off_route(bidirectional).
+off_route(oncoming).                        % the opposite direction's lane: lent for a pass (change_oncoming), never a stay (668e45)
 bwd not_driving(lkind).                     % no driving lane there
 not_driving(parking).
 not_driving(bidirectional).

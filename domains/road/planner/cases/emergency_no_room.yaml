@@ -1,0 +1,7 @@
+case: "the gap records (h), 13b2f9: an emergency vehicle behind me, neither side clear: no yield fires, the planner holds its lane and plans as before (keep_limit)"
+boundaries:
+  - world: [at_target, lead_ok, keep_ok, cross_settled(nextzone), emergency(follower), adjacent(left), adjacent(right), own_kind(driving), lane_kind(left, driving), lane_kind(right, driving), settled(left), settled(right), zone_at(nextzone, none), now]
+    expect: {out: [tick__active(planner), tick__want(planner, controls)], status: running, fired: [drive]}
+  - grant: [controls]
+    deliver: [tick__grant(planner, controls)]
+    expect: {status: running, fired: [decide, keep_limit, back]}
