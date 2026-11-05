@@ -38,7 +38,7 @@ pred below_target : planner.                % the ego against what it wants: min
 pred at_target : planner.
 pred above_target : planner.
 family target (below_target at_target above_target).   % the host's exclusive reading (spec/00 §5a): a rule reads a member, never writes one
-pred change_reason(side) : planner.         % why to change to that side, truthfully: a slow lead (the overtaking side) or a person's wish
+pred change_reason(side) : planner.         % a person's wish to change to that side (road_wishes.py); a slow lead's pass is change.llp's own reason
 pred lead_slow : planner.                   % a slow lead within reach ahead: the truth of one, never a wish
 pred lead_ok : planner.
 pred accel_ok : planner.                    % a plan of full acceleration keeps the lead at a safe distance

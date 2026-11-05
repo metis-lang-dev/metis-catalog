@@ -1,0 +1,7 @@
+case: "lane kinds (b): a slow lead, a bidirectional centre lane on the left and a driving lane on the right, both free: the pass takes the driving side (change_pass); change_aside cannot fire while the other side drives"
+boundaries:
+  - world: [below_target, lead_slow, accel_ok, cross_settled(nextzone), keep_ok, adjacent(left), adjacent(right), own_kind(driving), lane_kind(left, bidirectional), lane_kind(right, driving), settled(left), settled(right), safe_long(leadleft), safe_lat(leadleft), safe_long(followleft), safe_lat(followleft), safe_long(leadright), safe_lat(leadright), safe_long(followright), safe_lat(followright), zone_at(nextzone, none), now]
+    expect: {out: [tick__active(planner), tick__want(planner, controls)], status: running, fired: [drive]}
+  - grant: [controls]
+    deliver: [tick__grant(planner, controls)]
+    expect: {status: running, fired: [decide, change_pass, back]}

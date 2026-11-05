@@ -1,0 +1,7 @@
+case: "lane kinds (c): past the obstacle on the bidirectional centre lane, no lead, the driving lane on the right free and settled: the planner changes back to it (change_back), record 20261105T082838-463d7d"
+boundaries:
+  - world: [at_target, lead_ok, cross_settled(nextzone), adjacent(right), own_kind(bidirectional), lane_kind(right, driving), lane_kind(left, none), settled(right), safe_long(leadright), safe_lat(leadright), safe_long(followright), safe_lat(followright), zone_at(nextzone, none), now]
+    expect: {out: [tick__active(planner), tick__want(planner, controls)], status: running, fired: [drive]}
+  - grant: [controls]
+    deliver: [tick__grant(planner, controls)]
+    expect: {status: running, fired: [decide, change_back, back]}

@@ -2,14 +2,45 @@
 % s-f62c0ed8, spec/18 §2.3 and §3: a leavable block lives in a unit of its own; derivation by unit choice, never by
 % override). It brings the family's planner (planner_domain.llp) with it, so a program includes THIS unit for the planner
 % with the lane change, or planner_domain.llp alone for the planner without it. The keep-table's mleft/mright: a lane
-% change only to an adjacent lane (the host says change_reason(D) only of one), its lead and follower safe, the ego not just arrived from that side, no conflict zone
+% change only to an adjacent lane (the host says adjacent(D) only of one), its lead and follower safe, the ego not just arrived from that side, no conflict zone
 % near (roomy: the facts are the planner's). The rule's block comes BEFORE the include, so it stays the progress stage's
 % first rule as in the one-file planner (a second stage block of one stage merges with the first, in order): the car's
 % planner bundle is byte-identical to the one-file planner's, and so is the road's image.
 catalog change 1.
 provenance text "the road family's lane change, the car's unit (from planner_domain.llp, road-world s-e812715d step 2)" "2026-11-01".
+% The lanes' kinds (road-scenarios s-e23be780, record 20261105T082838-463d7d, 2026-11-05): a town's net carries parking and
+% bidirectional centre lanes beside its driving ones (Town03; CARLA counts the ego on a bidirectional lane outside the
+% route). The host says each lane's KIND (vocabulary, rule 2: geometry in the host, classes in the rules): own_kind(K) of the
+% ego's lane, lane_kind(D, K) of each side every tick (none: no same-direction lane there). The reasons are the rules':
+%   change        a person's wish (change_reason(D), road_wishes.py: a wish is the only change_reason the host states)
+%   change_pass   a slow lead: pass it on a DRIVING side
+%   change_aside  a slow lead and no driving side: pass it on the centre or parking lane (the pass itself, never a stay)
+%   change_back   on a lane off the route's (parking, bidirectional): back to a driving lane beside
+% A wish and a pass naming opposite sides in one tick are two enabled rules of equal prior: the sampler's draw decides
+% (as when change_reason named both sides before), not the rules' order; the case wish_against_pass records the seeded draw:
+% the wish (change) fires.
 stage progress {
-  %% I have a reason to change to the {D} lane, it is safe ahead and behind, and I did not just leave it: I change to it.
+  %% A person wishes me on the {D} lane, it is safe ahead and behind, and I did not just leave it: I change to it.
   change [dyn] : $busy * $tick__grant(planner, controls) * $change_reason(D) * $settled(D) * $side_lead(D, L) * $safe_long(L) * $safe_lat(L) * $side_follow(D, F) * $safe_long(F) * $safe_lat(F) * $zone_at(nextzone, C) * $roomy(C) * go -o ().
+  %% A slow lead ahead and a driving lane on my {D} side, safe ahead and behind, and I did not just leave it: I pass on it.
+  change_pass [dyn] : $busy * $tick__grant(planner, controls) * $lead_slow * $adjacent(D) * $lane_kind(D, driving) * $settled(D) * $side_lead(D, L) * $safe_long(L) * $safe_lat(L) * $side_follow(D, F) * $safe_long(F) * $safe_lat(F) * $zone_at(nextzone, C) * $roomy(C) * go -o ().
+  %% A slow lead ahead and no driving lane on my {E} side: I pass on the {D} lane, a {K} one, safe ahead and behind.
+  change_aside [dyn] : $busy * $tick__grant(planner, controls) * $lead_slow * $adjacent(D) * $lane_kind(D, K) * off_route(K) * other_side(D, E) * $lane_kind(E, X) * not_driving(X) * $settled(D) * $side_lead(D, L) * $safe_long(L) * $safe_lat(L) * $side_follow(D, F) * $safe_long(F) * $safe_lat(F) * $zone_at(nextzone, C) * $roomy(C) * go -o ().
+  %% I drive on a {K} lane, off the route's, and the {D} lane beside is a driving one, safe ahead and behind: I change back to it.
+  change_back [dyn] : $busy * $tick__grant(planner, controls) * $own_kind(K) * off_route(K) * $adjacent(D) * $lane_kind(D, driving) * $settled(D) * $side_lead(D, L) * $safe_long(L) * $safe_lat(L) * $side_follow(D, F) * $safe_long(F) * $safe_lat(F) * $zone_at(nextzone, C) * $roomy(C) * go -o ().
 }
 include "planner_domain.llp".
+% the host's lane kinds (road_facts.py) and their classes
+types (lkind).                              % completed by the instance (capacity.llp)
+pred own_kind(lkind) : planner.             % the kind of the ego's lane
+pred lane_kind(side, lkind) : planner.      % the kind of the lane on that side, every tick (none: no same-direction lane)
+bwd off_route(lkind).                       % a lane the route does not run on: a pass may use it, a stay may not
+off_route(parking).
+off_route(bidirectional).
+bwd not_driving(lkind).                     % no driving lane there
+not_driving(parking).
+not_driving(bidirectional).
+not_driving(none).
+bwd other_side(side, side).
+other_side(left, right).
+other_side(right, left).

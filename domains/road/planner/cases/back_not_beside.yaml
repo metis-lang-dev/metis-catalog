@@ -1,0 +1,7 @@
+case: "lane kinds (c'): on the centre lane still beside the obstacle (the right lane's lead not safe): no return yet, the pass goes on (keep at the target)"
+boundaries:
+  - world: [at_target, lead_ok, cross_settled(nextzone), keep_ok, adjacent(right), own_kind(bidirectional), lane_kind(right, driving), lane_kind(left, none), settled(right), safe_lat(leadright), safe_long(followright), safe_lat(followright), zone_at(nextzone, none), now]
+    expect: {out: [tick__active(planner), tick__want(planner, controls)], status: running, fired: [drive]}
+  - grant: [controls]
+    deliver: [tick__grant(planner, controls)]
+    expect: {status: running, fired: [decide, keep_limit, back]}
