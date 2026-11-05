@@ -1,6 +1,6 @@
 case: "lane kinds (e): a person's wish to the left and a slow lead with both sides driving lanes: the wish (change) and the pass (change_pass, either side) are enabled rules of equal prior; the sampler's seeded draw decides, as when change_reason named both sides before. This case records that draw: the wish (change); the rules' order does not decide it (checked by swapping them)"
 boundaries:
-  - world: [below_target, lead_slow, accel_ok, cross_settled(nextzone), keep_ok, adjacent(left), adjacent(right), own_kind(driving), lane_kind(left, driving), lane_kind(right, driving), change_reason(left), settled(left), settled(right), safe_long(leadleft), safe_lat(leadleft), safe_long(followleft), safe_lat(followleft), safe_long(leadright), safe_lat(leadright), safe_long(followright), safe_lat(followright), zone_at(nextzone, none), now]
+  - world: [below_target, lead_slow, accel_ok, cross_settled(nextzone), keep_ok, adjacent(left), side_clear(left), adjacent(right), side_clear(right), own_kind(driving), lane_kind(left, driving), lane_kind(right, driving), change_reason(left), settled(left), settled(right), safe_long(leadleft), safe_lat(leadleft), safe_long(followleft), safe_lat(followleft), safe_long(leadright), safe_lat(leadright), safe_long(followright), safe_lat(followright), zone_at(nextzone, none), now]
     expect: {out: [tick__active(planner), tick__want(planner, controls)], status: running, fired: [drive]}
   - grant: [controls]
     deliver: [tick__grant(planner, controls)]

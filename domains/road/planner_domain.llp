@@ -32,6 +32,7 @@ namespace planner produce (dyn).
 pred safe_long(obj) : planner.
 pred safe_lat(obj) : planner.
 pred adjacent(side) : planner.              % a same-direction lane on that side
+pred role_empty(obj) : planner.             % a role the host does not fill: nobody there it saw (no class, no safety fact; spec 20 §2)
 pred changing(side) : planner.
 pred settled(side) : planner.               % no change runs, and the ego did not leave that side lately (the host's)
 pred below_target : planner.                % the ego against what it wants: min(pace, the lane's limit, a stop wish's 0), exclusive

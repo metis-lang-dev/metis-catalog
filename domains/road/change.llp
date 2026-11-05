@@ -16,24 +16,28 @@ provenance text "the road family's lane change, the car's unit (from planner_dom
 %   change_pass   a slow lead: pass it on a DRIVING side
 %   change_aside  a slow lead and no driving side: pass it on the centre or parking lane (the pass itself, never a stay)
 %   change_back   on a lane off the route's (parking, bidirectional): back to a driving lane beside
+% side_clear(D) (surprise-kinds s-7a02c2ac, spec 20 §2, the architect's (B)): the host's verdict that the {D} side is free to
+% change into: adjacent(D) and each of its two roles (its lead, its follower) unfilled or safe by the fold (safe_long and
+% safe_lat). An unfilled role gets role_empty(R) and no safety fact (no filler); the fine facts stay for rules that name L, F.
 % A wish and a pass naming opposite sides in one tick are two enabled rules of equal prior: the sampler's draw decides
 % (as when change_reason named both sides before), not the rules' order; the case wish_against_pass records the seeded draw:
 % the wish (change) fires.
 stage progress {
   %% A person wishes me on the {D} lane, it is safe ahead and behind, and I did not just leave it: I change to it.
-  change [dyn] : $busy * $tick__grant(planner, controls) * $change_reason(D) * $settled(D) * $side_lead(D, L) * $safe_long(L) * $safe_lat(L) * $side_follow(D, F) * $safe_long(F) * $safe_lat(F) * $zone_at(nextzone, C) * $roomy(C) * go -o ().
+  change [dyn] : $busy * $tick__grant(planner, controls) * $change_reason(D) * $settled(D) * $side_clear(D) * $zone_at(nextzone, C) * $roomy(C) * go -o ().
   %% A slow lead ahead and a driving lane on my {D} side, safe ahead and behind, and I did not just leave it: I pass on it.
-  change_pass [dyn] : $busy * $tick__grant(planner, controls) * $lead_slow * $adjacent(D) * $lane_kind(D, driving) * $settled(D) * $side_lead(D, L) * $safe_long(L) * $safe_lat(L) * $side_follow(D, F) * $safe_long(F) * $safe_lat(F) * $zone_at(nextzone, C) * $roomy(C) * go -o ().
+  change_pass [dyn] : $busy * $tick__grant(planner, controls) * $lead_slow * $adjacent(D) * $lane_kind(D, driving) * $settled(D) * $side_clear(D) * $zone_at(nextzone, C) * $roomy(C) * go -o ().
   %% A slow lead ahead and no driving lane on my {E} side: I pass on the {D} lane, a {K} one, safe ahead and behind.
-  change_aside [dyn] : $busy * $tick__grant(planner, controls) * $lead_slow * $adjacent(D) * $lane_kind(D, K) * off_route(K) * other_side(D, E) * $lane_kind(E, X) * not_driving(X) * $settled(D) * $side_lead(D, L) * $safe_long(L) * $safe_lat(L) * $side_follow(D, F) * $safe_long(F) * $safe_lat(F) * $zone_at(nextzone, C) * $roomy(C) * go -o ().
+  change_aside [dyn] : $busy * $tick__grant(planner, controls) * $lead_slow * $adjacent(D) * $lane_kind(D, K) * off_route(K) * other_side(D, E) * $lane_kind(E, X) * not_driving(X) * $settled(D) * $side_clear(D) * $zone_at(nextzone, C) * $roomy(C) * go -o ().
   %% I drive on a {K} lane, off the route's, and the {D} lane beside is a driving one, safe ahead and behind: I change back to it.
-  change_back [dyn] : $busy * $tick__grant(planner, controls) * $own_kind(K) * off_route(K) * $adjacent(D) * $lane_kind(D, driving) * $settled(D) * $side_lead(D, L) * $safe_long(L) * $safe_lat(L) * $side_follow(D, F) * $safe_long(F) * $safe_lat(F) * $zone_at(nextzone, C) * $roomy(C) * go -o ().
+  change_back [dyn] : $busy * $tick__grant(planner, controls) * $own_kind(K) * off_route(K) * $adjacent(D) * $lane_kind(D, driving) * $settled(D) * $side_clear(D) * $zone_at(nextzone, C) * $roomy(C) * go -o ().
 }
 include "planner_domain.llp".
 % the host's lane kinds (road_facts.py) and their classes
 types (lkind).                              % completed by the instance (capacity.llp)
 pred own_kind(lkind) : planner.             % the kind of the ego's lane
 pred lane_kind(side, lkind) : planner.      % the kind of the lane on that side, every tick (none: no same-direction lane)
+pred side_clear(side) : planner.            % that side free to change into: adjacent, its lead and follower each unfilled or safe
 bwd off_route(lkind).                       % a lane the route does not run on: a pass may use it, a stay may not
 off_route(parking).
 off_route(bidirectional).

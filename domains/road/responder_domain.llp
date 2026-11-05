@@ -33,6 +33,7 @@ pred resp_side(obj, side, resp) : responder.
 pred xing_case(obj, xcase) : responder.
 pred xing_before(obj, xcase) : responder.
 pred resp_lon(resp) : responder.            % the fold's: the longitudinal response asked of the ego
+pred role_empty(obj) : responder.           % a role the host does not fill: nobody there it saw (no class, no safety fact; spec 20 §2)
 pred resp_lat(resp) : responder.
 pred resp_lat_left(resp) : responder.       % … the lateral one toward each side
 pred resp_lat_right(resp) : responder.

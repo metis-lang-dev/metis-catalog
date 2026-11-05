@@ -1,6 +1,6 @@
 case: "lane kinds (b'): a slow lead, a bidirectional centre lane on the left free and a driving lane on the right whose lead is not safe: no change_aside (the centre lane only when the other side is NOT a driving lane, not when it is busy); no change_pass either: the ego follows until the driving side is safe (nina's review)"
 boundaries:
-  - world: [below_target, lead_slow, accel_ok, cross_settled(nextzone), keep_ok, adjacent(left), adjacent(right), own_kind(driving), lane_kind(left, bidirectional), lane_kind(right, driving), settled(left), settled(right), safe_long(leadleft), safe_lat(leadleft), safe_long(followleft), safe_lat(followleft), safe_lat(leadright), safe_long(followright), safe_lat(followright), zone_at(nextzone, none), now]
+  - world: [below_target, lead_slow, accel_ok, cross_settled(nextzone), keep_ok, adjacent(left), side_clear(left), adjacent(right), own_kind(driving), lane_kind(left, bidirectional), lane_kind(right, driving), settled(left), settled(right), safe_long(leadleft), safe_lat(leadleft), safe_long(followleft), safe_lat(followleft), safe_lat(leadright), safe_long(followright), safe_lat(followright), zone_at(nextzone, none), now]
     expect: {out: [tick__active(planner), tick__want(planner, controls)], status: running, fired: [drive]}
   - grant: [controls]
     deliver: [tick__grant(planner, controls)]

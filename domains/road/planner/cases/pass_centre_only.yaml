@@ -1,6 +1,6 @@
 case: "lane kinds (a): a slow lead, a one-sided road whose only side is a bidirectional centre lane (Town03 #127's 65_2): no driving side, so the pass takes the centre lane (change_aside), the pass itself"
 boundaries:
-  - world: [below_target, lead_slow, accel_ok, cross_settled(nextzone), keep_ok, adjacent(left), own_kind(driving), lane_kind(left, bidirectional), lane_kind(right, none), settled(left), safe_long(leadleft), safe_lat(leadleft), safe_long(followleft), safe_lat(followleft), zone_at(nextzone, none), now]
+  - world: [below_target, lead_slow, accel_ok, cross_settled(nextzone), keep_ok, adjacent(left), side_clear(left), own_kind(driving), lane_kind(left, bidirectional), lane_kind(right, none), settled(left), safe_long(leadleft), safe_lat(leadleft), safe_long(followleft), safe_lat(followleft), zone_at(nextzone, none), now]
     expect: {out: [tick__active(planner), tick__want(planner, controls)], status: running, fired: [drive]}
   - grant: [controls]
     deliver: [tick__grant(planner, controls)]

@@ -1,0 +1,7 @@
+case: "spec 20 §2 (surprise-kinds s-7a02c2ac): a slow lead, the driving lane on the left EMPTY: its roles unfilled (role_empty, no safety fact: no filler), the host's side_clear(left): the planner passes there (change_pass)"
+boundaries:
+  - world: [below_target, lead_slow, accel_ok, cross_settled(nextzone), keep_ok, adjacent(left), side_clear(left), role_empty(leadleft), role_empty(followleft), own_kind(driving), lane_kind(left, driving), lane_kind(right, none), settled(left), zone_at(nextzone, none), now]
+    expect: {out: [tick__active(planner), tick__want(planner, controls)], status: running, fired: [drive]}
+  - grant: [controls]
+    deliver: [tick__grant(planner, controls)]
+    expect: {status: running, fired: [decide, change_pass, back]}
