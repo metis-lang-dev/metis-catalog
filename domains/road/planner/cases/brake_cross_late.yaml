@@ -1,0 +1,7 @@
+case: "rule 5 (road-scenarios s-e23be780, record 503be4): the zone ahead is the ego's, a car at it still moves, and the ego is late for it (no cross_overlap yet): the planner eases off (brake_cross_late) rather than drive on at its pace"
+boundaries:
+  - world: [below_target, lead_ok, accel_ok, keep_ok, cross_unsettled(nextzone), late(nextzone), zprio(nextzone, ego), zone_at(nextzone, near), now]
+    expect: {out: [tick__active(planner), tick__want(planner, controls)], status: running, fired: [drive]}
+  - grant: [controls]
+    deliver: [tick__grant(planner, controls)]
+    expect: {status: running, fired: [brake_cross_late]}

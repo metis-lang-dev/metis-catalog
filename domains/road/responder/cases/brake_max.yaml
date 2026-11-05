@@ -1,0 +1,9 @@
+case: "rule 5 escalated (road-scenarios s-e23be780): a crosser that does not yield and only brake_max stops the ego short: the responder brakes at brake_max as the fold asks, and stands down when nothing is asked"
+boundaries:
+  - world: [resp_lon(brake_max), resp_lat(none), resp_lat_left(none), resp_lat_right(none), dangerous(a1), resp(a1, brake_max), now]
+    expect: {out: [tick__active(responder), tick__want(responder, controls)], status: running, fired: [guard]}
+  - grant: [controls]
+    deliver: [tick__grant(responder, controls)]
+    expect: {out: [], status: running, fired: [brake_lon]}
+  - world: [resp_lon(none), resp_lat(none), resp_lat_left(none), resp_lat_right(none), safe_long(a1), safe_lat(a1), now]
+    expect: {out: [tick__done(responder), tick__released(responder, controls, g0)], status: success, fired: [stand_down, released]}

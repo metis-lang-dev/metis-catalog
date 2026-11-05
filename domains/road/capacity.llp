@@ -9,7 +9,7 @@ type obj {lead follower leadleft followleft leadright followright a1 a2 a3 vru1}
 type side {left right}.
 type lkind {driving parking bidirectional none}.  % a lane's OpenDRIVE kind as the host's net keeps it; none: no same-direction lane
 type constel {same_dir opp_dir xing_ego_prio xing_obj_prio xing_same_prio unstructured not_relevant}.
-type resp {none brake_min_correct brake_min}.
+type resp {none brake_min_correct brake_min brake_max}.   % brake_max: rule 5 escalated, only the hardest stops short (road-scenarios s-e23be780)
 type before {none long lat both}.
 type xcase {able_to_stop safe_long no_overlap none}.
 type zone {nextzone}.

@@ -115,6 +115,8 @@ stage safety {
   inch_hidden [dyn] : $busy * $tick__grant(planner, controls) * $zprio(nextzone, P) * $yields_to(P) * $conflict(nextzone) * $road_hidden(nextzone) * $inch_room(nextzone) * now -o ().
   %% A car at the zone ahead has not shown it yields, and we would be there together: I ease off, {R}, so I can still stop short.
   brake_cross [dyn] : $busy * $tick__grant(planner, controls) * $cross_overlap(nextzone) * $soft(R) * now -o ().
+  %% The zone ahead is mine, but a car at it has not shown it yields and I am late for it: I ease off, {R}, rather than hold on.
+  brake_cross_late [dyn] : $busy * $tick__grant(planner, controls) * $cross_unsettled(nextzone) * $late(nextzone) * $zprio(nextzone, ego) * $soft(R) * now -o ().
   %% I cannot see my own way as far as I would need to stop: I ease off, {R}.
   brake_unseen [dyn] : $busy * $tick__grant(planner, controls) * $unseen_ahead * $soft(R) * now -o ().
   %% A walker is at the crossing ahead: I stop before it.
