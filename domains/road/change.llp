@@ -43,7 +43,8 @@ include "planner_domain.llp".
 %                          (oncoming_clear: the host's verdict, the lead and follower of that lane included; busy or unseen:
 %                          nothing fires, the ego waits behind it); back home by change_back (own_kind(oncoming), off route)
 %   change_emergency_right 20261105T051440-13b2f9: an emergency vehicle behind me: I move over, to the right first (keep right);
-%   change_emergency_left  to the left only when no driving lane is on my right. A yield, so a SAFETY block: it comes before any
+%   change_emergency_left  to the left when no driving lane is on my right, or (change_emergency_left_busy) when the right one is
+%                          busy (side_busy: the host's complement of side_clear, the architect's ruling). A yield, so a SAFETY block: it comes before any
 %                          progress (it takes `now`, the beat's plan is the move). The side is bound through other_side, so the
 %                          command carries D. No lane free: no rule, the ego holds its lane.
 stage safety {
@@ -51,12 +52,15 @@ stage safety {
   change_emergency_right [dyn] : $busy * $tick__grant(planner, controls) * $emergency(follower) * other_side(D, left) * $adjacent(D) * $lane_kind(D, driving) * $settled(D) * $side_clear(D) * $zone_at(nextzone, C) * $roomy(C) * now -o ().
   %% An emergency vehicle comes up behind me, no driving lane on my right, and the {D} lane on my left is a driving one, free: I move over for it.
   change_emergency_left [dyn] : $busy * $tick__grant(planner, controls) * $emergency(follower) * other_side(D, right) * $lane_kind(right, X) * not_driving(X) * $adjacent(D) * $lane_kind(D, driving) * $settled(D) * $side_clear(D) * $zone_at(nextzone, C) * $roomy(C) * now -o ().
+  %% An emergency vehicle comes up behind me, the lane on my right is busy, and the {D} lane on my left is a driving one, free: I move over for it.
+  change_emergency_left_busy [dyn] : $busy * $tick__grant(planner, controls) * $emergency(follower) * other_side(D, right) * $side_busy(right) * $adjacent(D) * $lane_kind(D, driving) * $settled(D) * $side_clear(D) * $zone_at(nextzone, C) * $roomy(C) * now -o ().
 }
 % the host's lane kinds (road_facts.py) and their classes
 types (lkind).                              % completed by the instance (capacity.llp)
 pred own_kind(lkind) : planner.             % the kind of the ego's lane
 pred lane_kind(side, lkind) : planner.      % the kind of the lane on that side, every tick (none: no same-direction lane)
 pred side_clear(side) : planner.            % that side free to change into: adjacent, its lead and follower each unfilled or safe
+pred side_busy(side) : planner.             % its complement: an adjacent side NOT free to change into (stated where side_clear is not; 13b2f9)
 bwd off_route(lkind).                       % a lane the route does not run on: a pass may use it, a stay may not
 off_route(parking).
 off_route(bidirectional).

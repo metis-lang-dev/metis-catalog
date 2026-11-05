@@ -47,7 +47,8 @@ pred lead_standing : planner.               % the lead stands within reach, not 
 pred oncoming(side) : planner.              % the lane on that side is the opposite direction's driving lane (lane_kind(D, none) beside it) (668e45)
 pred oncoming_clear(side) : planner.        % that oncoming lane free and seen for the whole pass (the host's arithmetic; unseen is busy) (668e45)
 pred oncoming_busy(side) : planner.
-family oncoming_room (oncoming_clear oncoming_busy).   % stated only where oncoming(D) holds: exclusive per such side, the host's
+% oncoming_clear(D) and oncoming_busy(D): exactly one of the two for each side where oncoming(D) holds, the host's; not declared as a
+% family (the architect, 2026-11-05): T3's count is per tick and unconditional, and a side-conditional family is an open spec item
 pred emergency(obj) : planner.              % the role's mover is an emergency vehicle with its lights on: a class, never a belief (13b2f9)
 pred lead_ok : planner.
 pred accel_ok : planner.                    % a plan of full acceleration keeps the lead at a safe distance

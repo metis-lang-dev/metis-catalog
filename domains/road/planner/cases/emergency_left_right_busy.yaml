@@ -1,0 +1,7 @@
+case: "the gap records (j), 13b2f9: an emergency vehicle behind me, the driving lane on my right busy (side_busy), the driving lane on my left free: the planner moves over to the left (change_emergency_left_busy)"
+boundaries:
+  - world: [at_target, lead_ok, keep_ok, cross_settled(nextzone), emergency(follower), adjacent(left), side_clear(left), adjacent(right), side_busy(right), own_kind(driving), lane_kind(left, driving), lane_kind(right, driving), settled(left), settled(right), zone_at(nextzone, none), now]
+    expect: {out: [tick__active(planner), tick__want(planner, controls)], status: running, fired: [drive]}
+  - grant: [controls]
+    deliver: [tick__grant(planner, controls)]
+    expect: {status: running, fired: [change_emergency_left_busy]}
