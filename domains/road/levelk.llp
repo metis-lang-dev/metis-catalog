@@ -16,38 +16,41 @@ provenance text "the road family's game at an unsettled zone: level-k reasoning 
 types (move klevel blevel).                 % completed by the instance (capacity.llp): move {go hold yield}, klevel {l0 l1 l2}, blevel {low mid high}
 % the host's tables (semantic_world/levelk.py), stated per crosser bound to a role at the zone, every tick, where by_game holds
 pred myopic(obj, move) : planner.           % the other's level-0 move: its best move ignoring the ego's reaction
-pred ego_myopic(move) : planner.            % the ego's level-0 move
+pred ego_myopic(obj, move) : planner.       % ego_myopic(O, E): the ego's level-0 move against O alone (the game is pairwise)
 pred reply(obj, move, move) : planner.      % reply(O, E, M): the other's best move M if the ego plays E (one step)
-pred ego_reply(move, move) : planner.       % ego_reply(M, E): the ego's best move E if the other plays M (one step)
+pred ego_reply(obj, move, move) : planner.  % ego_reply(O, M, E): the ego's best move E if O plays M (one step)
 pred level_belief(obj, klevel, blevel) : planner.   % the belief that the other reasons at level k, quantised (spec 16 level port)
 pred believed(obj, klevel) : planner.       % the level the ego believes most (one per crosser)
-pred by_rule(zone) : planner.               % the zone's priority is settled by a rule the other follows: planner_domain's yields decide
-pred by_game(zone) : planner.               % the rule is silent, or the other does not follow it: these rules decide
-family zone_game (by_rule by_game).         % the host's exclusive reading of the zone ahead (spec/00 §5a), stated where a zone is
 stage safety {
   %% The zone ahead is nobody's by rule, a car comes, and a driver who looks no further than its own way keeps coming: I yield.
-  yield_game_l0 [dyn] : $busy * $tick__grant(planner, controls) * $by_game(nextzone) * $zone_at(nextzone, C) * $closing_in(C) * $holder(nextzone, O) * $believed(O, l0) * $myopic(O, go) * now -o ().
+  yield_game_l0 [dyn] : $busy * $tick__grant(planner, controls) * $by_game(nextzone) * $zone_at(nextzone, C) * $closing_in(C) * $crosser(nextzone, O) * $believed(O, l0) * $myopic(O, go) * now -o ().
   %% The zone ahead is nobody's by rule, a car comes, and a driver who expects me to drive as I would alone keeps coming: I yield.
-  yield_game_l1 [dyn] : $busy * $tick__grant(planner, controls) * $by_game(nextzone) * $zone_at(nextzone, C) * $closing_in(C) * $holder(nextzone, O) * $believed(O, l1) * $ego_myopic(E) * $reply(O, E, go) * now -o ().
+  yield_game_l1 [dyn] : $busy * $tick__grant(planner, controls) * $by_game(nextzone) * $zone_at(nextzone, C) * $closing_in(C) * $crosser(nextzone, O) * $believed(O, l1) * $ego_myopic(O, E) * $reply(O, E, go) * now -o ().
   %% The zone ahead is nobody's by rule, a car comes, and a driver who expects me to answer its own first move keeps coming: I yield.
-  yield_game_l2 [dyn] : $busy * $tick__grant(planner, controls) * $by_game(nextzone) * $zone_at(nextzone, C) * $closing_in(C) * $holder(nextzone, O) * $believed(O, l2) * $myopic(O, M) * $ego_reply(M, E) * $reply(O, E, go) * now -o ().
+  yield_game_l2 [dyn] : $busy * $tick__grant(planner, controls) * $by_game(nextzone) * $zone_at(nextzone, C) * $closing_in(C) * $crosser(nextzone, O) * $believed(O, l2) * $myopic(O, M) * $ego_reply(O, M, E) * $reply(O, E, go) * now -o ().
 }
 stage progress {
   %% The zone ahead is nobody's by rule, and the driver I read as looking no further than its own way yields to me: I go on.
-  go_game_l0 [dyn] : $busy * $tick__grant(planner, controls) * $by_game(nextzone) * $holder(nextzone, O) * $believed(O, l0) * $myopic(O, yield) * $below_target * $lead_ok * $accel_ok * go -o ().
+  go_game_l0 [dyn] : $busy * $tick__grant(planner, controls) * $by_game(nextzone) * $crosser(nextzone, O) * $believed(O, l0) * $myopic(O, yield) * $below_target * $lead_ok * $accel_ok * go -o ().
   %% The zone ahead is nobody's by rule, and the driver I read as expecting me to drive as I would alone yields to me: I go on.
-  go_game_l1 [dyn] : $busy * $tick__grant(planner, controls) * $by_game(nextzone) * $holder(nextzone, O) * $believed(O, l1) * $ego_myopic(E) * $reply(O, E, yield) * $below_target * $lead_ok * $accel_ok * go -o ().
+  go_game_l1 [dyn] : $busy * $tick__grant(planner, controls) * $by_game(nextzone) * $crosser(nextzone, O) * $believed(O, l1) * $ego_myopic(O, E) * $reply(O, E, yield) * $below_target * $lead_ok * $accel_ok * go -o ().
   %% The zone ahead is nobody's by rule, and the driver I read as expecting me to answer its first move yields to me: I go on.
-  go_game_l2 [dyn] : $busy * $tick__grant(planner, controls) * $by_game(nextzone) * $holder(nextzone, O) * $believed(O, l2) * $myopic(O, M) * $ego_reply(M, E) * $reply(O, E, yield) * $below_target * $lead_ok * $accel_ok * go -o ().
+  go_game_l2 [dyn] : $busy * $tick__grant(planner, controls) * $by_game(nextzone) * $crosser(nextzone, O) * $believed(O, l2) * $myopic(O, M) * $ego_reply(O, M, E) * $reply(O, E, yield) * $below_target * $lead_ok * $accel_ok * go -o ().
   %% The zone ahead is nobody's by rule, and the driver I read as looking no further than its own way holds: I keep my speed and watch.
-  keep_game_l0 [dyn] : $busy * $tick__grant(planner, controls) * $by_game(nextzone) * $holder(nextzone, O) * $believed(O, l0) * $myopic(O, hold) * $keep_ok * go -o ().
+  keep_game_l0 [dyn] : $busy * $tick__grant(planner, controls) * $by_game(nextzone) * $crosser(nextzone, O) * $believed(O, l0) * $myopic(O, hold) * $keep_ok * go -o ().
   %% The zone ahead is nobody's by rule, and the driver I read as expecting me to drive as I would alone holds: I keep my speed and watch.
-  keep_game_l1 [dyn] : $busy * $tick__grant(planner, controls) * $by_game(nextzone) * $holder(nextzone, O) * $believed(O, l1) * $ego_myopic(E) * $reply(O, E, hold) * $keep_ok * go -o ().
+  keep_game_l1 [dyn] : $busy * $tick__grant(planner, controls) * $by_game(nextzone) * $crosser(nextzone, O) * $believed(O, l1) * $ego_myopic(O, E) * $reply(O, E, hold) * $keep_ok * go -o ().
   %% The zone ahead is nobody's by rule, and the driver I read as expecting me to answer its first move holds: I keep my speed and watch.
-  keep_game_l2 [dyn] : $busy * $tick__grant(planner, controls) * $by_game(nextzone) * $holder(nextzone, O) * $believed(O, l2) * $myopic(O, M) * $ego_reply(M, E) * $reply(O, E, hold) * $keep_ok * go -o ().
+  keep_game_l2 [dyn] : $busy * $tick__grant(planner, controls) * $by_game(nextzone) * $crosser(nextzone, O) * $believed(O, l2) * $myopic(O, M) * $ego_reply(O, M, E) * $reply(O, E, hold) * $keep_ok * go -o ().
 }
-include "planner_domain.llp".
-% Gating (spec/18): planner_domain.llp's yield_zone reads $by_rule(nextzone) since this unit exists, so a zone is read by the rule OR
+% No include here: the member's program brings planner_domain.llp first (the car through change.llp, a chair directly) and this
+% unit after it, as planner/planner.llp does; a second include of the base would name every rule twice (spec/18 §include).
+% The partner is the CROSSER (approaching, not yet inside: holder names the one inside); the ego's tables are pairwise (against O
+% alone), so two crossers are two chains: a yield in the safety stage wins over any go, two progress reads compete for the one
+% go (the weight form below orders them). Level 0 of the other treats the ego as STANDING (Li et al.: others as static obstacles).
+% The belief: believed(O, K) is the argmax, level_belief(O, K, L) the quantised posterior, both stated by the host this round;
+% the spec 16 manifest form (beliefs: over a weight port, levels: from it) is the second form's declaration and lands with it.
+% Gating (spec/18): planner_domain.llp's yield_zone and keep_cross read $by_rule(nextzone) since this unit exists, so a zone is read by the rule OR
 % by the game, never both; where the belief is spread (no level above mid) the host states by_rule and today's law holds. A second
 % form draws the decision from the belief instead of its argmax: the go_game rules carry weight ports reading level_belief (spec 16
 % §2, spec 19 §7.3) and the sampler draws proceed / yield in proportion, the expected-reward choice in the mass-action semantics;

@@ -1,0 +1,7 @@
+case: "two crossers, both yield at their believed levels: the planner goes on once"
+boundaries:
+  - world: [below_target, lead_ok, accel_ok, keep_ok, cross_unsettled(nextzone), conflict(nextzone), zbusy(nextzone), zprio(nextzone, same), can_stop(nextzone), zone_at(nextzone, near), by_game(nextzone), crosser(nextzone, a1), crosser(nextzone, a2), believed(a1, l0), myopic(a1, yield), believed(a2, l0), myopic(a2, yield), now]
+    expect: {out: [tick__active(planner), tick__want(planner, controls)], status: running, fired: [drive]}
+  - grant: [controls]
+    deliver: [tick__grant(planner, controls)]
+    expect: {status: running, fired: [decide, go_game_l0, back]}

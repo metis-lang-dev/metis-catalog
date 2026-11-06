@@ -1,0 +1,7 @@
+case: "nobody's zone by rule, a crosser I read as answering my reply to its first move keeps coming: the planner yields"
+boundaries:
+  - world: [below_target, lead_ok, accel_ok, keep_ok, cross_unsettled(nextzone), conflict(nextzone), zbusy(nextzone), zprio(nextzone, same), can_stop(nextzone), zone_at(nextzone, near), by_game(nextzone), crosser(nextzone, a1), believed(a1, l2), myopic(a1, go), ego_reply(a1, go, yield), reply(a1, yield, go), now]
+    expect: {out: [tick__active(planner), tick__want(planner, controls)], status: running, fired: [drive]}
+  - grant: [controls]
+    deliver: [tick__grant(planner, controls)]
+    expect: {status: running, fired: [yield_game_l2]}

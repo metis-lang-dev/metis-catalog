@@ -79,7 +79,11 @@ pred conflict(zone) : planner.              % crossing axes
 pred share(zone) : planner.                 % a merge's
 pred turn(zone) : planner.                  % the zipper: the ego's turn
 pred wait_turn(zone) : planner.
-pred holder(zone, obj) : planner.
+pred holder(zone, obj) : planner.           % the one INSIDE the zone (zone_roles)
+pred crosser(zone, obj) : planner.          % a mover on a crossing or merging lane of the zone, approaching within its reach, not yet inside: the game's partner (levelk.llp)
+pred by_rule(zone) : planner.               % the zone's priority is settled by a rule the others follow: yield_zone and keep_cross decide (the default where no game is played)
+pred by_game(zone) : planner.               % the rule is silent, or a crosser does not follow it: levelk.llp's rules decide the commitment
+family zone_game (by_rule by_game).         % the host's exclusive reading of the zone ahead (spec/00 §5a), stated wherever a zone is, the game on or off
 pred crossing(obj, walk) : planner.         % the walker at the crossing ahead
 pred now : planner.
 % the planner's own
@@ -120,7 +124,7 @@ stage safety {
   %% I am there.
   arrive [dyn] : busy * trip * $at_dest -o idle * tick__done(planner) * tick__release(planner, controls).
   %% The zone ahead is not mine to take and someone comes: I stop before its line.
-  yield_zone [dyn] : $busy * $tick__grant(planner, controls) * $zone_at(nextzone, C) * $closing_in(C) * $zprio(nextzone, P) * $yields_to(P) * $conflict(nextzone) * $zbusy(nextzone) * now -o ().
+  yield_zone [dyn] : $busy * $tick__grant(planner, controls) * $by_rule(nextzone) * $zone_at(nextzone, C) * $closing_in(C) * $zprio(nextzone, P) * $yields_to(P) * $conflict(nextzone) * $zbusy(nextzone) * now -o ().
   %% The zone ahead is not mine to take, I cannot see its road, and I am too fast or have no room to go on: I stop before it.
   yield_hidden [dyn] : $busy * $tick__grant(planner, controls) * $zone_at(nextzone, C) * $closing_in(C) * $zprio(nextzone, P) * $yields_to(P) * $conflict(nextzone) * $road_hidden(nextzone) * $inch_no(nextzone) * now -o ().
   %% I still cannot see that road, and there is room: I go on at a walk to where I can; never up to the crossing lane.
@@ -142,7 +146,7 @@ stage progress {
   %% Below what I want, nothing slow ahead, room before the lead: I speed up.
   accel [dyn] : $busy * $tick__grant(planner, controls) * $below_target * $lead_ok * $accel_ok * $cross_settled(nextzone) * go -o ().
   %% Below what I want, but a car at the zone ahead has not shown it yields: I keep my speed until it does.
-  keep_cross [dyn] : $busy * $tick__grant(planner, controls) * $below_target * $lead_ok * $accel_ok * $cross_unsettled(nextzone) * go -o ().
+  keep_cross [dyn] : $busy * $tick__grant(planner, controls) * $by_rule(nextzone) * $below_target * $lead_ok * $accel_ok * $cross_unsettled(nextzone) * go -o ().
   %% Below what I want, but no room to speed up before the lead: I keep my speed.
   keep_gap [dyn] : $busy * $tick__grant(planner, controls) * $below_target * $lead_ok * $accel_no * $keep_ok * go -o ().
   %% At what I want: I keep my speed.
