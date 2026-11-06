@@ -47,6 +47,8 @@ pred lead_standing : planner.               % the lead stands within reach, not 
 pred oncoming(side) : planner.              % the lane on that side is the opposite direction's driving lane (lane_kind(D, none) beside it) (668e45)
 pred oncoming_clear(side) : planner.        % that oncoming lane free and seen for the whole pass (the host's arithmetic; unseen is busy) (668e45)
 pred oncoming_busy(side) : planner.
+pred pass_blocked : planner.                % on the oncoming lane the pass cannot complete: not past the car (side_busy(right)), and the car
+                                            % no longer stands or the oncoming lane ahead turns busy (the host's verdict; Flensburg-10_1)
 % oncoming_clear(D) and oncoming_busy(D): exactly one of the two for each side where oncoming(D) holds, the host's; not declared as a
 % family (the architect, 2026-11-05): T3's count is per tick and unconditional, and a side-conditional family is an open spec item
 pred emergency(obj) : planner.              % the role's mover is an emergency vehicle with its lights on: a class, never a belief (13b2f9)

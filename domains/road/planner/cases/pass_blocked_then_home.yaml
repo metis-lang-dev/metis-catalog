@@ -1,0 +1,7 @@
+case: "cr-harvest (Flensburg-10_1_T-1): the pass was blocked and the ego dropped behind the car: the route lane beside is free (side_clear(right); pass_blocked is no longer stated, since by the host's contract it implies side_busy(right)): the planner changes back to it (change_home)"
+boundaries:
+  - world: [at_target, lead_ok, keep_ok, accel_ok, cross_settled(nextzone), adjacent(right), side_clear(right), own_kind(oncoming), lane_kind(right, driving), lane_kind(left, none), settled(right), settled(left), zone_at(nextzone, far), now]
+    expect: {out: [tick__active(planner), tick__want(planner, controls)], status: running, fired: [drive]}
+  - grant: [controls]
+    deliver: [tick__grant(planner, controls)]
+    expect: {status: running, fired: [change_home]}

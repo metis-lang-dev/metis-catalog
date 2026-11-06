@@ -51,6 +51,9 @@ include "planner_domain.llp".
 %                          SAFETY rule (StVO 5(4): back to the right as soon as possible). As progress (change_back) it was
 %                          one draw against keep_limit (at_target, keep_ok: w 1 each) and the ego stayed on the oncoming lane
 %                          into the next car. No roomy(C): near a junction the stay is the hazard, not the change
+%   brake_pass_blocked     cr-harvest s-f4e297da (Flensburg-10_1_T-1): on the oncoming lane a pass that cannot complete (pass_blocked:
+%                          not past the car, and it no longer stands or the lane ahead turned busy): ease off to drop behind it; the
+%                          return is change_home once side_clear(right) holds; oncoming traffic stays the responder's (opp_dir)
 %   change_emergency_right 20261105T051440-13b2f9: an emergency vehicle behind me: I move over, to the right first (keep right);
 %   change_emergency_left  to the left when no driving lane is on my right, or (change_emergency_left_busy) when the right one is
 %                          busy (side_busy: the host's complement of side_clear, the architect's ruling). A yield, so a SAFETY block: it comes before any
@@ -65,6 +68,8 @@ stage safety {
   change_emergency_left_busy [dyn] : $busy * $tick__grant(planner, controls) * $emergency(follower) * other_side(D, right) * $side_busy(right) * $adjacent(D) * $lane_kind(D, driving) * $settled(D) * $side_clear(D) * $zone_at(nextzone, C) * $roomy(C) * now -o ().
   %% I drive on the oncoming lane, lent for a pass, and my route lane on the {D} side is a driving one, safe ahead and behind: I change back to it now.
   change_home [dyn] : $busy * $tick__grant(planner, controls) * $own_kind(oncoming) * $adjacent(D) * $lane_kind(D, driving) * $settled(D) * $side_clear(D) * now -o ().
+  %% I am on the oncoming lane and my pass cannot complete: I ease off, {R}, to drop behind the car.
+  brake_pass_blocked [dyn] : $busy * $tick__grant(planner, controls) * $own_kind(oncoming) * $pass_blocked * $soft(R) * now -o ().
 }
 % the host's lane kinds (road_facts.py) and their classes
 types (lkind).                              % completed by the instance (capacity.llp)

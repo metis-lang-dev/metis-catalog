@@ -1,0 +1,7 @@
+case: "cr-harvest (Flensburg-10_1_T-1): on the oncoming lane, not past the car (side_busy(right)) and the pass cannot complete (pass_blocked: the car no longer stands): the planner eases off to drop behind it (brake_pass_blocked, a safety rule)"
+boundaries:
+  - world: [at_target, lead_ok, keep_ok, accel_ok, cross_settled(nextzone), adjacent(right), side_busy(right), own_kind(oncoming), lane_kind(right, driving), lane_kind(left, none), settled(right), settled(left), zone_at(nextzone, far), pass_blocked, now]
+    expect: {out: [tick__active(planner), tick__want(planner, controls)], status: running, fired: [drive]}
+  - grant: [controls]
+    deliver: [tick__grant(planner, controls)]
+    expect: {status: running, fired: [brake_pass_blocked]}
