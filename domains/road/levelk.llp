@@ -1,0 +1,54 @@
+% levelk — the game at an unsettled zone, a unit of the road family a car's OR a chair's planner includes (levelk-intersection
+% s-5be9291b; the design: metis-worlds road/docs/LEVELK.md; the idea: Li, Kolmanovsky, Girard, Yildiz 2018 and the TUM-2024
+% CommonRoad planner's interactive module: level-k reasoning, bounded recursion, NOT a Nash equilibrium). Where the rule settles
+% who goes (a sign, a light, right-before-left) and the other follows it, planner_domain.llp's yields decide (by_rule); where the
+% rule is silent or the other does not follow it (by_game), these rules decide the planner's COMMITMENT: yield, go on, or keep
+% and watch, from the move the other is predicted to make at the level the ego believes it reasons at. The responder's proper
+% response and rule 5's bounds are untouched: the game decides assertiveness inside the law's safe set, never the response.
+% The host (semantic_world/levelk.py) plays the one-step game per crosser and states the TABLES (rule 2: geometry and reward in
+% the host, classes in the rules): the other's myopic move, the ego's, the other's best reply to each ego move, the ego's best
+% reply to each of the other's moves, and the belief over the other's level (spec 16: a categorical port, updated by the host).
+% The LEVELS are the law's: level 0 of the other is its myopic move; level 1 its reply to the ego's myopic move; level 2 its reply
+% to the ego's reply to its myopic move. Each is a chain of reads whose bindings flow through the premises, as change.llp binds
+% K through $lane_kind(D, K) * off_route(K). A deeper level would be one more premise.
+catalog levelk 1.
+provenance text "the road family's game at an unsettled zone: level-k reasoning as premise chains over the host's reply tables" "2026-11-06".
+types (move klevel blevel).                 % completed by the instance (capacity.llp): move {go hold yield}, klevel {l0 l1 l2}, blevel {low mid high}
+% the host's tables (semantic_world/levelk.py), stated per crosser bound to a role at the zone, every tick, where by_game holds
+pred myopic(obj, move) : planner.           % the other's level-0 move: its best move ignoring the ego's reaction
+pred ego_myopic(move) : planner.            % the ego's level-0 move
+pred reply(obj, move, move) : planner.      % reply(O, E, M): the other's best move M if the ego plays E (one step)
+pred ego_reply(move, move) : planner.       % ego_reply(M, E): the ego's best move E if the other plays M (one step)
+pred level_belief(obj, klevel, blevel) : planner.   % the belief that the other reasons at level k, quantised (spec 16 level port)
+pred believed(obj, klevel) : planner.       % the level the ego believes most (one per crosser)
+pred by_rule(zone) : planner.               % the zone's priority is settled by a rule the other follows: planner_domain's yields decide
+pred by_game(zone) : planner.               % the rule is silent, or the other does not follow it: these rules decide
+family zone_game (by_rule by_game).         % the host's exclusive reading of the zone ahead (spec/00 §5a), stated where a zone is
+stage safety {
+  %% The zone ahead is nobody's by rule, a car comes, and a driver who looks no further than its own way keeps coming: I yield.
+  yield_game_l0 [dyn] : $busy * $tick__grant(planner, controls) * $by_game(nextzone) * $zone_at(nextzone, C) * $closing_in(C) * $holder(nextzone, O) * $believed(O, l0) * $myopic(O, go) * now -o ().
+  %% The zone ahead is nobody's by rule, a car comes, and a driver who expects me to drive as I would alone keeps coming: I yield.
+  yield_game_l1 [dyn] : $busy * $tick__grant(planner, controls) * $by_game(nextzone) * $zone_at(nextzone, C) * $closing_in(C) * $holder(nextzone, O) * $believed(O, l1) * $ego_myopic(E) * $reply(O, E, go) * now -o ().
+  %% The zone ahead is nobody's by rule, a car comes, and a driver who expects me to answer its own first move keeps coming: I yield.
+  yield_game_l2 [dyn] : $busy * $tick__grant(planner, controls) * $by_game(nextzone) * $zone_at(nextzone, C) * $closing_in(C) * $holder(nextzone, O) * $believed(O, l2) * $myopic(O, M) * $ego_reply(M, E) * $reply(O, E, go) * now -o ().
+}
+stage progress {
+  %% The zone ahead is nobody's by rule, and the driver I read as looking no further than its own way yields to me: I go on.
+  go_game_l0 [dyn] : $busy * $tick__grant(planner, controls) * $by_game(nextzone) * $holder(nextzone, O) * $believed(O, l0) * $myopic(O, yield) * $below_target * $lead_ok * $accel_ok * go -o ().
+  %% The zone ahead is nobody's by rule, and the driver I read as expecting me to drive as I would alone yields to me: I go on.
+  go_game_l1 [dyn] : $busy * $tick__grant(planner, controls) * $by_game(nextzone) * $holder(nextzone, O) * $believed(O, l1) * $ego_myopic(E) * $reply(O, E, yield) * $below_target * $lead_ok * $accel_ok * go -o ().
+  %% The zone ahead is nobody's by rule, and the driver I read as expecting me to answer its first move yields to me: I go on.
+  go_game_l2 [dyn] : $busy * $tick__grant(planner, controls) * $by_game(nextzone) * $holder(nextzone, O) * $believed(O, l2) * $myopic(O, M) * $ego_reply(M, E) * $reply(O, E, yield) * $below_target * $lead_ok * $accel_ok * go -o ().
+  %% The zone ahead is nobody's by rule, and the driver I read as looking no further than its own way holds: I keep my speed and watch.
+  keep_game_l0 [dyn] : $busy * $tick__grant(planner, controls) * $by_game(nextzone) * $holder(nextzone, O) * $believed(O, l0) * $myopic(O, hold) * $keep_ok * go -o ().
+  %% The zone ahead is nobody's by rule, and the driver I read as expecting me to drive as I would alone holds: I keep my speed and watch.
+  keep_game_l1 [dyn] : $busy * $tick__grant(planner, controls) * $by_game(nextzone) * $holder(nextzone, O) * $believed(O, l1) * $ego_myopic(E) * $reply(O, E, hold) * $keep_ok * go -o ().
+  %% The zone ahead is nobody's by rule, and the driver I read as expecting me to answer its first move holds: I keep my speed and watch.
+  keep_game_l2 [dyn] : $busy * $tick__grant(planner, controls) * $by_game(nextzone) * $holder(nextzone, O) * $believed(O, l2) * $myopic(O, M) * $ego_reply(M, E) * $reply(O, E, hold) * $keep_ok * go -o ().
+}
+include "planner_domain.llp".
+% Gating (spec/18): planner_domain.llp's yield_zone reads $by_rule(nextzone) since this unit exists, so a zone is read by the rule OR
+% by the game, never both; where the belief is spread (no level above mid) the host states by_rule and today's law holds. A second
+% form draws the decision from the belief instead of its argmax: the go_game rules carry weight ports reading level_belief (spec 16
+% §2, spec 19 §7.3) and the sampler draws proceed / yield in proportion, the expected-reward choice in the mass-action semantics;
+% one manifest change when the first form has run.

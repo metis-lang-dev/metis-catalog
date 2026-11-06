@@ -19,3 +19,6 @@ type prio {ego obj same}.
 type walk {near on}.
 type unst {none continue drive_away brake}.      % the free-space response (situation.RESP_UNST)
 type sector {s0 s1 s2 s3 s4 s5 s6 s7}.           % the drive-away heading, quantised (situation.SECTORS)
+type move {go hold yield}.                      % the game's moves at an unsettled zone (levelk.llp): along the lane only
+type klevel {l0 l1 l2}.                          % the level a driver reasons at (levelk.llp; Li et al. 2018)
+type blevel {low mid high}.                      % a belief's quantised level (spec 16; levelk.llp's level_belief)
