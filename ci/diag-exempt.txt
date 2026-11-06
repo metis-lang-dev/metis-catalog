@@ -3,3 +3,7 @@
 # the base beside it (the experiment README says which)
 demo/synthetic-meadow/shepherd_pack.llp  pack: extends meadow (demo/synthetic-meadow/meadow.llp)
 domains/rddl/elevators/iter2-world/pack1.llp  pack: extends the iter2 base (iter2-world/base.llp)
+# a fragment unit of the road family (levelk-intersection s-5be9291b): it reads planner_domain.llp's vocabulary and
+# includes nothing (one unit taken twice is rule-duplicate, spec 18 §2.3: the car's planner.llp brings the base through
+# change.llp, then this unit); its typing is diagnosed through domains/road/planner/planner.llp, which includes it
+domains/road/levelk.llp  fragment: typed through planner/planner.llp (includes planner_domain.llp via change.llp, then levelk.llp)
